@@ -1,0 +1,12 @@
+{
+  "workbench.startupEditor": "terminal",
+  "terminal.integrated.cwd": "/home/nhoaking/Zenith/Jarvis/jarvis-streamdeck",
+  "terminal.integrated.automationProfile.linux": {
+    "path": "/bin/bash",
+    "args": [
+      "-c",
+      "source ~/miniconda3/etc/profile.d/conda.sh && conda activate jarvis-mamba && exec bash"
+    ]
+  },
+}
+

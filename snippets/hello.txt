@@ -1,0 +1,7 @@
+def my_function(arg1, arg2):
+    \"\"\"Describe function here\"\"\"
+    pass
+
+class MyClass:
+    def __init__(self):
+        pass
