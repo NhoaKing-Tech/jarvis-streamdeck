@@ -5,7 +5,7 @@
 source ~/miniconda3/etc/profile.d/conda.sh
 
 # Activate env
-conda activate jarvis-mamba
+conda activate jarvis-busybee
 
 # Run script
-exec python ~/Zenith/Jarvis/jarvis-streamdeck/run_jarvis.py
+exec python ~/Zenith/jarvis-streamdeck/run_jarvis.py

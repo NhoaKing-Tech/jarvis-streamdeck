@@ -29,7 +29,7 @@ def render_key_image(deck, icon_filename, font_filename, label_text):
     # leaving a margin at the bottom so that we can draw the key title
     # afterwards.
     icon = Image.open(icon_filename)
-    image = PILHelper.create_scaled_key_image(deck, icon, margins=[0, 0, 20, 0])
+    image = PILHelper.create_scaled_key_image(deck, icon, margins=(0, 0, 20, 0))
 
     # Load a custom TrueType font and use it to overlay the key index, draw key
     # label onto the image a few pixels from the bottom of the key.

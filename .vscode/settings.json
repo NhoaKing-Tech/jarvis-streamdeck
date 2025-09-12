@@ -1,12 +1,19 @@
 {
   "workbench.startupEditor": "terminal",
-  "terminal.integrated.cwd": "/home/nhoaking/Zenith/Jarvis/jarvis-streamdeck",
+  "terminal.integrated.cwd": "/home/nhoaking/Zenith/jarvis-streamdeck",
   "terminal.integrated.automationProfile.linux": {
     "path": "/bin/bash",
     "args": [
       "-c",
-      "source ~/miniconda3/etc/profile.d/conda.sh && conda activate jarvis-mamba && exec bash"
+      "source ~/miniconda3/etc/profile.d/conda.sh && conda activate jarvis-busybee && exec bash"
     ]
   },
+  "workbench.colorCustomizations": {
+    "[Sweet Dracula Monokai]": {
+      "titleBar.activeBackground": "#1013b1",  // top title bar
+      "statusBar.background": "#1013b1",        // bottom status bar
+      "sideBar.background": "#03084660",
+    }
+  }
 }
 

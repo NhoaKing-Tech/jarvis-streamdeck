@@ -4,12 +4,16 @@ import sys
 from StreamDeck.DeviceManager import DeviceManager # Class DeviceManager from the original repo
 from StreamDeck.ImageHelpers import PILHelper
 from PIL import Image, ImageDraw, ImageFont
-from functools import partial
 
-# Dictionary to hold different grids
-grids = {}
+# Directories for assets: code snippets and icons to display in the keys of the steamdeck
+FONT_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "font", "Roboto-Regular.ttf")
+ICONS_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "jarvisicons")
+SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "snippets")
 
-# --- Keycodes & helpers ---
+# Dictionary to hold different layouts
+layouts = {}
+
+# Keycode mapping for ydotool
 KEYCODES = {
     # Letters
     "A": 30, "B": 48, "C": 46, "D": 32, "E": 18,
@@ -18,10 +22,10 @@ KEYCODES = {
     "P": 25, "Q": 16, "R": 19, "S": 31, "T": 20,
     "U": 22, "V": 47, "W": 17, "X": 45, "Y": 21,
     "Z": 44,
-    # Numbers (top row)
+    # Numbers
     "1": 2, "2": 3, "3": 4, "4": 5, "5": 6,
     "6": 7, "7": 8, "8": 9, "9": 10, "0": 11,
-    # Function keys
+    # Function
     "F1": 59, "F2": 60, "F3": 61, "F4": 62,
     "F5": 63, "F6": 64, "F7": 65, "F8": 66,
     "F9": 67, "F10": 68, "F11": 87, "F12": 88,
@@ -29,7 +33,7 @@ KEYCODES = {
     "CTRL": 29, "SHIFT": 42, "ALT": 56,
     "RIGHTCTRL": 97, "RIGHTSHIFT": 54, "RIGHTALT": 100,
     "SUPER": 125,
-    # Special keys
+    # Special
     "ESC": 1, "TAB": 15, "CAPSLOCK": 58,
     "SPACE": 57, "ENTER": 28, "BACKSPACE": 14,
     # Navigation
@@ -42,29 +46,24 @@ KEYCODES = {
     "BACKSLASH": 43, "SEMICOLON": 39,
     "APOSTROPHE": 40, "GRAVE": 41,
     "COMMA": 51, "DOT": 52, "SLASH": 53,
-    # Numpad
-    "NUMLOCK": 69, "KPSLASH": 98, "KPASTERISK": 55, "KPMINUS": 74,
-    "KPPLUS": 78, "KPENTER": 96, "KPDOT": 83,
-    "KP0": 82, "KP1": 79, "KP2": 80, "KP3": 81, "KP4": 75,
-    "KP5": 76, "KP6": 77, "KP7": 71, "KP8": 72, "KP9": 73,
 }
 
-SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "snippets")
-ICONS_DIR = os.path.join(os.path.dirname(__file__), "jarvisicons")
-
 def insert_snippet(snippet_name):
+    """
+    Function to open desired snippet and type the content calling type_text function.
+    """
     snippet_path = os.path.join(SNIPPETS_DIR, snippet_name + ".txt")
     if not os.path.exists(snippet_path):
         print(f"Snippet {snippet_name} not found at {snippet_path}")
-        return
-    
+        return  
     with open(snippet_path, "r") as f:
         content = f.read()
-
-    # Type text into active window
     type_text(content)
 
 def hot_keys(*keys):
+    """
+    Function to simulate hotkeys (press and release of keys) using ydotool
+    """
     seq = []
     for key in keys:
         seq.append(f"{KEYCODES[key]}:1")
@@ -73,36 +72,50 @@ def hot_keys(*keys):
     subprocess.Popen(["/home/nhoaking/ydotool/build/ydotool", "key"] + seq)
 
 def type_text(text):
+    """
+    Function to type text using ydotool. Includes "--" to handle if text starts with "-" 
+    """
     subprocess.Popen(
         ["/home/nhoaking/ydotool/build/ydotool", "type", "--", text]
     )
 
-def paint_button(deck, key, label=None, icon=None, color="blue"):
-    # If an icon is provided, try to load it
+# Button rendering function.
+def paint_button(deck, key, label=None, icon=None, color=str("black")):
+    """
+    Function to handle aesthetics of the buttons/keys on the StreamDeck.
+    Parameters:
+    deck: the StreamDeck device
+    key: the key index (0-31 in my case for the ElGato XL StreamDeck)
+    label: optional text label to display on the button
+    icon: optional icon filename to display on the button
+    color: background color (used as fallback when icon not found, or as background for icons)
+    """
+    # If an icon is provided, load it and scale it. Otherwise, use a solid color. If the icon is not found, fall back to color.
     if icon:
-        icon_path = os.path.join(ICONS_DIR, icon)
-        if os.path.exists(icon_path):
-            icon_img = Image.open(icon_path)
-            margins = (10, 10, 10, 10) if not label else (0, 0, 20, 0)
-            key_image = PILHelper.create_scaled_key_image(
-                deck, icon_img, margins=margins, background="black"
+        icon_path = os.path.join(ICONS_DIR, icon) # Path to the icon file
+        if os.path.exists(icon_path): # Check if the icon file exists
+            icon_img = Image.open(icon_path) # Load the icon image
+            # Scale and center the icon with margins. # margin = (top, right, bottom, left)
+            # No margins if no label, but more bottom margin if there is a label, so that the label text doesn't overlap the icon.
+            margins = (0, 0, 0, 0) if not label else (0, 0, 20, 0)
+            key_image = PILHelper.create_scaled_key_image( # Create the key image with the icon using PILHelper from the original repo
+                deck, icon_img, margins=margins, background=color # Background black by default
             )
         else:
-            print(f"Warning: icon {icon_path} not found, falling back to color")
-            key_image = PILHelper.create_key_image(deck, background=color)
+            print(f"Warning: icon {icon_path} not found, falling back to color") # If executing from a service, this will not appear anywhere. It is here for debugging if the script is executed from a terminal.
+            key_image = PILHelper.create_key_image(deck, background="red") # Fallback to red background if icon not found
     else:
         # Just a background if no icon
-        key_image = PILHelper.create_key_image(deck, background=color)
+        key_image = PILHelper.create_key_image(deck, background=color) # Use specified color
 
-    # Draw label if provided
+    # Include label if provided with the ImageDraw module from PIL
     if label:
         draw = ImageDraw.Draw(key_image)
         try:
-            font_path = os.path.join(os.path.dirname(__file__), "jarvisassets", "Roboto-Regular.ttf")
-            font = ImageFont.truetype(font_path, 16)  # adjust size here
+            font = ImageFont.truetype(FONT_DIR, 16)  # adjust size of font here
         except OSError:
-            print("Could not load RobotoMono, using default font.")
-            font = ImageFont.load_default()
+            print("Could not load the font, check the font path and the font format (it must be .ttf).")
+            font = ImageFont.load_default() #fallback to default font if custom font not found
 
         # Center text at bottom
         draw.text(
@@ -113,21 +126,25 @@ def paint_button(deck, key, label=None, icon=None, color="blue"):
             fill="white"
         )
 
-    # Push to deck
+    # Convert to native format and set the key image on the deck
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image))
 
 
 # --- Actions ---
-def open_vscode_mamba():
-    project_path = "/home/nhoaking/Zenith/Mamba"
+def open_vscode_busybee():
+    project_path = "/home/nhoaking/Zenith/busybee"
     subprocess.Popen([
         "code", project_path,
     ])
     time.sleep(2)
     hot_keys("CTRL", "SHIFT", "GRAVE")
 
+
+def open_obsidian():
+    subprocess.Popen(["obsidian"])
+
 def open_vscode_jarvis():
-    project_path = "/home/nhoaking/Zenith/Jarvis/jarvis-streamdeck"
+    project_path = "/home/nhoaking/Zenith/jarvis-streamdeck"
     subprocess.Popen([
         "code", project_path,
     ])
@@ -143,18 +160,26 @@ def open_spotify():
         # Spotify not running, the starts the app.
         subprocess.Popen(["spotify"])  
 
+def open_nautilus():
+    subprocess.Popen(["nautilus", "/home/nhoaking"])
+
+def open_terminal_env():
+    subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/test/open_jarvisbusybee_env_T.sh"])
 
 def open_terminal():
-    subprocess.Popen(["/home/nhoaking/Zenith/Jarvis/jarvis-streamdeck/test/open_jarvismamba_env_T.sh"])
-
-def open_terminal_default():
     hot_keys("CTRL", "ALT", "T")
 
 def open_github():
     subprocess.Popen(["xdg-open", "https://github.com/NhoaKing-Tech"])
 
+def open_shine():
+    subprocess.Popen(["xdg-open", "https://www.youtube.com/watch?v=x53OGmkT-eM&list=RDx53OGmkT-eM&start_radio=1"])
+
 def open_chat():
     subprocess.Popen(["xdg-open", "https://chatgpt.com/g/g-p-68b9273a9e488191b335ed4477655eeb-zenith/project"])
+
+def open_claude():
+    subprocess.Popen(["xdg-open", "https://claude.ai/project/01993cb6-a107-7274-8d75-4368cc08d1b1"])
 
 def toggle_output_mute():
     subprocess.Popen(["amixer", "set", "Master", "toggle"])
@@ -177,9 +202,9 @@ def toggle_mic(deck, key):
 
     # Update button icon
     if muted:
-        paint_button(deck, key, label="Mic", icon="mic-off.png", color="red")
+        paint_button(deck, key, label="OFF", icon="mic-off.png")
     else:
-        paint_button(deck, key, label="Mic", icon="mic-on.png", color="green")
+        paint_button(deck, key, label="ON", icon="mic-on.png")
 
 def type_message():
     type_text("Hello from StreamDeck!")
@@ -193,9 +218,6 @@ def copy():
 def paste():
     hot_keys("CTRL", "V")
 
-def open_firefox():
-    subprocess.Popen(["firefox"])
-
 def type_hola():
     type_text("Hola!")
 
@@ -208,7 +230,7 @@ def release_all_keys():
 def switch_page(page_name):
     global current_page
     current_page = page_name
-    render_page(grids[page_name])
+    render_page(layouts[page_name])
 
 def render_page(page):
     if deck and deck.is_open():
@@ -220,36 +242,79 @@ def render_page(page):
             key,
             props.get("label"),
             props.get("icon"),
-            props.get("color", "black")
+            props.get("color")
         )
 
 current_page = "main"
 
+# 0,1,2,3,4,5,6,7
+# 8,9,10,11,12,13,14,15
+# 16,17,18,19,20,21,22,23
+# 24,25,26,27,28,29,30,31
+
 # Main page layout
-grids["main"] = {
-    0: {"color": "purple", "icon": "spoti.png", "action": open_spotify},
-    1: {"icon": "chat.png", "action": open_chat},
-    2: {"icon": "github.png", "action": open_github},
-    3: {"icon": "jarvis.png", "action": open_vscode_jarvis},
-    4: {"icon": "mamba.png", "action": open_vscode_mamba},
-    5: {"icon": "terminalJM.png", "action": open_terminal},
-    6: {"icon": "defaultTerminal.png", "action": open_terminal_default},
-    7: {"label": "Text", "color": "pink", "action": type_message},
-    8: {"label": "Copy", "color": "blue", "action": copy},
-    9: {"label": "Paste", "color": "yellow", "action": paste},
-    10: {"label": "Firefox", "color": "orange", "action": open_firefox},
-    11: {"label": "Hola", "color": "blue", "action": type_hola},
-    12: {"label": "More", "color": "purple", "action": lambda: switch_page("terminal")},
-    30: {"icon": "mic-fill.png", "color": "green", "action": lambda: toggle_mic(deck, 31)},
+layouts["main"] = {
+    0: {"icon": "spotify.png", "action": open_spotify},
+    1: {"icon": "obsidian.png", "action": open_obsidian},
+    8: {"icon": "chatgpt.png", "action": open_chat},
+    9: {"icon": "claude.png", "action": open_claude},
+    
+    4: {"icon": "github.png", "color": "#2f3036", "action": open_github},
+    5: {"icon": "jarviscode.png", "action": open_vscode_jarvis},
+    6: {"icon": "busybeecode.png", "action": open_vscode_busybee},
+    7: {"icon": "busybee.png", "action": lambda: switch_page("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
+    8: {"icon": "terminal.png", "action": open_terminal},
+    9: {"icon": "terminalenv.png", "action": open_terminal_env},
+    10: {"icon": "python.png", "action": lambda: switch_page("python")},
+    11: {"icon": "git.png", "color": "#2f3036", "action": lambda: switch_page("git")},
+    12: {"icon": "terminal_layout.png", "action": lambda: switch_page("terminal_layout")},
+    13: {"icon": "nautilus.png", "action": open_nautilus}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+    #9: {"label": "Text", "color": "pink", "action": type_message},
+    #10: {"label": "Copy", "color": "blue", "action": copy},
+    #11: {"label": "Paste", "color": "pink", "action": paste},
+    #12: {"label": "Hola", "color": "blue", "action": type_hola},
+    #13: {"label": "More", "color": "purple", "action": lambda: switch_page("terminal")},
+    #14: {"icon": "shine.png", "action": open_shine},
+    
+    31: {"icon": "mic-fill.png", "action": lambda: toggle_mic(deck, 31)},
 }
 
 # Terminal page layout
-grids["terminal"] = {
+layouts["terminal"] = {
     0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
 }
+
+layouts["busybee"] = {
+    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
+}
+
+layouts["python"] = {
+    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
+}
+
+layouts["git"] = {
+    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
+}
+
+layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
+}
+
 
 
 # --- Cleanup ---
@@ -274,9 +339,9 @@ def safe_exit(deck=None):
 
 # --- Event handler ---
 def key_change(deck, key, state):
-    if state and key in grids[current_page]:
+    if state and key in layouts[current_page]:
         try:
-            grids[current_page][key]["action"]()
+            layouts[current_page][key]["action"]()
         except:
             pass
 
@@ -304,7 +369,7 @@ deck.open()
 deck.reset()
 
 # Render buttons
-render_page(grids[current_page])
+render_page(layouts[current_page])
 
 # Register key handler
 deck.set_key_callback(key_change)

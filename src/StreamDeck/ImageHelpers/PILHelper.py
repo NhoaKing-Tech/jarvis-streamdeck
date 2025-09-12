@@ -23,6 +23,7 @@ def _scale_image(image, image_format, margins=(0, 0, 0, 0), background='black'):
 
     thumbnail_max_width = final_image.width - (margins[1] + margins[3])
     thumbnail_max_height = final_image.height - (margins[0] + margins[2])
+    # margin = (top, right, bottom, left)
 
     thumbnail = image.convert("RGBA")
     thumbnail.thumbnail((thumbnail_max_width, thumbnail_max_height), Image.LANCZOS)
