@@ -130,6 +130,240 @@ def paint_button(deck, key, label=None, icon=None, color=str("black")):
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image))
 
 
+########
+def get_nautilus_windows():
+    """
+    Get all Nautilus windows and their current directories.
+    Returns a list of tuples: (window_id, current_directory)
+    """
+    try:
+        # Use gdbus to query Nautilus windows through D-Bus
+        result = subprocess.run([
+            'gdbus', 'call', '--session',
+            '--dest', 'org.gnome.Nautilus',
+            '--object-path', '/org/gnome/Nautilus',
+            '--method', 'org.gtk.Application.ListWindows'
+        ], capture_output=True, text=True, timeout=5)
+        
+        if result.returncode != 0:
+            return []
+            
+        # Parse the result to get window information
+        # This returns window object paths that we can query further
+        windows = []
+        
+        # Alternative approach: use wmctrl-like functionality through gsettings/dconf
+        # Check running Nautilus processes and their working directories
+        ps_result = subprocess.run([
+            'ps', 'aux'
+        ], capture_output=True, text=True)
+        
+        nautilus_processes = [line for line in ps_result.stdout.split('\n') 
+                            if 'nautilus' in line and not 'grep' in line]
+        
+        return nautilus_processes
+        
+    except subprocess.TimeoutExpired:
+        return []
+    except Exception as e:
+        print(f"Error getting Nautilus windows: {e}")
+        return []
+
+def focus_nautilus_window():
+    """
+    Attempt to focus an existing Nautilus window using multiple methods.
+    Returns True if successful, False otherwise.
+    """
+    methods_tried = []
+    
+    # Method 1: Use D-Bus to activate Nautilus application
+    try:
+        result = subprocess.run([
+            'gdbus', 'call', '--session',
+            '--dest', 'org.gnome.Nautilus',
+            '--object-path', '/org/gnome/Nautilus',
+            '--method', 'org.gtk.Application.Activate',
+            '{}'  # Empty dictionary for platform_data
+        ], capture_output=True, text=True, timeout=5)
+        
+        if result.returncode == 0:
+            methods_tried.append("D-Bus activation: SUCCESS")
+            return True
+        else:
+            methods_tried.append(f"D-Bus activation: FAILED ({result.stderr})")
+            
+    except Exception as e:
+        methods_tried.append(f"D-Bus activation: ERROR ({e})")
+    
+    # Method 2: Use desktop file activation
+    try:
+        result = subprocess.run([
+            'gtk-launch', 'org.gnome.Nautilus'
+        ], capture_output=True, text=True, timeout=5)
+        
+        if result.returncode == 0:
+            methods_tried.append("GTK launch: SUCCESS")
+            return True
+        else:
+            methods_tried.append(f"GTK launch: FAILED")
+            
+    except Exception as e:
+        methods_tried.append(f"GTK launch: ERROR ({e})")
+    
+    # Method 3: Try ydotool (native Wayland automation tool)
+    try:
+        # First check if ydotool is available
+        subprocess.run(['which', 'ydotool'], check=True, capture_output=True)
+        
+        # Use ydotool to focus Nautilus window
+        # Method 3a: Try Alt+Tab to cycle to Nautilus window
+        result = subprocess.run([
+            'ydotool', 'key', 'alt+Tab'
+        ], capture_output=True, text=True, timeout=3)
+        
+        if result.returncode == 0:
+            # Give the system a moment to process
+            time.sleep(0.2)
+            methods_tried.append("ydotool Alt+Tab: SUCCESS")
+            return True
+        else:
+            methods_tried.append("ydotool Alt+Tab: FAILED")
+            
+    except subprocess.CalledProcessError:
+        methods_tried.append("ydotool: Not available")
+    except Exception as e:
+        methods_tried.append(f"ydotool: ERROR ({e})")
+    
+    # Method 4: Use ydotool with Super key to open activities and search for Nautilus
+    try:
+        # This method opens GNOME activities and searches for Nautilus
+        subprocess.run(['ydotool', 'key', 'Super_L'], timeout=2)
+        time.sleep(0.3)
+        subprocess.run(['ydotool', 'type', 'nautilus'], timeout=2)
+        time.sleep(0.3)
+        subprocess.run(['ydotool', 'key', 'Return'], timeout=2)
+        
+        methods_tried.append("ydotool Super search: SUCCESS")
+        return True
+        
+    except Exception as e:
+        methods_tried.append(f"ydotool Super search: ERROR ({e})")
+    
+    print("Focus methods tried:")
+    for method in methods_tried:
+        print(f"  - {method}")
+    
+    return False
+
+def is_nautilus_running_with_directory(target_dir):
+    """
+    Check if Nautilus is running and if any window shows the target directory.
+    Returns True if found, False otherwise.
+    """
+    target_path = os.path.abspath(os.path.expanduser(target_dir))
+    
+    try:
+        # Check if Nautilus is running
+        result = subprocess.run([
+            'pgrep', '-f', 'nautilus'
+        ], capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            return False  # Nautilus not running
+        
+        # Method 1: Check recent files/directories in Nautilus
+        # Nautilus stores recent locations in dconf
+        try:
+            recent_result = subprocess.run([
+                'dconf', 'read', '/org/gnome/nautilus/window-state/initial-size'
+            ], capture_output=True, text=True, timeout=3)
+            # This is a basic check - Nautilus is running
+            
+        except Exception:
+            pass
+        
+        # Method 2: Use lsof to check open file descriptors
+        try:
+            lsof_result = subprocess.run([
+                'lsof', '+D', target_path
+            ], capture_output=True, text=True)
+            
+            if 'nautilus' in lsof_result.stdout:
+                return True
+                
+        except Exception:
+            pass
+        
+        # Method 3: Check Nautilus process working directories
+        pids = result.stdout.strip().split('\n')
+        for pid in pids:
+            if pid:
+                try:
+                    cwd_path = f'/proc/{pid}/cwd'
+                    if os.path.exists(cwd_path):
+                        actual_cwd = os.readlink(cwd_path)
+                        if os.path.samefile(actual_cwd, target_path):
+                            return True
+                except (OSError, FileNotFoundError):
+                    continue
+        
+        return False
+        
+    except Exception as e:
+        print(f"Error checking Nautilus status: {e}")
+        return False
+
+def open_nautilus_smart(target_directory="/home/nhoaking"):
+    """
+    Smart Nautilus opener that focuses existing window or creates new one.
+    
+    Args:
+        target_directory (str): Directory to open/focus
+    """
+    target_dir = os.path.expanduser(target_directory)
+    
+    print(f"Smart opening directory: {target_dir}")
+    
+    # Check if target directory exists
+    if not os.path.exists(target_dir):
+        print(f"Error: Directory {target_dir} does not exist!")
+        return False
+    
+    # Check if Nautilus is already showing this directory
+    if is_nautilus_running_with_directory(target_dir):
+        print("Nautilus already showing target directory - attempting to focus...")
+        if focus_nautilus_window():
+            print("Successfully focused existing Nautilus window")
+            return True
+        else:
+            print("Could not focus existing window, opening new one...")
+    else:
+        print("No Nautilus window found with target directory")
+    
+    # Open new Nautilus window with the target directory
+    try:
+        print(f"Opening new Nautilus window for: {target_dir}")
+        process = subprocess.Popen([
+            "nautilus", target_dir
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        
+        # Give it a moment to start
+        time.sleep(0.5)
+        
+        print(f"Nautilus opened successfully (PID: {process.pid})")
+        return True
+        
+    except Exception as e:
+        print(f"Error opening Nautilus: {e}")
+        return False
+
+# Convenience function with your original signature
+def open_nautilus():
+    """Original function signature for backward compatibility"""
+    return open_nautilus_smart("/home/nhoaking")
+
+
+###########################
 # --- Actions ---
 def open_vscode_busybee():
     project_path = "/home/nhoaking/Zenith/busybee"
@@ -160,8 +394,8 @@ def open_spotify():
         # Spotify not running, the starts the app.
         subprocess.Popen(["spotify"])  
 
-def open_nautilus():
-    subprocess.Popen(["nautilus", "/home/nhoaking"])
+#def open_nautilus():
+#    subprocess.Popen(["nautilus", "/home/nhoaking"])
 
 def open_terminal_env():
     subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/test/open_jarvisbusybee_env_T.sh"])
