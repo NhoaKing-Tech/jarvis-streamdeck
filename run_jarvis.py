@@ -4,6 +4,8 @@ import sys
 from StreamDeck.DeviceManager import DeviceManager # Class DeviceManager from the original repo
 from StreamDeck.ImageHelpers import PILHelper
 from PIL import Image, ImageDraw, ImageFont
+import webbrowser
+from urllib.parse import urlparse
 
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
 FONT_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "font", "Roboto-Regular.ttf")
@@ -46,6 +48,26 @@ KEYCODES = {
     "BACKSLASH": 43, "SEMICOLON": 39,
     "APOSTROPHE": 40, "GRAVE": 41,
     "COMMA": 51, "DOT": 52, "SLASH": 53,
+}
+
+APP_CONFIG = {
+    'nautilus': {
+        'process_name': 'nautilus',
+        'dbus_dest': 'org.gnome.Nautilus',
+        'dbus_path': '/org/gnome/Nautilus',
+        'command': ['nautilus'],
+        'type': 'file_manager'
+    },
+    'obsidian': {
+        'process_name': 'obsidian',
+        'command': ['obsidian'],
+        'type': 'application'
+    },
+    'chrome': {
+        'process_name': 'chrome',
+        'command': ['google-chrome'],
+        'type': 'browser'
+    }
 }
 
 def insert_snippet(snippet_name):
@@ -131,130 +153,6 @@ def paint_button(deck, key, label=None, icon=None, color=str("black")):
 
 
 ########
-def get_nautilus_windows():
-    """
-    Get all Nautilus windows and their current directories.
-    Returns a list of tuples: (window_id, current_directory)
-    """
-    try:
-        # Use gdbus to query Nautilus windows through D-Bus
-        result = subprocess.run([
-            'gdbus', 'call', '--session',
-            '--dest', 'org.gnome.Nautilus',
-            '--object-path', '/org/gnome/Nautilus',
-            '--method', 'org.gtk.Application.ListWindows'
-        ], capture_output=True, text=True, timeout=5)
-        
-        if result.returncode != 0:
-            return []
-            
-        # Parse the result to get window information
-        # This returns window object paths that we can query further
-        windows = []
-        
-        # Alternative approach: use wmctrl-like functionality through gsettings/dconf
-        # Check running Nautilus processes and their working directories
-        ps_result = subprocess.run([
-            'ps', 'aux'
-        ], capture_output=True, text=True)
-        
-        nautilus_processes = [line for line in ps_result.stdout.split('\n') 
-                            if 'nautilus' in line and not 'grep' in line]
-        
-        return nautilus_processes
-        
-    except subprocess.TimeoutExpired:
-        return []
-    except Exception as e:
-        print(f"Error getting Nautilus windows: {e}")
-        return []
-
-def focus_nautilus_window():
-    """
-    Attempt to focus an existing Nautilus window using multiple methods.
-    Returns True if successful, False otherwise.
-    """
-    methods_tried = []
-    
-    # Method 1: Use D-Bus to activate Nautilus application
-    try:
-        result = subprocess.run([
-            'gdbus', 'call', '--session',
-            '--dest', 'org.gnome.Nautilus',
-            '--object-path', '/org/gnome/Nautilus',
-            '--method', 'org.gtk.Application.Activate',
-            '{}'  # Empty dictionary for platform_data
-        ], capture_output=True, text=True, timeout=5)
-        
-        if result.returncode == 0:
-            methods_tried.append("D-Bus activation: SUCCESS")
-            return True
-        else:
-            methods_tried.append(f"D-Bus activation: FAILED ({result.stderr})")
-            
-    except Exception as e:
-        methods_tried.append(f"D-Bus activation: ERROR ({e})")
-    
-    # Method 2: Use desktop file activation
-    try:
-        result = subprocess.run([
-            'gtk-launch', 'org.gnome.Nautilus'
-        ], capture_output=True, text=True, timeout=5)
-        
-        if result.returncode == 0:
-            methods_tried.append("GTK launch: SUCCESS")
-            return True
-        else:
-            methods_tried.append(f"GTK launch: FAILED")
-            
-    except Exception as e:
-        methods_tried.append(f"GTK launch: ERROR ({e})")
-    
-    # Method 3: Try ydotool (native Wayland automation tool)
-    try:
-        # First check if ydotool is available
-        subprocess.run(['which', 'ydotool'], check=True, capture_output=True)
-        
-        # Use ydotool to focus Nautilus window
-        # Method 3a: Try Alt+Tab to cycle to Nautilus window
-        result = subprocess.run([
-            'ydotool', 'key', 'alt+Tab'
-        ], capture_output=True, text=True, timeout=3)
-        
-        if result.returncode == 0:
-            # Give the system a moment to process
-            time.sleep(0.2)
-            methods_tried.append("ydotool Alt+Tab: SUCCESS")
-            return True
-        else:
-            methods_tried.append("ydotool Alt+Tab: FAILED")
-            
-    except subprocess.CalledProcessError:
-        methods_tried.append("ydotool: Not available")
-    except Exception as e:
-        methods_tried.append(f"ydotool: ERROR ({e})")
-    
-    # Method 4: Use ydotool with Super key to open activities and search for Nautilus
-    try:
-        # This method opens GNOME activities and searches for Nautilus
-        subprocess.run(['ydotool', 'key', 'Super_L'], timeout=2)
-        time.sleep(0.3)
-        subprocess.run(['ydotool', 'type', 'nautilus'], timeout=2)
-        time.sleep(0.3)
-        subprocess.run(['ydotool', 'key', 'Return'], timeout=2)
-        
-        methods_tried.append("ydotool Super search: SUCCESS")
-        return True
-        
-    except Exception as e:
-        methods_tried.append(f"ydotool Super search: ERROR ({e})")
-    
-    print("Focus methods tried:")
-    for method in methods_tried:
-        print(f"  - {method}")
-    
-    return False
-
 def is_nautilus_running_with_directory(target_dir):
     """
     Check if Nautilus is running and if any window shows the target directory.
@@ -263,7 +161,7 @@ def is_nautilus_running_with_directory(target_dir):
     target_path = os.path.abspath(os.path.expanduser(target_dir))
     
     try:
-        # Check if Nautilus is running
+        # Check if Nautilus is running at all
         result = subprocess.run([
             'pgrep', '-f', 'nautilus'
         ], capture_output=True, text=True)
@@ -271,30 +169,7 @@ def is_nautilus_running_with_directory(target_dir):
         if result.returncode != 0:
             return False  # Nautilus not running
         
-        # Method 1: Check recent files/directories in Nautilus
-        # Nautilus stores recent locations in dconf
-        try:
-            recent_result = subprocess.run([
-                'dconf', 'read', '/org/gnome/nautilus/window-state/initial-size'
-            ], capture_output=True, text=True, timeout=3)
-            # This is a basic check - Nautilus is running
-            
-        except Exception:
-            pass
-        
-        # Method 2: Use lsof to check open file descriptors
-        try:
-            lsof_result = subprocess.run([
-                'lsof', '+D', target_path
-            ], capture_output=True, text=True)
-            
-            if 'nautilus' in lsof_result.stdout:
-                return True
-                
-        except Exception:
-            pass
-        
-        # Method 3: Check Nautilus process working directories
+        # Check if any Nautilus process is showing our target directory
         pids = result.stdout.strip().split('\n')
         for pid in pids:
             if pid:
@@ -313,36 +188,50 @@ def is_nautilus_running_with_directory(target_dir):
         print(f"Error checking Nautilus status: {e}")
         return False
 
-def open_nautilus_smart(target_directory="/home/nhoaking"):
+def focus_nautilus_window():
+    """
+    Focus existing Nautilus window using D-Bus activation.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        # Focusing existing Nautilus window via D-Bus
+        result = subprocess.run([
+            'gdbus', 'call', '--session',
+            '--dest', 'org.gnome.Nautilus',
+            '--object-path', '/org/gnome/Nautilus',
+            '--method', 'org.gtk.Application.Activate',
+            '{}'  # Empty dictionary for platform_data
+        ], capture_output=True, text=True, timeout=5)
+            
+    except Exception as e:
+        print(f"    ❌ ERROR: D-Bus activation error - {e}")
+        return False
+
+def open_nautilus_smart(target_directory: str = "/home/nhoaking"): # if no directory provided, open home directory
     """
     Smart Nautilus opener that focuses existing window or creates new one.
     
     Args:
         target_directory (str): Directory to open/focus
+        
+    Returns:
+        bool: True if successful, False otherwise
     """
     target_dir = os.path.expanduser(target_directory)
-    
-    print(f"Smart opening directory: {target_dir}")
-    
+        
     # Check if target directory exists
     if not os.path.exists(target_dir):
-        print(f"Error: Directory {target_dir} does not exist!")
+        print(f"Directory {target_dir} does not exist.")
         return False
-    
+        
     # Check if Nautilus is already showing this directory
     if is_nautilus_running_with_directory(target_dir):
-        print("Nautilus already showing target directory - attempting to focus...")
         if focus_nautilus_window():
-            print("Successfully focused existing Nautilus window")
+            print("Focused existing Nautilus window")
             return True
-        else:
-            print("Could not focus existing window, opening new one...")
-    else:
-        print("No Nautilus window found with target directory")
     
     # Open new Nautilus window with the target directory
     try:
-        print(f"Opening new Nautilus window for: {target_dir}")
         process = subprocess.Popen([
             "nautilus", target_dir
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -350,20 +239,218 @@ def open_nautilus_smart(target_directory="/home/nhoaking"):
         # Give it a moment to start
         time.sleep(0.5)
         
-        print(f"Nautilus opened successfully (PID: {process.pid})")
         return True
         
     except Exception as e:
-        print(f"Error opening Nautilus: {e}")
+        print(f"ERROR: Failed to open Nautilus - {e}")
         return False
 
-# Convenience function with your original signature
-def open_nautilus():
-    """Original function signature for backward compatibility"""
-    return open_nautilus_smart("/home/nhoaking")
-
+# Enhanced version that can take any directory
+def open_directory(target_directory: str = "/home/nhoaking"):
+    """
+    Open any directory with smart window management
+    
+    Args:
+        target_directory (str): Path to directory to open
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    return open_nautilus_smart(target_directory)
 
 ###########################
+###########################
+
+def is_url(string):
+    """Check if string is a valid URL"""
+    try:
+        result = urlparse(string)
+        return all([result.scheme, result.netloc])
+    except:
+        return False
+
+def is_application_running(app_name):
+    """
+    Check if an application is currently running.
+    Returns True if found, False otherwise.
+    """
+    if app_name not in APP_CONFIG:
+        # Try generic process check
+        try:
+            result = subprocess.run([
+                'pgrep', '-f', app_name
+            ], capture_output=True, text=True)
+            return result.returncode == 0
+        except:
+            return False
+    
+    config = APP_CONFIG[app_name]
+    process_name = config['process_name']
+    
+    try:
+        result = subprocess.run([
+            'pgrep', '-f', process_name
+        ], capture_output=True, text=True)
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Error checking {app_name} status: {e}")
+        return False
+
+def focus_generic_application(app_name):
+    """
+    Generic application focusing using desktop file or process signaling.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        # Method 2a: Try gtk-launch with desktop file
+        print(f"🎯 Trying GTK launch for {app_name}...")
+        
+        # Common desktop file patterns
+        desktop_patterns = [
+            f"{app_name}.desktop",
+            f"org.{app_name}.{app_name.title()}.desktop",
+            f"com.{app_name}.{app_name.title()}.desktop",
+        ]
+        
+        for pattern in desktop_patterns:
+            try:
+                result = subprocess.run([
+                    'gtk-launch', pattern
+                ], capture_output=True, text=True, timeout=5)
+                
+                if result.returncode == 0:
+                    print(f"    ✅ SUCCESS: GTK launch worked for {app_name}!")
+                    return True
+            except:
+                continue
+        
+        # Method 2b: Try sending SIGUSR1 to process (some apps respond to this)
+        print(f"🎯 Trying process signal for {app_name}...")
+        result = subprocess.run([
+            'pkill', '-SIGUSR1', app_name
+        ], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print(f"    ✅ SUCCESS: Process signal worked for {app_name}!")
+            return True
+            
+    except Exception as e:
+        print(f"    ❌ ERROR: Generic focus failed for {app_name} - {e}")
+    
+    print(f"    ❌ FAILED: Could not focus {app_name}")
+    return False
+
+def focus_application_window(app_name):
+    """
+    Focus existing application window using the best available method.
+    Returns True if successful, False otherwise.
+    """
+    if app_name not in APP_CONFIG:
+        print(f"Warning: {app_name} not in configuration, trying generic focus...")
+        return focus_generic_application(app_name)
+    
+    config = APP_CONFIG[app_name]
+    
+    # Method 1: Try D-Bus activation if available
+    if 'dbus_dest' in config and 'dbus_path' in config:
+        try:
+            print(f"🎯 Focusing {app_name} via D-Bus...")
+            result = subprocess.run([
+                'gdbus', 'call', '--session',
+                '--dest', config['dbus_dest'],
+                '--object-path', config['dbus_path'],
+                '--method', 'org.gtk.Application.Activate',
+                '{}'  # Empty dictionary for platform_data
+            ], capture_output=True, text=True, timeout=5)
+            
+            if result.returncode == 0:
+                print(f"    ✅ SUCCESS: D-Bus activation worked for {app_name}!")
+                return True
+            else:
+                print(f"    ❌ FAILED: D-Bus activation failed for {app_name}")
+                
+        except Exception as e:
+            print(f"    ❌ ERROR: D-Bus activation error for {app_name} - {e}")
+    
+    # Method 2: Try generic application focus
+    return focus_generic_application(app_name)
+
+def open_application(app_name, target=None):
+    """
+    Universal application launcher with smart window management.
+    
+    Args:
+        app_name (str): Name of application to open
+        target (str, optional): Specific target (directory for nautilus, URL for browsers, etc.)
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    
+    # Handle URLs
+    if is_url(app_name):
+        print(f"🌐 Opening URL: {app_name}")
+        try:
+            webbrowser.open(app_name)
+            return True
+        except Exception as e:
+            print(f"❌ ERROR: Failed to open URL - {e}")
+            return False
+    
+    # Handle file manager with directory
+    if app_name == 'nautilus' and target:
+        return open_nautilus_smart(target)
+    
+    print(f"🚀 Smart Launch: {app_name}")
+    
+    # Check if application is already running
+    if is_application_running(app_name):
+        print(f"✅ FOUND: {app_name} is already running")
+        if focus_application_window(app_name):
+            print(f"🎉 SUCCESS: Focused existing {app_name} window")
+            return True
+        else:
+            print(f"⚠️  FALLBACK: Could not focus existing {app_name}, opening new instance...")
+    else:
+        print(f"ℹ️  NOT FOUND: {app_name} is not currently running")
+    
+    # Launch new application instance
+    try:
+        if app_name in APP_CONFIG:
+            command = APP_CONFIG[app_name]['command'].copy()
+            if target:
+                command.append(target)
+        else:
+            # Generic command
+            command = [app_name]
+            if target:
+                command.append(target)
+        
+        print(f"🆕 Launching: {' '.join(command)}")
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        
+        # Give it a moment to start
+        time.sleep(1.0)
+        
+        print(f"✅ SUCCESS: {app_name} launched successfully (PID: {process.pid})")
+        return True
+        
+    except Exception as e:
+        print(f"❌ ERROR: Failed to launch {app_name} - {e}")
+        return False
+
+def open_website(url):
+    """
+    Open a website in the default browser
+    """
+    return open_application(url)
+
+
+
 # --- Actions ---
 def open_vscode_busybee():
     project_path = "/home/nhoaking/Zenith/busybee"
@@ -392,7 +479,7 @@ def open_spotify():
         subprocess.Popen(["playerctl", "--player=spotify", "play-pause"])
     else:
         # Spotify not running, the starts the app.
-        subprocess.Popen(["spotify"])  
+        subprocess.Popen(["spotify"])
 
 #def open_nautilus():
 #    subprocess.Popen(["nautilus", "/home/nhoaking"])
@@ -502,7 +589,7 @@ layouts["main"] = {
     10: {"icon": "python.png", "action": lambda: switch_page("python")},
     11: {"icon": "git.png", "color": "#2f3036", "action": lambda: switch_page("git")},
     12: {"icon": "terminal_layout.png", "action": lambda: switch_page("terminal_layout")},
-    13: {"icon": "nautilus.png", "action": open_nautilus}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+    13: {"icon": "nautilus.png", "action": lambda: open_directory("/home/nhoaking")}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
     #9: {"label": "Text", "color": "pink", "action": type_message},
     #10: {"label": "Copy", "color": "blue", "action": copy},
     #11: {"label": "Paste", "color": "pink", "action": paste},
