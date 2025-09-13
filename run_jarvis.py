@@ -1,3 +1,12 @@
+
+"""
+SCRIPT NAME: run_jarvis.py
+DESCRIPTION: Python script to run my stream deck XL with custom icons and actions.
+AUTHOR: NhoaKing
+FINISH DATE: September 14th 2025 (Sunday)
+NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, AS THE DBUS CALLS ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN EXECUTED FROM THE SYSTEM SERVICE.
+"""
+
 import subprocess, atexit, time, os
 import signal
 import sys
@@ -6,6 +15,7 @@ from StreamDeck.ImageHelpers import PILHelper
 from PIL import Image, ImageDraw, ImageFont
 import webbrowser
 from urllib.parse import urlparse
+import textwrap
 
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
 FONT_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "font", "Roboto-Regular.ttf")
@@ -102,354 +112,156 @@ def type_text(text):
     )
 
 # Button rendering function.
-def paint_button(deck, key, label=None, icon=None, color=str("black")):
+def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
     """
-    Function to handle aesthetics of the buttons/keys on the StreamDeck.
+    My function to handle the visual appearance of StreamDeck buttons or keys.
+    I can display either an icon, text, or both on each key. It handles the four main cases:
+    1. Icon and label: icon at top, label at bottom (it truncates if too long)
+    2. Only label: centered text, wrapped to multiple lines if needed
+    3. Only icon: maximized icon space
+    4. Neither icon nor label: solid color (default red to indicate error)
+    
     Parameters:
-    deck: the StreamDeck device
-    key: the key index (0-31 in my case for the ElGato XL StreamDeck)
-    label: optional text label to display on the button
-    icon: optional icon filename to display on the button
-    color: background color (used as fallback when icon not found, or as background for icons)
+    deck: stream deck device
+    key: key index (0-31 for my stream deck XL)
+    label: text to display (none if no label is desired)
+    icon: filename of icon to display (must be in ICONS_DIR)
+    color: background color when no icon is used. Default is black.
+    label_color: color for the text or label. Default is white.
     """
-    # If an icon is provided, load it and scale it. Otherwise, use a solid color. If the icon is not found, fall back to color.
-    if icon:
-        icon_path = os.path.join(ICONS_DIR, icon) # Path to the icon file
-        if os.path.exists(icon_path): # Check if the icon file exists
-            icon_img = Image.open(icon_path) # Load the icon image
-            # Scale and center the icon with margins. # margin = (top, right, bottom, left)
-            # No margins if no label, but more bottom margin if there is a label, so that the label text doesn't overlap the icon.
-            margins = (0, 0, 0, 0) if not label else (0, 0, 20, 0)
-            key_image = PILHelper.create_scaled_key_image( # Create the key image with the icon using PILHelper from the original repo
-                deck, icon_img, margins=margins, background=color # Background black by default
-            )
+    
+    # I load my custom font, with fallback to system default if it fails
+    try:
+        font = ImageFont.truetype(FONT_DIR, 16) # I am using 16 for my 96x96 keys.
+    except OSError:
+        print("Could not load your custom font, check the font path and the font format (it must be .ttf).")
+        font = ImageFont.load_default()
+    
+    # Case 1: Both icon and label
+    if label and icon:
+        icon_path = os.path.join(ICONS_DIR, icon)
+        if os.path.exists(icon_path):
+            icon_img = Image.open(icon_path)
+            # Give more bottom margin for text space
+            key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(10, 0, 30, 0), background=color) #use the specified background color, or black by default if not specified
         else:
-            print(f"Warning: icon {icon_path} not found, falling back to color") # If executing from a service, this will not appear anywhere. It is here for debugging if the script is executed from a terminal.
-            key_image = PILHelper.create_key_image(deck, background="red") # Fallback to red background if icon not found
-    else:
-        # Just a background if no icon
-        key_image = PILHelper.create_key_image(deck, background=color) # Use specified color
-
-    # Include label if provided with the ImageDraw module from PIL
-    if label:
+            # Icon file not found, fallback to red background for debugging
+            print(f"Warning: icon {icon_path} not found, falling back to color red")
+            key_image = PILHelper.create_key_image(deck, background="red")
+        
+        # Draw the icon with the margins as specified above to allow text/label space
         draw = ImageDraw.Draw(key_image)
-        try:
-            font = ImageFont.truetype(FONT_DIR, 16)  # adjust size of font here
-        except OSError:
-            print("Could not load the font, check the font path and the font format (it must be .ttf).")
-            font = ImageFont.load_default() #fallback to default font if custom font not found
-
-        # Center text at bottom
+        
+        # To include a clean label, I calculate how many characters fit in one line
+        sample_bbox = font.getbbox("a")
+        avg_char_width = sample_bbox[2] - sample_bbox[0]
+        chars_per_line = max(1, int(key_image.width // avg_char_width))
+        
+        # Truncate text if too long for one liner
+        if len(label) > chars_per_line:
+            display_text = label[:chars_per_line-3] + "..."
+        else:
+            display_text = label
+        
+        # Position text at bottom center
+        text_y = key_image.height - 20  # 20 pixels from bottom. Where the text starts.
         draw.text(
-            (key_image.width / 2, key_image.height - 5),
-            text=label,
+            (key_image.width // 2, text_y),
+            text=display_text,
             font=font,
-            anchor="ms",  # middle-south
-            fill="white"
+            anchor="mt",  # middle-top. It positions the top of the text at the calculated. 
+            # The anchor point defines which part of the text gets positioned at the coordinates specified. Since text_y is calculated as 20 pixels from the bottom, we want the top of the text to be positioned at that point, so the text extends downward from there.
+            fill=labelcolor # white text color per default (can be changed if needed)
         )
-
-    # Convert to native format and set the key image on the deck
+    
+    # Case 2: Only label (no icon)
+    elif label:
+        key_image = PILHelper.create_key_image(deck, background=color)
+        draw = ImageDraw.Draw(key_image)
+        
+        # This is used to estimate character width for text wrapping. Not very important to be super accurate, since the text will be wrapped anyway.
+        sample_bbox = font.getbbox("a") # To measure font metrics. Get average character width
+        # getbbox() returns a bounding box (rectangle coordinates) that would completely contain the given text when rendered. The return value is a tuple: (left, top, right, bottom) in pixels.
+        avg_char_width = sample_bbox[2] - sample_bbox[0]
+        chars_per_line = max(1, int(key_image.width // avg_char_width))
+        
+        # Wrap text to multiple lines
+        wrapped_lines = textwrap.wrap(label, width=chars_per_line)
+        
+        # This is used to estimate character height for vertical centering
+        line_bbox = font.getbbox("Ay")
+        #Why "Ay" specifically:
+        # This is a smart choice of characters to measure:
+        #"A" - A tall uppercase letter that reaches the full height (ascender)
+        #"y" - A lowercase letter with a descender (the part that hangs below the baseline)
+        #Together, "Ay" gives you the maximum possible height any normal text could have in that font - from the top of tall letters to the bottom of letters with tails.
+        ## If getbbox("Ay") returns (0, -2, 15, 18), then:
+        #left = 0    # leftmost pixel of the text
+        #top = -2    # topmost pixel (negative because it's above baseline)
+        #right = 15  # rightmost pixel  
+        #bottom = 18 # bottommost pixel (includes descender for 'y')
+        line_height = line_bbox[3] - line_bbox[1]
+        total_text_height = len(wrapped_lines) * line_height
+        
+        # Center text vertically
+        start_y = (key_image.height - total_text_height) // 2
+        
+        # Draw each line
+        for i, line in enumerate(wrapped_lines):
+            y_pos = start_y + (i * line_height)
+            # anchor="mt": position the top of each text line at y_pos
+            # This ensures consistent line spacing as each line flows downward
+            draw.text(
+                (key_image.width // 2, y_pos),  # x=center, y=calculated position
+                text=line,
+                font=font,
+                anchor="mt",  # middle-top: center horizontally, position top edge at y coordinate
+                fill=labelcolor # white text color per default (can be changed if needed)
+            )
+    
+    # Case 3: Only icon (no label)
+    elif icon:
+        icon_path = os.path.join(ICONS_DIR, icon)
+        if os.path.exists(icon_path):
+            icon_img = Image.open(icon_path)
+            # No margins needed, maximize icon space
+            key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(0, 0, 0, 0), background=color)
+        else:
+            print(f"Warning: icon {icon_path} not found, falling back to color red")
+            key_image = PILHelper.create_key_image(deck, background="red")
+    
+    # Case 4: Neither icon nor label, just color. Default to red to indicate a problem, signaling that nothing has been set for this key.
+    else:
+        key_image = PILHelper.create_key_image(deck, background=color if color else "red")
+    
+    # Set the key image on the deck
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image))
 
+def open_or_raise_nautilus(target_dir):
+    target_dir = os.path.abspath(target_dir)
 
-########
-def is_nautilus_running_with_directory(target_dir):
-    """
-    Check if Nautilus is running and if any window shows the target directory.
-    Returns True if found, False otherwise.
-    """
-    target_path = os.path.abspath(os.path.expanduser(target_dir))
-    
-    try:
-        # Check if Nautilus is running at all
-        result = subprocess.run([
-            'pgrep', '-f', 'nautilus'
-        ], capture_output=True, text=True)
-        
-        if result.returncode != 0:
-            return False  # Nautilus not running
-        
-        # Check if any Nautilus process is showing our target directory
-        pids = result.stdout.strip().split('\n')
-        for pid in pids:
-            if pid:
-                try:
-                    cwd_path = f'/proc/{pid}/cwd'
-                    if os.path.exists(cwd_path):
-                        actual_cwd = os.readlink(cwd_path)
-                        if os.path.samefile(actual_cwd, target_path):
-                            return True
-                except (OSError, FileNotFoundError):
-                    continue
-        
-        return False
-        
-    except Exception as e:
-        print(f"Error checking Nautilus status: {e}")
-        return False
+    # Step 1: Check if a Nautilus window with this directory exists
+    wmctrl_output = subprocess.check_output(["wmctrl", "-lx"], text=True)
 
-def focus_nautilus_window():
-    """
-    Focus existing Nautilus window using D-Bus activation.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        # Focusing existing Nautilus window via D-Bus
-        result = subprocess.run([
-            'gdbus', 'call', '--session',
-            '--dest', 'org.gnome.Nautilus',
-            '--object-path', '/org/gnome/Nautilus',
-            '--method', 'org.gtk.Application.Activate',
-            '{}'  # Empty dictionary for platform_data
-        ], capture_output=True, text=True, timeout=5)
-            
-    except Exception as e:
-        print(f"    ❌ ERROR: D-Bus activation error - {e}")
-        return False
+    for line in wmctrl_output.splitlines():
+        if "org.gnome.Nautilus" in line:
+            win_id = line.split()[0]
+            window_title = " ".join(line.split()[3:])
 
-def open_nautilus_smart(target_directory: str = "/home/nhoaking"): # if no directory provided, open home directory
-    """
-    Smart Nautilus opener that focuses existing window or creates new one.
-    
-    Args:
-        target_directory (str): Directory to open/focus
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    target_dir = os.path.expanduser(target_directory)
-        
-    # Check if target directory exists
-    if not os.path.exists(target_dir):
-        print(f"Directory {target_dir} does not exist.")
-        return False
-        
-    # Check if Nautilus is already showing this directory
-    if is_nautilus_running_with_directory(target_dir):
-        if focus_nautilus_window():
-            print("Focused existing Nautilus window")
-            return True
-    
-    # Open new Nautilus window with the target directory
-    try:
-        process = subprocess.Popen([
-            "nautilus", target_dir
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
-        # Give it a moment to start
-        time.sleep(0.5)
-        
-        return True
-        
-    except Exception as e:
-        print(f"ERROR: Failed to open Nautilus - {e}")
-        return False
+            # Check if the target directory path is contained in the window title
+            # or if the folder name matches (for better compatibility)
+            folder_name = os.path.basename(target_dir)
+            if (target_dir in window_title or
+                folder_name in window_title or
+                window_title.endswith(folder_name)):
 
-# Enhanced version that can take any directory
-def open_directory(target_directory: str = "/home/nhoaking"):
-    """
-    Open any directory with smart window management
-    
-    Args:
-        target_directory (str): Path to directory to open
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    return open_nautilus_smart(target_directory)
+                print(f"Raising existing Nautilus window for {target_dir}")
+                subprocess.run(["wmctrl", "-i", "-a", win_id])
+                return
 
-###########################
-###########################
-
-def is_url(string):
-    """Check if string is a valid URL"""
-    try:
-        result = urlparse(string)
-        return all([result.scheme, result.netloc])
-    except:
-        return False
-
-def is_application_running(app_name):
-    """
-    Check if an application is currently running.
-    Returns True if found, False otherwise.
-    """
-    if app_name not in APP_CONFIG:
-        # Try generic process check
-        try:
-            result = subprocess.run([
-                'pgrep', '-f', app_name
-            ], capture_output=True, text=True)
-            return result.returncode == 0
-        except:
-            return False
-    
-    config = APP_CONFIG[app_name]
-    process_name = config['process_name']
-    
-    try:
-        result = subprocess.run([
-            'pgrep', '-f', process_name
-        ], capture_output=True, text=True)
-        return result.returncode == 0
-    except Exception as e:
-        print(f"Error checking {app_name} status: {e}")
-        return False
-
-def focus_generic_application(app_name):
-    """
-    Generic application focusing using desktop file or process signaling.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        # Method 2a: Try gtk-launch with desktop file
-        print(f"🎯 Trying GTK launch for {app_name}...")
-        
-        # Common desktop file patterns
-        desktop_patterns = [
-            f"{app_name}.desktop",
-            f"org.{app_name}.{app_name.title()}.desktop",
-            f"com.{app_name}.{app_name.title()}.desktop",
-        ]
-        
-        for pattern in desktop_patterns:
-            try:
-                result = subprocess.run([
-                    'gtk-launch', pattern
-                ], capture_output=True, text=True, timeout=5)
-                
-                if result.returncode == 0:
-                    print(f"    ✅ SUCCESS: GTK launch worked for {app_name}!")
-                    return True
-            except:
-                continue
-        
-        # Method 2b: Try sending SIGUSR1 to process (some apps respond to this)
-        print(f"🎯 Trying process signal for {app_name}...")
-        result = subprocess.run([
-            'pkill', '-SIGUSR1', app_name
-        ], capture_output=True, text=True)
-        
-        if result.returncode == 0:
-            print(f"    ✅ SUCCESS: Process signal worked for {app_name}!")
-            return True
-            
-    except Exception as e:
-        print(f"    ❌ ERROR: Generic focus failed for {app_name} - {e}")
-    
-    print(f"    ❌ FAILED: Could not focus {app_name}")
-    return False
-
-def focus_application_window(app_name):
-    """
-    Focus existing application window using the best available method.
-    Returns True if successful, False otherwise.
-    """
-    if app_name not in APP_CONFIG:
-        print(f"Warning: {app_name} not in configuration, trying generic focus...")
-        return focus_generic_application(app_name)
-    
-    config = APP_CONFIG[app_name]
-    
-    # Method 1: Try D-Bus activation if available
-    if 'dbus_dest' in config and 'dbus_path' in config:
-        try:
-            print(f"🎯 Focusing {app_name} via D-Bus...")
-            result = subprocess.run([
-                'gdbus', 'call', '--session',
-                '--dest', config['dbus_dest'],
-                '--object-path', config['dbus_path'],
-                '--method', 'org.gtk.Application.Activate',
-                '{}'  # Empty dictionary for platform_data
-            ], capture_output=True, text=True, timeout=5)
-            
-            if result.returncode == 0:
-                print(f"    ✅ SUCCESS: D-Bus activation worked for {app_name}!")
-                return True
-            else:
-                print(f"    ❌ FAILED: D-Bus activation failed for {app_name}")
-                
-        except Exception as e:
-            print(f"    ❌ ERROR: D-Bus activation error for {app_name} - {e}")
-    
-    # Method 2: Try generic application focus
-    return focus_generic_application(app_name)
-
-def open_application(app_name, target=None):
-    """
-    Universal application launcher with smart window management.
-    
-    Args:
-        app_name (str): Name of application to open
-        target (str, optional): Specific target (directory for nautilus, URL for browsers, etc.)
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    
-    # Handle URLs
-    if is_url(app_name):
-        print(f"🌐 Opening URL: {app_name}")
-        try:
-            webbrowser.open(app_name)
-            return True
-        except Exception as e:
-            print(f"❌ ERROR: Failed to open URL - {e}")
-            return False
-    
-    # Handle file manager with directory
-    if app_name == 'nautilus' and target:
-        return open_nautilus_smart(target)
-    
-    print(f"🚀 Smart Launch: {app_name}")
-    
-    # Check if application is already running
-    if is_application_running(app_name):
-        print(f"✅ FOUND: {app_name} is already running")
-        if focus_application_window(app_name):
-            print(f"🎉 SUCCESS: Focused existing {app_name} window")
-            return True
-        else:
-            print(f"⚠️  FALLBACK: Could not focus existing {app_name}, opening new instance...")
-    else:
-        print(f"ℹ️  NOT FOUND: {app_name} is not currently running")
-    
-    # Launch new application instance
-    try:
-        if app_name in APP_CONFIG:
-            command = APP_CONFIG[app_name]['command'].copy()
-            if target:
-                command.append(target)
-        else:
-            # Generic command
-            command = [app_name]
-            if target:
-                command.append(target)
-        
-        print(f"🆕 Launching: {' '.join(command)}")
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-        
-        # Give it a moment to start
-        time.sleep(1.0)
-        
-        print(f"✅ SUCCESS: {app_name} launched successfully (PID: {process.pid})")
-        return True
-        
-    except Exception as e:
-        print(f"❌ ERROR: Failed to launch {app_name} - {e}")
-        return False
-
-def open_website(url):
-    """
-    Open a website in the default browser
-    """
-    return open_application(url)
-
-
+    # Step 2: Otherwise, open a new Nautilus window
+    print(f"Opening new Nautilus at {target_dir}")
+    subprocess.Popen(["nautilus", target_dir])
 
 # --- Actions ---
 def open_vscode_busybee():
@@ -523,9 +335,9 @@ def toggle_mic(deck, key):
 
     # Update button icon
     if muted:
-        paint_button(deck, key, label="OFF", icon="mic-off.png")
+        render_keys(deck, key, label="OFF", icon="mic-off.png")
     else:
-        paint_button(deck, key, label="ON", icon="mic-on.png")
+        render_keys(deck, key, label="ON", icon="mic-on.png")
 
 def type_message():
     type_text("Hello from StreamDeck!")
@@ -558,38 +370,46 @@ def render_page(page):
         deck.reset()  # clear old icons
         deck.set_brightness(50)
     for key, props in page.items():
-        paint_button(
+        render_keys(
             deck,
             key,
             props.get("label"),
             props.get("icon"),
-            props.get("color")
+            props.get("color"),
+            props.get("labelcolor")
         )
 
 current_page = "main"
 
-# 0,1,2,3,4,5,6,7
-# 8,9,10,11,12,13,14,15
-# 16,17,18,19,20,21,22,23
-# 24,25,26,27,28,29,30,31
+# 0,     1,    2,   3,     4,    5,    6,    7
+# 8,     9,   10,   11,   12,   13,   14,   15
+# 16,   17,   18,   19,   20,   21,   22,   23
+# 24,   25,   26,   27,   28,   29,   30,   31
 
 # Main page layout
 layouts["main"] = {
-    0: {"icon": "spotify.png", "action": open_spotify},
+    0: {"label": "Spotify for debugging", "icon": "spotify.png", "action": open_spotify},
     1: {"icon": "obsidian.png", "action": open_obsidian},
     8: {"icon": "chatgpt.png", "action": open_chat},
     9: {"icon": "claude.png", "action": open_claude},
     
-    4: {"icon": "github.png", "color": "#2f3036", "action": open_github},
-    5: {"icon": "jarviscode.png", "action": open_vscode_jarvis},
-    6: {"icon": "busybeecode.png", "action": open_vscode_busybee},
-    7: {"icon": "busybee.png", "action": lambda: switch_page("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
-    8: {"icon": "terminal.png", "action": open_terminal},
-    9: {"icon": "terminalenv.png", "action": open_terminal_env},
+    2: {"icon": "jarviscode.png", "action": open_vscode_jarvis},
+    3: {"icon": "busybeecode.png", "action": open_vscode_busybee},
     10: {"icon": "python.png", "action": lambda: switch_page("python")},
-    11: {"icon": "git.png", "color": "#2f3036", "action": lambda: switch_page("git")},
+    18: {"icon": "github.png", "color": "#2f3036", "action": open_github},
+    19: {"icon": "git_layout.png", "color": "#2f3036", "action": lambda: switch_page("git")},
+
+    4: {"icon": "terminal.png", "action": open_terminal},
+    5: {"icon": "terminalenv.png", "action": open_terminal_env},
     12: {"icon": "terminal_layout.png", "action": lambda: switch_page("terminal_layout")},
-    13: {"icon": "nautilus.png", "action": lambda: open_directory("/home/nhoaking")}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+    13: {"icon": "conda_layout.png", "action": lambda: switch_page("conda_layout")}, 
+
+    6: {"icon": "busybee.png", "action": lambda: switch_page("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
+    
+    
+    
+    
+    7: {"icon": "nautilus.png", "action": lambda: open_or_raise_nautilus("/home/nhoaking/Zenith/busybee")}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
     #9: {"label": "Text", "color": "pink", "action": type_message},
     #10: {"label": "Copy", "color": "blue", "action": copy},
     #11: {"label": "Paste", "color": "pink", "action": paste},
@@ -602,38 +422,47 @@ layouts["main"] = {
 
 # Terminal page layout
 layouts["terminal"] = {
-    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
 }
 
 layouts["busybee"] = {
-    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")},
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
 }
 
 layouts["python"] = {
-    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")},
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
 }
 
 layouts["git"] = {
-    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")},
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
 }
 
 layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    0: {"label": "Go Back", "icon": "back.png", "color": "grey", "action": lambda: switch_page("main")},
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")},
     1: {"label": "Run LS", "color": "pink", "action": lambda: type_text("ls\n")},
     2: {"label": "Simple Snippet", "color": "cyan", "action": insert_snippet_action("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": insert_snippet_action("python_boilerplate")},
+}
+
+layouts["conda_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/muhammad-ali" title="Muhammad Ali"> Muhammad Ali </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    0: {"icon": "back.png", "color": "white", "action": lambda: switch_page("main")},
+    1: {"label": "List environments", "labelcolor": "#ff008c", "color": "#1c2e1c", "action": lambda: type_text("conda env list\n")},
+    2: {"label": "List installed packages", "color": "#1c2e1c", "action": lambda: type_text("conda list\n")},
+    3: {"label": "List package", "color": "#1c2e1c", "action": lambda: type_text("conda list <package>")},
+    4: {"label": "Python version", "color": "#1c2e1c", "action": lambda: type_text("python --version\n")},
+    5: {"label": "Activate env", "color": "#1c2e1c", "action": lambda: type_text("conda activate <env>\n")},
 }
 
 
