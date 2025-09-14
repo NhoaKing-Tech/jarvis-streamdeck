@@ -1,22 +1,31 @@
 """
 Rendering functions for StreamDeck keys.
-This module handles the visual appearance of StreamDeck buttons.
+This module handles the visual appearance of StreamDeck buttons and layout management.
 """
 
 import os
 from StreamDeck.ImageHelpers import PILHelper # Functions from PILHelper from the original repo
 from PIL import Image, ImageDraw, ImageFont # PIL modules
 import textwrap
+from actions import actions
 
 # Directories for assets - will be set by importing modules
 FONT_DIR = None
 ICONS_DIR = None
 
-def initialize_render(font_dir, icons_dir):
-    """Initialize the render module with required directories."""
-    global FONT_DIR, ICONS_DIR
+# Configuration paths - will be set by importing modules
+USER_HOME = None
+PROJECTS_DIR = None
+OBSIDIAN_VAULT = None
+
+def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vault=None):
+    """Initialize the render module with required directories and paths."""
+    global FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULT
     FONT_DIR = font_dir
     ICONS_DIR = icons_dir
+    USER_HOME = user_home
+    PROJECTS_DIR = projects_dir
+    OBSIDIAN_VAULT = obsidian_vault
 
 def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
     """
@@ -146,3 +155,132 @@ def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="whi
     # Set the key image on the deck
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image)) # set_key_image comes from StreamDeck.py from the original repo
     # to_native_key_format comes from PILHelper.py from the original repo
+
+def render_layout(deck, layout):
+    """
+    Render all keys for the given layout.
+
+    Arguments:
+    deck: the stream deck device
+    layout: dictionary defining the layout
+    """
+    if not deck or not deck.is_open(): # exits if deck is not initialized before the loop to render keys
+        return
+    deck.reset()  # clear old icons
+    deck.set_brightness(50) # set brightness to 50% (0-100) # from StreamDeck.py from the original repo
+    for key, config in layout.items():
+        # This loop is a dictionary unpacking
+        # config is label, icon, color, labelcolor, action...
+        # The layout.items() method returns pairs (tuples) of
+        # (key, configs) for each item in the dictionary. Python
+        # unpacks each tuple into two variables: key and its configuration.
+        render_keys(
+            deck,
+            key,
+            config.get("label"), # text label to display on the key (if specified)
+            config.get("icon"), # icon filename to display on the key (if specified)
+            config.get("color"), # the background color of the key (if specified)
+            config.get("labelcolor") # the color of the text label (if specified)
+        )
+
+def create_layouts(deck):
+    """
+    Create all layout definitions after deck is initialized.
+    This ensures deck is available for functions that need it.
+    """
+    # Import here to avoid circular imports
+    from .logic import switch_layout
+
+    if PROJECTS_DIR is None:
+        raise RuntimeError("Render module not initialized with required paths. Call initialize_render() first.")
+
+    # Ensure PROJECTS_DIR is a Path object for safe operations
+    from pathlib import Path
+    projects_path = PROJECTS_DIR if hasattr(PROJECTS_DIR, '__truediv__') else Path(PROJECTS_DIR)
+
+    # 0,     1,    2,   3,     4,    5,    6,    7
+    # 8,     9,   10,   11,   12,   13,   14,   15
+    # 16,   17,   18,   19,   20,   21,   22,   23
+    # 24,   25,   26,   27,   28,   29,   30,   31
+
+    layouts = {}
+
+    # Main layout
+    layouts["main"] = {
+        0: {"icon": "spotify.png", "action": actions.open_spotify},
+        1: {"icon": "obsidian.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        8: {"icon": "chatgpt.png", "action": actions.open_chat},
+        9: {"icon": "claude.png", "action": actions.open_claude},
+        16: {"icon": "freecodecamp.png", "action": actions.open_freecodecamp},
+
+
+        2: {"icon": "jarviscode.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
+        3: {"icon": "busybeecode.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
+        10: {"icon": "python.png", "action": switch_layout("python")},
+        18: {"icon": "github.png", "color": "#2f3036", "action": actions.open_github},
+        19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
+
+        4: {"icon": "terminal.png", "action": actions.open_terminal},
+        5: {"icon": "terminalenv.png", "action": actions.open_terminal_env},
+        12: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},
+        13: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},
+
+        6: {"icon": "busybee.png", "action": switch_layout("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
+
+        7: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+        #9: {"label": "Text", "color": "pink", "action": type_message},
+        #10: {"label": "Copy", "color": "blue", "action": copy},
+        #11: {"label": "Paste", "color": "pink", "action": paste},
+        #12: {"label": "Hola", "color": "blue", "action": type_hola},
+        #13: {"label": "More", "color": "purple", "action": lambda: switch_layout("terminal")},
+        #14: {"icon": "shine.png", "action": open_shine},
+
+        31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
+    }
+
+    # Terminal layout
+    layouts["terminal"] = {
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    }
+
+    layouts["busybee"] = {
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    }
+
+    layouts["python"] = {
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    }
+
+    layouts["git"] = {
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    }
+
+    layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+        2: {"label": "Simple Snippet", "color": "blue", "action": actions.insert_snippet("hello")},
+        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    }
+
+    layouts["conda_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/muhammad-ali" title="Muhammad Ali"> Muhammad Ali </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+        1: {"label": "List environments", "labelcolor": "#ff008c", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
+        2: {"label": "List installed packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
+        3: {"label": "List package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
+        4: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
+        5: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
+    }
+
+    return layouts
