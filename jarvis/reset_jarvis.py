@@ -1,6 +1,10 @@
 import sys
 import subprocess
+import os
 from StreamDeck.DeviceManager import DeviceManager
+
+# Configuration - use environment variable or default to system ydotool
+YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')
 
 # Optional: same KEYCODES dictionary from your workflow
 KEYCODES = {
@@ -11,7 +15,7 @@ KEYCODES = {
 def release_all_keys():
     releases = [f"{code}:0" for code in KEYCODES.values()]
     subprocess.run(
-        ["/home/nhoaking/ydotool/build/ydotool", "key"] + releases,
+        [YDOTOOL_PATH, "key"] + releases,
         check=False
     )
 

@@ -11,12 +11,19 @@ import subprocess, atexit, time, os
 import signal
 import sys
 from StreamDeck.DeviceManager import DeviceManager # Class DeviceManager from the original repo
-# DeviceManager imports StreamDeck classes: StreamDeck, StreamDeckMini, StreamDeckXL (my deck)
+# DeviceManager imports StreamDeck classes: StreamDeck, StreamDeckMini, StreamDeckXL -> my deck
 from StreamDeck.ImageHelpers import PILHelper # Functions from PILHelper from the original repo
 from PIL import Image, ImageDraw, ImageFont # PIL modules
 import webbrowser
 from urllib.parse import urlparse
 import textwrap
+from pathlib import Path
+
+# Configuration - paths that can be customized via environment variables
+USER_HOME = Path.home()  # Get current user's home directory
+YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Use system ydotool by default
+PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Configurable Zenith directory
+OBSIDIAN_VAULT = os.getenv('OBSIDIAN_VAULT')
 
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
 FONT_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "font", "Roboto-Regular.ttf")
@@ -62,7 +69,7 @@ KEYCODES = {
     "COMMA": 51, "DOT": 52, "SLASH": 53,
 }
 
-# -------------------- Key Rendering ----------------- #
+# -------------------- Key Rendering
 def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
     """
     My function to handle the visual appearance of StreamDeck buttons or keys.
@@ -72,7 +79,7 @@ def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="whi
     3. Only icon: maximized icon space
     4. Neither icon nor label: solid color (default red to indicate error)
     
-    Parameters:
+    Arguments:
     deck: stream deck device
     key: key index (0-31 for my stream deck XL)
     label: text to display (none if no label is desired)
@@ -189,7 +196,7 @@ def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="whi
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image)) # set_key_image comes from StreamDeck.py from the original repo
     # to_native_key_format comes from PILHelper.py from the original repo
 
-# ------------------ Functions for key actions ----------------- #
+# -------------------- Functions for key actions
 def type_text(text):
     """
     Function to type text using ydotool. Includes "--" to handle if text starts with "-"
@@ -200,7 +207,7 @@ def type_text(text):
     Returns a callable function for use in layout definitions.
     """
     return lambda: (
-        subprocess.Popen(["/home/nhoaking/ydotool/build/ydotool", "type", "--", text])
+        subprocess.Popen([YDOTOOL_PATH, "type", "--", text])
     )
 
 def insert_snippet(snippet_name):
@@ -215,7 +222,7 @@ def insert_snippet(snippet_name):
     with open(snippet_path, "r") as f:
         snippet = f.read()
     return lambda: (
-        subprocess.Popen(["/home/nhoaking/ydotool/build/ydotool", "type", "--", snippet])
+        subprocess.Popen([YDOTOOL_PATH, "type", "--", snippet])
     )
 
 def hot_keys(*keys):
@@ -227,7 +234,7 @@ def hot_keys(*keys):
         seq.append(f"{KEYCODES[key]}:1") # press
     for key in reversed(keys):
         seq.append(f"{KEYCODES[key]}:0") # release, essential to release in reverse order and avoid sticky keys. This was my first bug when I started using ydotool >.<
-    subprocess.Popen(["/home/nhoaking/ydotool/build/ydotool", "key"] + seq)
+    subprocess.Popen([YDOTOOL_PATH, "key"] + seq)
 
 def open_vscode(project_path): 
     """
@@ -256,7 +263,7 @@ def open_spotify():
     """
     Open Spotify if not running, otherwise toggle play/pause.
     I do this with playerctl which is a command line utility to control media players.
-    Since this function takes no parameters, it does not need to be wrapped in a lambda
+    Since this function takes no arguments, it does not need to be wrapped in a lambda
     as the previous functions.
     """
     not_open = subprocess.run(["pgrep", "-x", "spotify"], capture_output=True)
@@ -340,7 +347,7 @@ def toggle_mic(deck, key):
                    icon="mic-off.png" if is_mic_muted() else "mic-on.png")
     )
 
-# ------------------ Wrapper funtions to simplify action definitions in keys
+# -------------------- Wrapper funtions to simplify action definitions in keys
 def type_message():
     type_text("Hello World! :)")
 
@@ -454,7 +461,7 @@ def release_all_keys():
     """
     releases = [f"{code}:0" for code in KEYCODES.values()]
     subprocess.Popen(
-        ["/home/nhoaking/ydotool/build/ydotool", "key"] + releases
+        [YDOTOOL_PATH, "key"] + releases
     )
 
 def switch_layout(layout_name):
@@ -494,7 +501,7 @@ def render_layout(layout):
     """
     Render all keys for the given layout.
 
-    Parameters:
+    Arguments:
     layout: dictionary defining the layout
     """
     if not deck or not deck.is_open(): # exits if deck is not initialized before the loop to render keys
@@ -528,13 +535,15 @@ def create_layouts(deck):
 
     # Main layout
     layouts["main"] = {
-        0: {"label": "Spotify for debugging", "icon": "spotify.png", "action": open_spotify},
-        1: {"icon": "obsidian.png", "action": open_obsidian("/home/nhoaking/Zenith/zenith-cs-journey")},
+        0: {"icon": "spotify.png", "action": open_spotify},
+        1: {"icon": "obsidian.png", "action": open_obsidian(OBSIDIAN_VAULT)},
         8: {"icon": "chatgpt.png", "action": open_chat},
         9: {"icon": "claude.png", "action": open_claude},
+        16: {"icon": "freecodecamp.png", "action": open_freecodecamp},
 
-        2: {"icon": "jarviscode.png", "action": open_vscode("/home/nhoaking/Zenith/jarvis-streamdeck")},
-        3: {"icon": "busybeecode.png", "action": open_vscode("/home/nhoaking/Zenith/busybee")},
+
+        2: {"icon": "jarviscode.png", "action": open_vscode(str(PROJECTS_DIR / 'jarvis-streamdeck'))},
+        3: {"icon": "busybeecode.png", "action": open_vscode(str(PROJECTS_DIR / 'busybee'))},
         10: {"icon": "python.png", "action": switch_layout("python")},
         18: {"icon": "github.png", "color": "#2f3036", "action": open_github},
         19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
@@ -546,7 +555,7 @@ def create_layouts(deck):
 
         6: {"icon": "busybee.png", "action": switch_layout("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
 
-        7: {"icon": "nautilus.png", "action": lambda: nautilus_path("/home/nhoaking/Zenith/busybee")}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+        7: {"icon": "nautilus.png", "action": lambda: nautilus_path(str(PROJECTS_DIR / 'busybee'))}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
         #9: {"label": "Text", "color": "pink", "action": type_message},
         #10: {"label": "Copy", "color": "blue", "action": copy},
         #11: {"label": "Paste", "color": "pink", "action": paste},
@@ -602,7 +611,7 @@ def create_layouts(deck):
         5: {"label": "Activate env", "color": "#1c2e1c", "action": type_text("conda activate <env>")},
     }
 
-# --- Avoid sticky keys, reset deck and close it ---
+# -------------------- Avoid sticky keys, reset deck and close it
 clean_stickykeys = False # Flag to prevent multiple cleans of sticky keys. Set to false initially because clean up is not yet performed.
 def cleanup(deck=None):
     global clean_stickykeys
@@ -625,7 +634,7 @@ def safe_exit(deck=None):
 def key_change(deck, key, state):
     """
     Event handler for deck key presses
-    Parameters:
+    Arguments:
     deck: the stream deck
     key: what key was pressed. In my case from 0 to 31 (the stream deck XL from elgato has 32 keys)
     state: true if key is pressed, and false when it is release.
@@ -644,7 +653,7 @@ def main():
     """
     global deck, current_layout
 
-    # --- Main with retry loop ---
+    # -------------------- Loop retry connection to stream deck
     interval_seconds = 5 # keep trying to locate the stream deck every 5 seconds
     max_retry_minutes = 5 # keep trying to locate the stream deck for 5 minutes
 
