@@ -2,8 +2,21 @@ import sys
 import subprocess
 import os
 from StreamDeck.DeviceManager import DeviceManager
+from pathlib import Path
 
-# Configuration - use environment variable or default to system ydotool
+# Load configuration from config.env file
+def load_config():
+    config_path = Path(__file__).parent / "config.env"
+    if config_path.exists():
+        with open(config_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key.strip()] = value.strip()
+
+load_config()
+
 YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')
 
 # Optional: same KEYCODES dictionary from your workflow
