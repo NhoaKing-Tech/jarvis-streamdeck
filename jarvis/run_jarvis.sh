@@ -8,4 +8,4 @@ source ~/miniconda3/etc/profile.d/conda.sh
 conda activate jarvis-busybee
 
 # Run script
-exec python ~/Zenith/jarvis-streamdeck/run_jarvis.py
+exec python ~/Zenith/jarvis-streamdeck/jarvis/run_jarvis.py
