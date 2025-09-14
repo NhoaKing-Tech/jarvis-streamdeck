@@ -14,7 +14,7 @@ from StreamDeck.DeviceManager import DeviceManager # Class DeviceManager from th
 # DeviceManager imports StreamDeck classes: StreamDeck, StreamDeckMini, StreamDeckXL -> my deck
 from pathlib import Path
 from actions import actions
-from render.render import render_keys, initialize_render
+from ui.render import render_keys, initialize_render
 
 # Load configuration from config.env file
 def load_config():
@@ -36,10 +36,10 @@ PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Configur
 OBSIDIAN_VAULT = os.getenv('OBSIDIAN_VAULT')
 
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
-FONT_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "font", "Roboto-Regular.ttf")
-ICONS_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "jarvisicons")
-SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "snippets")
-BASHSCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "jarvisassets", "bash_scripts")
+FONT_DIR = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
+ICONS_DIR = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
+SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "assets", "snippets")
+BASHSCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "assets", "bash_scripts")
 
 # Dictionary to hold different layouts
 layouts = {}

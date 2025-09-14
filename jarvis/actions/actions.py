@@ -6,7 +6,7 @@ This module contains all the action functions that are triggered by Stream Deck 
 import subprocess
 import time
 import os
-from render.render import render_keys #My render module
+from ui.render import render_keys #My render module
 
 # Configuration constants (will be set by the main module)
 YDOTOOL_PATH = None
