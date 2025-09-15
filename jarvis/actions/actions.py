@@ -178,7 +178,6 @@ def open_claude():
     """
     subprocess.Popen(["xdg-open", "https://claude.ai/"])
 
-
 # Microphone control and state check functions
 def toggle_output_mute():
     """
@@ -214,8 +213,18 @@ def toggle_mic(deck, key):
 
 
 # -------------------- Wrapper functions to simplify action definitions in keys
-def type_message():
-    type_text("Hello World! :)")
+def type_keyring():
+    type_text("140292")
+
+def type_commit():
+    """
+    Executes a git commit workflow using a bash script.
+    The script runs git status, git add ., and git commit with user prompts between each step.
+    User can exit at any point using CTRL+C.
+    """
+    if BASHSCRIPTS_DIR is None:
+        raise RuntimeError("Call initialize_actions() from main first.")
+    subprocess.Popen([os.path.join(BASHSCRIPTS_DIR, "git_commit_workflow.sh")])
 
 
 def copy():

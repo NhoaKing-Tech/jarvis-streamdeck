@@ -3,6 +3,32 @@ Rendering functions for StreamDeck keys.
 This module handles the visual appearance of StreamDeck buttons and layout management.
 """
 
+"""
+Icon Attributions
+HTML: <a href="https://www.flaticon.com/free-icons/html" title="html icons">Html icons created by Pixel perfect - Flaticon</a>
+CSS: <a href="https://www.flaticon.com/free-icons/css" title="css icons">Css icons created by Pixel perfect - Flaticon</a>
+JavaScript: <a href="https://www.flaticon.com/free-icons/javascript" title="javascript icons">Javascript icons created by Pixel perfect - Flaticon</a>
+Code space project 1: <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Freepik - Flaticon</a> JARVIS
+Code space project 2: <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Freepik - Flaticon</a> BUSYBEE
+Code space project 3: <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Freepik - Flaticon</a> PANDORA
+Code space project 4: <a href="https://www.flaticon.com/free-icons/code" title="code icons">Code icons created by Freepik - Flaticon</a> WEBSITE
+Markdown project 1: <a href="https://www.flaticon.com/free-icons/markdown" title="markdown icons">Markdown icons created by brajaomar_j - Flaticon</a>
+Markdown project 2: <a href="https://www.flaticon.com/free-icons/markdown" title="markdown icons">Markdown icons created by brajaomar_j - Flaticon</a>
+Markdown project 3: <a href="https://www.flaticon.com/free-icons/markdown" title="markdown icons">Markdown icons created by brajaomar_j - Flaticon</a>
+Markdown project 4: <a href="https://www.flaticon.com/free-icons/markdown" title="markdown icons">Markdown icons created by brajaomar_j - Flaticon</a>
+Bluebumblebee (My icon for my database): <a href="https://www.flaticon.com/free-icons/bumblebee" title="bumblebee icons">Bumblebee icons created by Indielogy - Flaticon</a>
+GitHub Icon: https://remixicon.com/
+Conda Icon: <a href="https://www.flaticon.com/free-icons/snake" title="snake icons">Snake icons created by Freepik - Flaticon</a>
+Journal1: <a href="https://www.flaticon.com/free-icons/book" title="book icons">Book icons created by Freepik - Flaticon</a>
+Journal2: <a href="https://www.flaticon.com/free-icons/studying" title="studying icons">Studying icons created by Freepik - Flaticon</a>
+Git Commit: <a href="https://www.flaticon.com/free-icons/commit-git" title="commit git icons">Commit git icons created by Freepik - Flaticon</a>
+Git layout: <a href="https://www.flaticon.com/free-icons/git" title="git icons">Git icons created by Freepik - Flaticon</a>
+Terminal <a href="https://www.flaticon.com/free-icons/terminal" title="terminal icons">Terminal icons created by Arkinasi - Flaticon</a>
+apps layout: <a href="https://www.flaticon.com/free-icons/more" title="more icons">More icons created by Vector Squad - Flaticon</a>
+PW: <a href="https://www.flaticon.com/free-icons/password" title="password icons">Password icons created by kostop - Flaticon</a>
+
+"""
+
 import os
 from StreamDeck.ImageHelpers import PILHelper # Functions from PILHelper from the original repo
 from PIL import Image, ImageDraw, ImageFont # PIL modules
@@ -143,7 +169,7 @@ def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="whi
         if os.path.exists(icon_path):
             icon_img = Image.open(icon_path)
             # No margins needed, maximize icon space
-            key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(0, 0, 0, 0), background=color)
+            key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(5, 5, 5, 5), background=color)
         else:
             print(f"Warning: icon {icon_path} not found, falling back to color red")
             key_image = PILHelper.create_key_image(deck, background="red")
@@ -205,82 +231,112 @@ def create_layouts(deck):
 
     layouts = {}
 
-    # Main layout
     layouts["main"] = {
-        0: {"icon": "spotify.png", "action": actions.open_spotify},
-        1: {"icon": "obsidian.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-        8: {"icon": "chatgpt.png", "action": actions.open_chat},
-        9: {"icon": "claude.png", "action": actions.open_claude},
-        16: {"icon": "freecodecamp.png", "action": actions.open_freecodecamp},
-
-
-        2: {"icon": "jarviscode.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
-        3: {"icon": "busybeecode.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
-        10: {"icon": "python.png", "action": switch_layout("python")},
-        18: {"icon": "github.png", "color": "#2f3036", "action": actions.open_github},
-        19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
-
-        4: {"icon": "terminal.png", "action": actions.open_terminal},
-        5: {"icon": "terminalenv.png", "action": actions.open_terminal_env},
-        12: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},
-        13: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},
-
-        6: {"icon": "busybee.png", "action": switch_layout("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
-
-        7: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
-        #9: {"label": "Text", "color": "pink", "action": type_message},
-        #10: {"label": "Copy", "color": "blue", "action": copy},
-        #11: {"label": "Paste", "color": "pink", "action": paste},
-        #12: {"label": "Hola", "color": "blue", "action": type_hola},
-        #13: {"label": "More", "color": "purple", "action": lambda: switch_layout("terminal")},
-        #14: {"icon": "shine.png", "action": open_shine},
-
+        0: {"icon": "project1.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
+        1: {"icon": "project2.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
+        2: {"icon": "project3.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
+        3: {"icon": "project4.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
+        4: {"icon": "commit.png", "action": actions.type_commit},
+        5: {"icon": "git_layout.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        6: {"icon": "github.png", "action": actions.open_github},
+        7: {"icon": "busybee2.png", "color": "#ff8ad8", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        8: {"icon": "project1docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        9: {"icon": "project2docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        10: {"icon": "project3docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        11: {"icon": "project4docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        12: {"icon": "journal.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        13: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))},
+        15: {"icon": "terminal_default.png", "action": actions.open_terminal},
+        16: {"icon": "terminal_jarvisbusybee.png", "action": actions.open_terminal_env},
+        17: {"icon": "terminal_busybee.png", "action": actions.open_terminal_env},
+        18: {"icon": "terminal_pandora.png", "action": actions.open_terminal_env},
+        19: {"icon": "terminal_website.png", "action": actions.open_terminal_env},
+        20: {"icon": "freecodecamp.png", "action": actions.open_freecodecamp},
+        21: {"icon": "claude.png", "action": actions.open_claude},
+        22: {"icon": "chatgpt.png", "action": actions.open_chat},
+        23: {"icon": "key.png", "action": actions.type_keyring},
+        24: {"icon": "python_layout.png", "action": switch_layout("python")},
+        25: {"icon": "html_layout.png", "action": switch_layout("python")},
+        26: {"icon": "css_layout.png", "action": switch_layout("python")},
+        27: {"icon": "javascript_layout.png", "action": switch_layout("python")},
+        28: {"icon": "conda_layout.png", "action": switch_layout("python")},
+        29: {"icon": "terminal_layout.png", "action": switch_layout("python")},
+        30: {"icon": "apps_layout.png", "action": switch_layout("apps")},
         31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
     }
 
     # Terminal layout
-    layouts["terminal"] = {
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
-    }
-
-    layouts["busybee"] = {
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
-    }
-
-    layouts["python"] = {
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
-    }
-
-    layouts["git"] = {
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
-    }
-
-    layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-        1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-        2: {"label": "Simple Snippet", "color": "blue", "action": actions.insert_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
-    }
-
-    layouts["conda_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/muhammad-ali" title="Muhammad Ali"> Muhammad Ali </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-        1: {"label": "List environments", "labelcolor": "#ff008c", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
-        2: {"label": "List installed packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
-        3: {"label": "List package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
-        4: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
-        5: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
-    }
+    layouts["apps"] = {
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
 
     return layouts
+
+""" EXAMPLE
+# Main layout
+layouts["main"] = {
+    0: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "obsidian.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+    ,
+    2: {"icon": "jarviscode.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
+    3: {"icon": "busybeecode.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
+    10: {"icon": "python.png", "action": switch_layout("python")},
+    18: {"icon": "github.png", "color": "#2f3036", "action": actions.open_github},
+    19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
+    4: {"icon": "terminal.png", "action": actions.open_terminal},
+    5: {"icon": "terminalenv.png", "action": actions.open_terminal_env},
+    12: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},
+    13: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},
+    6: {"icon": "busybee.png", "action": switch_layout("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
+    7: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
+    #9: {"label": "Text", "color": "pink", "action": type_message},
+    #10: {"label": "Copy", "color": "blue", "action": copy},
+    #11: {"label": "Paste", "color": "pink", "action": paste},
+    #12: {"label": "Hola", "color": "blue", "action": type_hola},
+    #13: {"label": "More", "color": "purple", "action": lambda: switch_layout("terminal")},
+    #14: {"icon": "shine.png", "action": open_shine},
+    31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
+}
+# Terminal layout
+layouts["terminal"] = {
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
+layouts["busybee"] = {
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
+layouts["python"] = {
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
+layouts["git"] = {
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
+layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
+    2: {"label": "Simple Snippet", "color": "blue", "action": actions.insert_snippet("hello")},
+    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+}
+layouts["conda_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/muhammad-ali" title="Muhammad Ali"> Muhammad Ali </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "List environments", "labelcolor": "#ff008c", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
+    2: {"label": "List installed packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
+    3: {"label": "List package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
+    4: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
+    5: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
+}
+"""
