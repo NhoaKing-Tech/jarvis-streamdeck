@@ -12,16 +12,17 @@ from ui.render import render_keys #My render module
 YDOTOOL_PATH = None
 SNIPPETS_DIR = None
 BASHSCRIPTS_DIR = None
+PROJECTS_DIR = None
 KEYCODES = None
 
-def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, keycodes):
+def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes):
     """Initialize the actions module with required constants from the main module."""
-    global YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, KEYCODES
+    global YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES
     YDOTOOL_PATH = ydotool_path
     SNIPPETS_DIR = snippets_dir
     BASHSCRIPTS_DIR = bashscripts_dir
+    PROJECTS_DIR = projects_dir
     KEYCODES = keycodes
-
 
 def type_text(text):
     """
@@ -214,17 +215,23 @@ def toggle_mic(deck, key):
 
 # -------------------- Wrapper functions to simplify action definitions in keys
 def type_keyring():
-    type_text("140292")
+    type_text("140882")
 
 def type_commit():
     """
     Executes a git commit workflow using a bash script.
-    The script runs git status, git add ., and git commit with user prompts between each step.
+    Prompts user for project name, then navigates to PROJECTS_DIR/PROJECT_NAME
+    and runs git status, git add ., and git commit with user prompts between each step.
     User can exit at any point using CTRL+C.
     """
-    if BASHSCRIPTS_DIR is None:
+    if BASHSCRIPTS_DIR is None or PROJECTS_DIR is None:
         raise RuntimeError("Call initialize_actions() from main first.")
-    subprocess.Popen([os.path.join(BASHSCRIPTS_DIR, "git_commit_workflow.sh")])
+
+    # Open terminal and run the git workflow script with PROJECTS_DIR as parameter
+    subprocess.Popen([
+        "gnome-terminal", "--", "bash", "-c",
+        f"bash {os.path.join(BASHSCRIPTS_DIR, 'git_commit_workflow.sh')} '{PROJECTS_DIR}'"
+    ])
 
 
 def copy():

@@ -88,7 +88,7 @@ def main():
     global deck, current_layout, layouts
 
     actions.initialize_actions(YDOTOOL_PATH,
-           SNIPPETS_DIR, BASHSCRIPTS_DIR, KEYCODES)
+           SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES)
     initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULT)
     initialize_lifecycle(YDOTOOL_PATH, KEYCODES)
 
