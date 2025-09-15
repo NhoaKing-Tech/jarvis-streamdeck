@@ -42,16 +42,16 @@ ICONS_DIR = None
 # Configuration paths - will be set by importing modules
 USER_HOME = None
 PROJECTS_DIR = None
-OBSIDIAN_VAULT = None
+OBSIDIAN_VAULTS = None
 
-def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vault=None):
+def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vaults=None):
     """Initialize the render module with required directories and paths."""
-    global FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULT
+    global FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS
     FONT_DIR = font_dir
     ICONS_DIR = icons_dir
     USER_HOME = user_home
     PROJECTS_DIR = projects_dir
-    OBSIDIAN_VAULT = obsidian_vault
+    OBSIDIAN_VAULTS = obsidian_vaults or {}
 
 def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
     """
@@ -219,6 +219,8 @@ def create_layouts(deck):
 
     if PROJECTS_DIR is None:
         raise RuntimeError("Render module not initialized with required paths. Call initialize_render() first.")
+    if OBSIDIAN_VAULTS is None:
+        raise RuntimeError("Render module not initialized with required paths. Call initialize_render() first.")
 
     # Ensure PROJECTS_DIR is a Path object for safe operations
     from pathlib import Path
@@ -240,11 +242,11 @@ def create_layouts(deck):
         5: {"icon": "git_layout.png", "action": switch_layout("git_layout")},
         6: {"icon": "github.png", "action": actions.open_github},
         7: {"icon": "busybee_layout.png", "color": "#fdff8a", "action": switch_layout("busybee_layout")},
-        8: {"icon": "project1docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-        9: {"icon": "project2docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-        10: {"icon": "project3docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-        11: {"icon": "project4docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-        12: {"icon": "journal.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
+        8: {"icon": "project1docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('jarvis', ''))},
+        9: {"icon": "project2docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('busybee', ''))},
+        10: {"icon": "project3docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('pandora', ''))},
+        11: {"icon": "project4docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('website', ''))},
+        12: {"icon": "journal.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('journal', ''))},
         13: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path))},
         14: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))},
         15: {"icon": "terminal_default.png", "action": actions.open_terminal},

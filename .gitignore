@@ -4,3 +4,4 @@ __pycache__
 doc/build
 jarvis_experimental/
 jarvis/config.env
+jarvis/docs_jarvis/.obsidian

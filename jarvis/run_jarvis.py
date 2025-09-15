@@ -34,7 +34,13 @@ load_config()
 USER_HOME = Path.home()  # Get current user's home directory
 YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Use system ydotool by default
 PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Configurable Zenith directory
-OBSIDIAN_VAULT = os.getenv('OBSIDIAN_VAULT')
+
+# Load all Obsidian vault configurations
+OBSIDIAN_VAULTS = {}
+for key, value in os.environ.items():
+    if key.startswith('OBSIDIAN_VAULT_'):
+        vault_name = key.replace('OBSIDIAN_VAULT_', '').lower()
+        OBSIDIAN_VAULTS[vault_name] = value
 
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
 FONT_DIR = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
@@ -89,7 +95,7 @@ def main():
 
     actions.initialize_actions(YDOTOOL_PATH,
            SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES)
-    initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULT)
+    initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS)
     initialize_lifecycle(YDOTOOL_PATH, KEYCODES)
 
     # -------------------- Loop retry connection to stream deck

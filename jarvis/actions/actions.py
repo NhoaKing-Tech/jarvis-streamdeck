@@ -107,8 +107,9 @@ def open_obsidian(vault_path):
         except subprocess.CalledProcessError:
             pass
 
-        # If not found, launch an obsidian window with the vault opened
-        subprocess.Popen(["obsidian", "--vault", vault_name]) # I forgot to add the --vault argument >.<
+        # Launch obsidian using URI scheme, built-in Obsidian, not the advanced extension
+        uri = f"obsidian://open?vault={vault_name}"
+        subprocess.Popen(["xdg-open", uri])
 
     return wrapper
 
