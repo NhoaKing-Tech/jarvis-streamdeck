@@ -43,8 +43,9 @@ ICONS_DIR = None
 USER_HOME = None
 PROJECTS_DIR = None
 OBSIDIAN_VAULTS = None
+KEYRING_PW = None
 
-def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vaults=None):
+def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vaults=None, keyring_pw=None):
     """Initialize the render module with required directories and paths."""
     global FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS
     FONT_DIR = font_dir
@@ -52,6 +53,7 @@ def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, ob
     USER_HOME = user_home
     PROJECTS_DIR = projects_dir
     OBSIDIAN_VAULTS = obsidian_vaults or {}
+    KEYRING_PW = keyring_pw
 
 def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
     """
@@ -257,7 +259,7 @@ def create_layouts(deck):
         20: {"icon": "freecodecamp.png", "action": actions.open_freecodecamp},
         21: {"icon": "claude.png", "action": actions.open_claude},
         22: {"icon": "chatgpt.png", "action": actions.open_chat},
-        23: {"icon": "key.png", "action": actions.type_text("140292")},
+        23: {"icon": "key.png", "action": actions.type_keyring()},
         24: {"icon": "python_layout.png", "action": switch_layout("python_layout")},
         25: {"icon": "html_layout.png", "action": switch_layout("html_layout")},
         26: {"icon": "css_layout.png", "action": switch_layout("css_layout")},
@@ -267,6 +269,7 @@ def create_layouts(deck):
         30: {"icon": "apps_layout.png", "action": switch_layout("apps")},
         31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
     }
+
 
     # Terminal layout
     layouts["apps"] = {
@@ -312,10 +315,20 @@ def create_layouts(deck):
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["conda_layout"] = {
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
+    1: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
+    2: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda activate ")},
+    3: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda deactivate\n")},
+    4: {"label": "List installed ALL packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
+    5: {"label": "List install package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
+    6: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
+    7: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
+    8: {"label": "Create new env", "color": "#1c2e1c", "action": actions.type_text("conda create -n <newenv> python=3.11.13")},
+    9: {"label": "Conda install", "color": "#1c2e1c", "action": actions.type_text("conda install ")},
+    10: {"label": "Conda install conda-forge", "color": "#1c2e1c", "action": actions.type_text("conda install -c conda-forge ")},
+    11: {"label": "Pip install", "color": "#1c2e1c", "action": actions.type_text("pip install ")},
+    12: {"label": "Export env", "color": "#1c2e1c", "action": actions.type_text("conda env export > environment.yml\n")},
+    13: {"label": "Recreate env", "color": "#1c2e1c", "action": actions.type_text("conda env create -f environment.yml\n")},
 }
     layouts["terminal_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>

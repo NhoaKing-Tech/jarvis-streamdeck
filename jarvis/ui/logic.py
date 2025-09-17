@@ -31,33 +31,20 @@ def switch_layout(layout_name):
     """
     def wrapper():
         global current_layout
-        current_layout = layout_name
-        render_layout(deck, layouts[layout_name])
+        if layouts and layout_name in layouts:
+            current_layout = layout_name
+            render_layout(deck, layouts[layout_name])
     return wrapper
-
-def switch_layout_lambda_in_layout(layout_name):
-    """
-    I designed this function first to be called directly when I want to switch deck layouts.
-    Unlike the switch_layout function above, this one switches to the specified deck layout right away
-    when called, since it takes an argument (layout_name). Therefore I needed to write a lambda expression when using
-    it in my layout dictionaries, like: lambda: switch_layout_lambda_in_layout('main').
-    At the beginning, I had lambda expressions in my layout definitions, but I wanted to avoid that for cleaner code.
-    It also makes easier to build the dictionary, as I could have forgotten to add the lambda in some places. ._.
-
-    """
-    global current_layout
-    current_layout = layout_name
-    render_layout(deck, layouts[layout_name])
 
 def key_change(deck_instance, key, state):
     """
     Event handler for deck key presses
     Arguments:
     deck_instance: the stream deck
-    key: what key was pressed. In my case from 0 to 31 (the stream deck XL from elgato has 32 keys)
+    key: what key. In my case from 0 to 31 (the stream deck XL from elgato has 32 keys)
     state: true if key is pressed, and false when it is release.
     """
-    if state and key in layouts[current_layout]:
+    if state and layouts and current_layout and key in layouts[current_layout]:
         # when a key is pressed and the key exists in the current layout
         try:
             # executes the action assigned to the key

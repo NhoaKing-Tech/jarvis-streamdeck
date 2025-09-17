@@ -14,15 +14,17 @@ SNIPPETS_DIR = None
 BASHSCRIPTS_DIR = None
 PROJECTS_DIR = None
 KEYCODES = None
+KEYRING_PW = None
 
-def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes):
+def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes, keyring_pw):
     """Initialize the actions module with required constants from the main module."""
-    global YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES
+    global YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW
     YDOTOOL_PATH = ydotool_path
     SNIPPETS_DIR = snippets_dir
     BASHSCRIPTS_DIR = bashscripts_dir
     PROJECTS_DIR = projects_dir
     KEYCODES = keycodes
+    KEYRING_PW = keyring_pw
 
 def type_text(text):
     """
@@ -216,7 +218,9 @@ def toggle_mic(deck, key):
 
 # -------------------- Wrapper functions to simplify action definitions in keys
 def type_keyring():
-    type_text("140882")
+    if KEYRING_PW is None:
+        raise RuntimeError("KEYRING_PW not initialized. Call initialize_actions() from main first.")
+    return type_text(KEYRING_PW + "\n")
 
 def type_commit():
     """

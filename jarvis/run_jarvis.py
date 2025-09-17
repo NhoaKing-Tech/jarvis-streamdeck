@@ -42,6 +42,9 @@ for key, value in os.environ.items():
         vault_name = key.replace('OBSIDIAN_VAULT_', '').lower()
         OBSIDIAN_VAULTS[vault_name] = value
 
+# Load KEYRING_PW from environment
+KEYRING_PW = os.getenv('KEYRING_PW', '')
+
 # Directories for assets: code snippets and icons to display in the keys of the steamdeck
 FONT_DIR = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
 ICONS_DIR = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
@@ -94,8 +97,8 @@ def main():
     global deck, current_layout, layouts
 
     actions.initialize_actions(YDOTOOL_PATH,
-           SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES)
-    initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS)
+           SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW)
+    initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS, KEYRING_PW)
     initialize_lifecycle(YDOTOOL_PATH, KEYCODES)
 
     # -------------------- Loop retry connection to stream deck
