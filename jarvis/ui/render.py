@@ -27,6 +27,7 @@ Terminal <a href="https://www.flaticon.com/free-icons/terminal" title="terminal 
 apps layout: <a href="https://www.flaticon.com/free-icons/more" title="more icons">More icons created by Vector Squad - Flaticon</a>
 PW: <a href="https://www.flaticon.com/free-icons/password" title="password icons">Password icons created by kostop - Flaticon</a>
 Youtube icon: <a href="https://www.flaticon.com/free-icons/logo" title="logo icons">Logo icons created by Alfredo Creates - Flaticon</a>
+quartz vault: <a href="https://www.flaticon.com/free-icons/markdown" title="markdown icons">Markdown icons created by brajaomar_j - Flaticon</a>
 """
 
 import os
@@ -195,7 +196,7 @@ def render_layout(deck, layout):
     if not deck or not deck.is_open(): # exits if deck is not initialized before the loop to render keys
         return
     deck.reset()  # clear old icons
-    deck.set_brightness(50) # set brightness to 50% (0-100) # from StreamDeck.py from the original repo
+    deck.set_brightness(100) # set brightness to 50% (0-100) # from StreamDeck.py from the original repo
     for key, config in layout.items():
         # This loop is a dictionary unpacking
         # config is label, icon, color, labelcolor, action...
@@ -244,13 +245,10 @@ def create_layouts(deck):
         5: {"icon": "git_layout.png", "action": switch_layout("git_layout")},
         6: {"icon": "github.png", "action": actions.open_github},
         7: {"icon": "busybee_layout.png", "color": "#fdff8a", "action": switch_layout("busybee_layout")},
-        8: {"icon": "project1docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('jarvis', ''))},
-        9: {"icon": "project2docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('busybee', ''))},
-        10: {"icon": "project3docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('pandora', ''))},
-        11: {"icon": "project4docs.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('website', ''))},
+        8: {"icon": "quartz.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('quartz', ''))},
         12: {"icon": "journal.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('journal', ''))},
-        13: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path))},
-        14: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))},
+        13: {"label": "Zenith", "icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path))},
+        14: {"label": "Busybee", "icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))},
         15: {"icon": "terminal_default.png", "action": actions.open_terminal},
         16: {"icon": "terminal_jarvisbusybee.png", "action": actions.open_terminal_env},
         17: {"icon": "terminal_busybee.png", "action": actions.open_terminal_env},
