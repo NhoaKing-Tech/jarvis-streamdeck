@@ -6,146 +6,379 @@ FINISH DATE: September 14th 2025 (Sunday)
 NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, AS THE DBUS CALLS ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN EXECUTED FROM THE SYSTEM SERVICE.
 """
 
-import subprocess, atexit, time, os
-import signal
-import sys
-from StreamDeck.DeviceManager import DeviceManager # Class DeviceManager from the original repo
-# DeviceManager imports StreamDeck classes: StreamDeck, StreamDeckMini, StreamDeckXL -> my deck
-from pathlib import Path
-from actions import actions
-from ui.render import initialize_render, create_layouts, render_layout
-from ui.logic import initialize_logic, key_change
-from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit
+# Standard library imports for system operations and process management
+import subprocess  # Used to execute external commands like ydotool, wmctrl, xdg-open, etc.
+import atexit      # Registers cleanup functions to run when Python interpreter exits
+import time        # Provides time-related functions like sleep() for delays
+import os          # Operating system interface for environment variables and file paths
+import signal      # Handles Unix signals like SIGINT (Ctrl+C) for graceful shutdown
+import sys         # System-specific parameters and functions, used for sys.exit()
 
-# Load configuration from config.env file
+# Third-party StreamDeck library imports
+# NOTE: This imports from the original Elgato StreamDeck repository in ../src/
+# The StreamDeck library provides hardware abstraction for StreamDeck devices
+from StreamDeck.DeviceManager import DeviceManager  # Factory class to discover and enumerate StreamDeck devices
+# DeviceManager.enumerate() returns a list of connected StreamDeck objects
+# Each StreamDeck object provides methods like: open(), close(), reset(), set_key_image(), set_key_callback()
+# StreamDeck variants supported: StreamDeck (15 keys), StreamDeckMini (6 keys), StreamDeckXL (32 keys)
+
+# Python standard library for modern path handling
+from pathlib import Path  # Object-oriented filesystem paths, more robust than os.path
+
+# Local jarvis module imports - these are our custom modules
+from actions import actions                                      # Action functions triggered by key presses
+from ui.render import initialize_render, create_layouts, render_layout  # Visual rendering and layout management
+from ui.logic import initialize_logic, key_change               # Event handling and layout switching logic
+from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit       # Resource cleanup and graceful shutdown
+
+# IMPORT STRATEGY EXPLANATION:
+# We use relative imports (from actions import actions) instead of absolute imports
+# because jarvis is a self-contained package. This approach has several advantages:
+# 1. PORTABILITY: Code works regardless of where jarvis directory is placed
+# 2. NO PYTHON PATH ISSUES: Doesn't require adding jarvis to sys.path or PYTHONPATH
+# 3. CLEAR DEPENDENCIES: Makes it obvious which modules belong to jarvis vs external libraries
+# 4. PACKAGE ISOLATION: Prevents naming conflicts with system-wide Python packages
+#
+# Alternative import strategies we could use but don't:
+# - Absolute imports (import jarvis.actions.actions): Requires jarvis to be in PYTHONPATH
+# - Star imports (from actions import *): Makes namespace pollution and unclear dependencies
+# - Direct file imports (exec(open('actions.py').read())): Fragile and bypasses Python's import system
+
+# Configuration loading function
+# This function reads environment variables from config.env file and loads them into os.environ
+# This approach allows for runtime configuration without hardcoding paths or credentials
 def load_config():
-    config_path = Path(__file__).parent / "config.env"
+    """Load environment variables from config.env file into os.environ.
+
+    This function implements a simple .env file parser that:
+    1. Reads the config.env file line by line
+    2. Skips empty lines and comments (lines starting with #)
+    3. Parses KEY=VALUE pairs and adds them to environment variables
+    4. Gracefully handles missing config files
+
+    PERFORMANCE CONSIDERATION: This function is called once at startup, so the
+    file I/O overhead is negligible. We could cache the results, but since this
+    runs only once, caching would add complexity without meaningful benefit.
+    """
+    # Use pathlib for robust path handling - __file__ is the absolute path to this script
+    config_path = Path(__file__).parent / "config.env"  # Looks for config.env in same directory as this script
+
+    # Check if config file exists before trying to read it
+    # This prevents FileNotFoundError and allows jarvis to run with default values
     if config_path.exists():
+        # Open file with default UTF-8 encoding (Python 3 default)
         with open(config_path) as f:
+            # Process each line in the config file
             for line in f:
-                line = line.strip()
+                line = line.strip()  # Remove leading/trailing whitespace and newlines
+
+                # Skip empty lines and comment lines (starting with #)
+                # Also ensure line contains = sign for KEY=VALUE format
                 if line and not line.startswith('#') and '=' in line:
+                    # Split on first = only (in case value contains = characters)
+                    # Example: "DATABASE_URL=postgres://user:pass=123@host/db"
                     key, value = line.split('=', 1)
+
+                    # Strip whitespace from key and value, then add to environment
+                    # os.environ is a dict-like object that interfaces with system environment
                     os.environ[key.strip()] = value.strip()
 
+# Load configuration immediately when module is imported
+# This ensures all configuration is available before any other code runs
 load_config()
 
-# Configuration - paths that can be customized via environment variables
-USER_HOME = Path.home()  # Get current user's home directory
-YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Use system ydotool by default
-PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Configurable Zenith directory
+# Configuration constants - these can be customized via environment variables in config.env
+# Using environment variables instead of hardcoded paths makes jarvis portable across different systems
+# Get current user's home directory using pathlib (more robust than os.path.expanduser('~'))
+USER_HOME = Path.home()  # Returns Path object like /home/username or /Users/username
 
-# Load all Obsidian vault configurations
-OBSIDIAN_VAULTS = {}
+# Tool path configuration with fallback to system PATH
+# ydotool is used for sending keyboard/mouse input to applications
+# PERFORMANCE NOTE: We store the path once rather than calling os.getenv() repeatedly
+YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Defaults to 'ydotool' which relies on system PATH
+
+# Projects directory configuration with intelligent default
+# This is where the user's code projects are stored
+PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Defaults to ~/Zenith
+# We convert to Path object for consistent path handling throughout the application
+
+# Dynamic Obsidian vault configuration loading
+# This allows for multiple Obsidian vaults to be configured via environment variables
+# Pattern: OBSIDIAN_VAULT_<NAME>=<PATH> becomes OBSIDIAN_VAULTS[<name>] = <PATH>
+OBSIDIAN_VAULTS = {}  # Dictionary to store vault_name -> vault_path mappings
+
+# Iterate through all environment variables to find Obsidian vault configurations
 for key, value in os.environ.items():
+    # Look for environment variables that follow the OBSIDIAN_VAULT_ prefix pattern
     if key.startswith('OBSIDIAN_VAULT_'):
-        vault_name = key.replace('OBSIDIAN_VAULT_', '').lower()
+        # Extract vault name from environment variable name
+        # Example: OBSIDIAN_VAULT_JOURNAL -> vault_name = 'journal'
+        vault_name = key.replace('OBSIDIAN_VAULT_', '').lower()  # Convert to lowercase for consistency
+
+        # Store the vault path in our configuration dictionary
         OBSIDIAN_VAULTS[vault_name] = value
 
-# Load KEYRING_PW from environment
-KEYRING_PW = os.getenv('KEYRING_PW', '')
+# PERFORMANCE OPTIMIZATION: This loop runs once at startup and processes only
+# environment variables, which is very fast. The alternative would be to call
+# os.getenv() for each known vault name, but this dynamic approach is more flexible
 
-# Directories for assets: code snippets and icons to display in the keys of the steamdeck
+# Load password for keyring/password manager from environment
+# This allows jarvis to type passwords securely without hardcoding them
+# SECURITY NOTE: Environment variables are more secure than hardcoded passwords
+# but still visible to other processes. For production use, consider using
+# a proper secrets management system or encrypted password manager integration
+KEYRING_PW = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not configured
+
+# Asset directory configuration
+# These directories contain resources used by jarvis: fonts, icons, code snippets, and scripts
+# We use os.path.join() for cross-platform compatibility (works on Windows, macOS, Linux)
+
+# Font file path for StreamDeck key text rendering
+# We use Roboto-Regular.ttf for clean, readable text on small StreamDeck keys
 FONT_DIR = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
+
+# Directory containing custom icons for StreamDeck keys
+# Icons should be PNG format, ideally 96x96 pixels for StreamDeck XL
 ICONS_DIR = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
+
+# Directory containing code snippets that can be inserted via StreamDeck
+# Snippets are stored as .txt files and can contain boilerplate code, templates, etc.
 SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "assets", "snippets")
+
+# Directory containing bash scripts that can be executed via StreamDeck
+# These scripts handle complex workflows like git operations, environment setup, etc.
 BASHSCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "assets", "bash_scripts")
 
-# Dictionary to hold different layouts
-layouts = {}
-current_layout = "main"
+# DESIGN DECISION: We use relative paths from the script location rather than
+# absolute paths or environment variables. This keeps the assets bundled with
+# the code and makes jarvis self-contained and portable.
 
-# Keycode mapping for ydotool
+# Global layout management variables
+# These variables track the current state of the StreamDeck interface
+
+# Dictionary to store all layout definitions
+# Each layout is a dictionary mapping key numbers (0-31) to key configurations
+# Example: layouts["main"][0] = {"icon": "spotify.png", "action": open_spotify}
+layouts = {}  # Will be populated by create_layouts() after deck initialization
+
+# Track which layout is currently displayed on the StreamDeck
+# This variable is modified by the switch_layout() function in ui.logic
+current_layout = "main"  # Start with the main layout as default
+
+# PERFORMANCE CONSIDERATION: We use a global variable instead of passing layout
+# state around because StreamDeck key callbacks need access to this information
+# and the callback signature is fixed by the StreamDeck library
+
+# Linux input event keycode mapping for ydotool
+# These are the raw Linux input event keycodes that ydotool uses to simulate key presses
+# They correspond to the scancodes defined in /usr/include/linux/input-event-codes.h
+#
+# TECHNICAL EXPLANATION:
+# - ydotool sends input events directly to the Linux kernel's input subsystem
+# - These are NOT ASCII codes or virtual key codes - they're hardware scancodes
+# - The mapping is consistent across all Linux systems regardless of keyboard layout
+# - Each key press sends two events: keycode:1 (press) and keycode:0 (release)
+#
+# PERFORMANCE OPTIMIZATION: We define this as a constant dictionary rather than
+# computing keycodes dynamically because:
+# 1. Lookup is O(1) constant time
+# 2. No repeated computation during hotkey operations
+# 3. Makes the mapping explicit and debuggable
 KEYCODES = {
-    # Letters
+    # Letter keys (QWERTY layout positions, not alphabetical)
     "A": 30, "B": 48, "C": 46, "D": 32, "E": 18,
     "F": 33, "G": 34, "H": 35, "I": 23, "J": 36,
     "K": 37, "L": 38, "M": 50, "N": 49, "O": 24,
     "P": 25, "Q": 16, "R": 19, "S": 31, "T": 20,
     "U": 22, "V": 47, "W": 17, "X": 45, "Y": 21,
     "Z": 44,
-    # Numbers
+
+    # Number row keys (1-9, 0)
     "1": 2, "2": 3, "3": 4, "4": 5, "5": 6,
     "6": 7, "7": 8, "8": 9, "9": 10, "0": 11,
-    # Function
+
+    # Function keys (F1-F12)
     "F1": 59, "F2": 60, "F3": 61, "F4": 62,
     "F5": 63, "F6": 64, "F7": 65, "F8": 66,
     "F9": 67, "F10": 68, "F11": 87, "F12": 88,
-    # Modifiers
-    "CTRL": 29, "SHIFT": 42, "ALT": 56,
-    "RIGHTCTRL": 97, "RIGHTSHIFT": 54, "RIGHTALT": 100,
-    "SUPER": 125,
-    # Special
+
+    # Modifier keys (both left and right variants)
+    "CTRL": 29, "SHIFT": 42, "ALT": 56,           # Left-side modifiers
+    "RIGHTCTRL": 97, "RIGHTSHIFT": 54, "RIGHTALT": 100,  # Right-side modifiers
+    "SUPER": 125,  # Super/Windows/Cmd key
+
+    # Special keys
     "ESC": 1, "TAB": 15, "CAPSLOCK": 58,
     "SPACE": 57, "ENTER": 28, "BACKSPACE": 14,
-    # Navigation
+
+    # Navigation keys (arrow keys and related)
     "UP": 103, "DOWN": 108, "LEFT": 105, "RIGHT": 106,
     "HOME": 102, "END": 107, "PAGEUP": 104, "PAGEDOWN": 109,
     "INSERT": 110, "DELETE": 111,
-    # Symbols
-    "MINUS": 12, "EQUAL": 13,
-    "LEFTBRACE": 26, "RIGHTBRACE": 27,
-    "BACKSLASH": 43, "SEMICOLON": 39,
-    "APOSTROPHE": 40, "GRAVE": 41,
-    "COMMA": 51, "DOT": 52, "SLASH": 53,
+
+    # Symbol/punctuation keys
+    "MINUS": 12, "EQUAL": 13,                    # - and = keys
+    "LEFTBRACE": 26, "RIGHTBRACE": 27,          # [ and ] keys
+    "BACKSLASH": 43, "SEMICOLON": 39,           # \ and ; keys
+    "APOSTROPHE": 40, "GRAVE": 41,              # ' and ` keys
+    "COMMA": 51, "DOT": 52, "SLASH": 53,        # , . and / keys
 }
+#
+# WHY NOT USE ALTERNATIVES:
+# - xdotool: Only works on X11, doesn't work on Wayland
+# - PyAutoGUI: Higher level but less precise, may have timing issues
+# - Direct X11/Wayland libraries: More complex and display-server specific
+# - ydotool: Works on both X11 and Wayland, precise low-level control
 
 def main():
     """
-    Main function that starts the stream deck and runs the configuration.
+    Main entry point for the jarvis StreamDeck application.
+
+    This function orchestrates the entire application startup process:
+    1. Initializes all modules with required configuration
+    2. Discovers and connects to StreamDeck hardware
+    3. Sets up UI layouts and event handling
+    4. Enters the main event loop
+
+    The function uses a retry mechanism to handle temporary StreamDeck disconnections
+    and ensures proper cleanup on exit via signal handlers.
     """
+    # Declare global variables that will be modified in this function
+    # Using globals here is necessary because StreamDeck callbacks need access to these
     global deck, current_layout, layouts
 
+    # Initialize all jarvis modules with configuration data
+    # This dependency injection pattern allows modules to be tested independently
+    # and keeps configuration centralized in this main module
+
+    # Initialize actions module with tool paths and directories
+    # This provides actions.py with access to ydotool, snippet files, etc.
     actions.initialize_actions(YDOTOOL_PATH,
            SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW)
+
+    # Initialize rendering module with fonts, icons, and user-specific paths
+    # This provides ui/render.py with access to visual assets and configuration
     initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS, KEYRING_PW)
+
+    # Initialize lifecycle management with cleanup tools
+    # This provides ui/lifecycle.py with access to ydotool for key release
     initialize_lifecycle(YDOTOOL_PATH, KEYCODES)
 
-    # -------------------- Loop retry connection to stream deck
-    interval_seconds = 5 # keep trying to locate the stream deck every 5 seconds
-    max_retry_minutes = 5 # keep trying to locate the stream deck for 5 minutes
+    # StreamDeck Discovery and Connection with Retry Logic
+    # This section implements a robust connection strategy to handle:
+    # 1. StreamDeck not plugged in at startup
+    # 2. USB connection issues
+    # 3. Device driver delays
+    # 4. Temporary hardware disconnections
 
+    # Configuration for retry mechanism
+    interval_seconds = 5  # Wait 5 seconds between connection attempts
+    max_retry_minutes = 5  # Give up after 5 minutes of trying
+
+    # Initialize deck variable - will hold the StreamDeck object once connected
     deck = None
-    max_tries = max_retry_minutes*60/max_retry_minutes   # calculates the maximimum attempts to locate the stream deck according to the time interval between attempts and the maximum time allowed to keep attempting to find the deck
+
+    # Calculate maximum number of attempts based on time constraints
+
+    max_tries = (max_retry_minutes * 60) / interval_seconds
     current_tries = 0
+
+    # Main connection retry loop
     while current_tries < max_tries:
-        # loop with exit condition. It will keep trying to locate the stream deck until the current_tires reaches the max_tries (starts from 0 so it counts as the first try, until 59)
-        decks = DeviceManager().enumerate() # Returns the stream decks objects
+        # Attempt to discover connected StreamDeck devices
+        # DeviceManager().enumerate() scans USB devices for Elgato StreamDecks
+        # This call may take a few hundred milliseconds as it queries USB devices
+        decks = DeviceManager().enumerate()  # Returns list of StreamDeck device objects
+
         if decks:
-            deck = decks[0] # The stream deck instance, it is the first one because I only have one, the Stream Deck XL
-            #print("Found connected stream deck") # Commented since it is not necessary unless for debugging
-            break # if deck is found, exit early
+            # At least one StreamDeck was found - use the first one
+            # NOTE: This assumes only one StreamDeck is connected. For multiple devices,
+            # we would need to identify them by serial number or model
+            deck = decks[0]  # Get the first (and presumably only) StreamDeck
+            # Uncommented debug print: print("Found connected stream deck")
+            break  # Exit the retry loop immediately upon successful discovery
         else:
-            # since it did not find the deck on the current try, it will try again
-            #print(f"Stream deck is not found, retrying in {interval_seconds} seconds...") # Commented since it is not necessary unless for debugging
-            time.sleep(interval_seconds)
-            current_tries += 1 # updates the current tries
+            # No StreamDeck found on this attempt - wait and try again
+            # Uncommented debug print: print(f"Stream deck not found, retrying in {interval_seconds} seconds...")
+            time.sleep(interval_seconds)  # Non-blocking sleep - allows Ctrl+C to interrupt
+            current_tries += 1  # Increment attempt counter
     else:
-        #print("Stream Deck not found.") # Commented since it is not necessary unless for debugging
-        sys.exit(1)
+        # This else clause executes only if the while loop completed without breaking
+        # (i.e., we exhausted all retry attempts without finding a StreamDeck)
+        # Uncommented debug print: print("Stream Deck not found.")
+        sys.exit(1)  # Exit with error code 1 to indicate failure
 
-    deck.open()
-    deck.reset()
+    # PERFORMANCE OPTIMIZATION OPPORTUNITY:
+    # The retry loop could be improved by:
+    # 1. Using exponential backoff (1s, 2s, 4s, 8s, then 5s intervals)
+    # 2. Caching USB device enumeration results
+    # 3. Adding signal handling to allow graceful exit during retry
+    # However, given that this runs only once at startup and StreamDecks are
+    # typically always connected, the current simple approach is adequate
 
-    # Create all layout definitions now that deck is initialized
-    layouts = create_layouts(deck)
+    # StreamDeck Hardware Initialization
+    # Now that we have a StreamDeck object, we need to open the USB connection
+    # and prepare the device for use
 
-    # Initialize UI logic with the deck and layouts
-    initialize_logic(deck, layouts, "main")
+    deck.open()   # Open USB communication channel to the StreamDeck device
+    deck.reset()  # Clear any existing images/state from previous sessions
+    # reset() turns off all key LEDs and clears any displayed images
 
-    # Render buttons of the current layout. At initialization it is main
-    render_layout(deck, layouts[current_layout])
+    # UI Layout Initialization
+    # Create all layout definitions now that deck hardware is available
+    # Some layout functions need access to the deck object (e.g., for toggle_mic)
+    layouts = create_layouts(deck)  # Returns dictionary of layout_name -> layout_config
 
-    # Register key handler
-    # The function key_change is called everytime a key is pressed or released
-    deck.set_key_callback(key_change) #set_key_callback
+    # Initialize UI logic module with deck and layout state
+    # This sets up the global state needed for key event handling
+    initialize_logic(deck, layouts, "main")  # "main" is the initial layout to display
 
-    # Handle exit signals
+    # Render the initial layout to the StreamDeck
+    # This displays icons and sets up the visual state of all 32 keys
+    render_layout(deck, layouts[current_layout])  # current_layout is "main" at startup
+
+    # Event Handler Registration
+    # Register our key_change function to be called whenever any key is pressed or released
+    # The StreamDeck library will call key_change(deck, key_number, is_pressed) for each event
+    deck.set_key_callback(key_change)  # key_change is imported from ui.logic module
+
+    # Signal Handler Registration for Graceful Shutdown
+    # Set up handlers to clean up resources when the program is interrupted or terminated
+
+    # Handle Ctrl+C (SIGINT) signal with graceful shutdown
+    # Lambda function ignores the signal number and frame arguments
     signal.signal(signal.SIGINT, lambda s, f: safe_exit(deck))
-    atexit.register(cleanup, deck)
+    # Alternative: signal.signal(signal.SIGINT, lambda *args: safe_exit(deck))
 
+    # Register cleanup function to run automatically when Python interpreter exits
+    # This handles cases where the program exits normally or due to exceptions
+    atexit.register(cleanup, deck)  # cleanup function is imported from ui.lifecycle
+
+    # Enter Main Event Loop
+    # Print status message to let user know the application is running
     print("Stream deck script is running. Press CTRL+C to quit.")
-    signal.pause()
 
+    # Pause the main thread indefinitely, waiting for signals
+    # signal.pause() blocks until a signal is received (like SIGINT from Ctrl+C)
+    # All actual work happens in the key_change callback function on separate threads
+    signal.pause()  # This is an efficient way to keep the program alive without busy-waiting
+
+    # PERFORMANCE CONSIDERATION:
+    # signal.pause() is much more efficient than alternatives like:
+    # - while True: time.sleep(1)  # Uses unnecessary CPU cycles
+    # - input("Press Enter to quit")  # Requires user interaction
+    # - threading.Event().wait()  # More complex and unnecessary for this use case
+
+# Python script entry point
+# This ensures main() only runs when the script is executed directly,
+# not when imported as a module by other Python scripts
 if __name__ == "__main__":
-    main()
+    main()  # Start the jarvis StreamDeck application
+
+# DESIGN PATTERN EXPLANATION:
+# The if __name__ == "__main__" pattern is a Python idiom that allows a script
+# to be both executable and importable:
+# 1. When run directly (python run_jarvis.py), __name__ equals "__main__"
+# 2. When imported (import run_jarvis), __name__ equals "run_jarvis"
+# This allows other modules to import functions from this file without
+# automatically starting the StreamDeck application.

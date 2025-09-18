@@ -15,9 +15,13 @@ def load_config():
                     key, value = line.split('=', 1)
                     os.environ[key.strip()] = value.strip()
 
+# Load configuration immediately when module is imported
+# This ensures configuration is available for all reset operations
 load_config()
 
-YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')
+# Tool path configuration with fallback to system PATH
+# Uses same configuration approach as main jarvis application
+YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Path to ydotool for key release operations
 
 # Optional: same KEYCODES dictionary from your workflow
 KEYCODES = {
