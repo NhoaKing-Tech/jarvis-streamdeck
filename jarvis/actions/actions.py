@@ -80,10 +80,9 @@ import os          # File system operations and path manipulation
 from pathlib import Path  # Object-oriented filesystem paths
 
 # Import from our UI module for dynamic key rendering
-from ui.render import render_keys  # Function to update StreamDeck key appearance
-# This import creates a dependency cycle: actions -> ui.render -> ui.logic -> actions
-# However, it's safe because render_keys is only called from action callbacks,
-# not during module initialization
+# Note: render_keys import moved inside toggle_mic function to avoid circular import
+# This was: actions -> ui.render -> ui.logic -> actions
+# Now render_keys is imported only when needed, breaking the cycle
 
 # Module-level configuration variables (initialized via dependency injection)
 # These variables are set by initialize_actions() called from run_jarvis.py
@@ -112,38 +111,12 @@ KEYRING_PW = None       # Password for keyring/password manager access
 # 4. ERROR HANDLING: Can detect and report missing configuration
 
 def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes, keyring_pw):
-    """Initialize the actions module with required configuration from the main module (run_jarvis.py).
+    """Initialize the actions module with required configuration from the main module.
 
-    WHAT IS DEPENDENCY INJECTION?
-    ================================================================
-    Dependency Injection (DI) is a design pattern where a function or module receives
-    its dependencies from the outside, rather than creating
-    or finding them itself.
-
-    WHY USE DEPENDENCY INJECTION?
-    =============================
-    1. SEPARATION OF CONCERNS: The actions module focuses on WHAT to do (actions),
-       while run_jarvis.py focuses on HOW to configure things (loading config files)
-
-    2. TESTABILITY: We can easily test action functions by passing fake/mock values
-       instead of real file paths and passwords
-
-    3. FLEXIBILITY: We can run the same action functions with different configurations
-       (development vs production, different users, etc.)
-
-    4. SINGLE RESPONSIBILITY: Each module has one job:
-       - run_jarvis.py: Load configuration from files/environment
-       - actions.py: Execute StreamDeck key actions
-
-    THE ALTERNATIVE WE CONSIDERED:
-    ==============================
-    We could have made actions.py read environment variables directly, like:
-        YDOTOOL_PATH = os.getenv('YDOTOOL_PATH')
-
-    But we chose dependency injection because:
-    - It keeps configuration loading centralized in one place (run_jarvis.py)
-    - It makes the dependency explicit (you can see what each function needs)
-    - It follows the principle: "Don't make me hunt for where values come from"
+    This function implements the Dependency Injection (DI) pattern where the actions
+    module receives its dependencies from the outside rather than creating or finding
+    them itself. This approach provides better separation of concerns, testability,
+    and flexibility.
 
     Args:
         ydotool_path (str): Path to ydotool executable for input simulation
@@ -153,8 +126,23 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
         keycodes (dict): Mapping of key names to Linux input event codes
         keyring_pw (str): Password for keyring/password manager access
 
-    PERFORMANCE NOTE: This function runs once at startup, so any validation
-    or preprocessing we do here doesn't affect runtime performance.
+    Design Pattern - Dependency Injection:
+        Instead of reading environment variables directly in this module, we receive
+        all dependencies as parameters. This provides:
+
+        - **Separation of Concerns**: actions.py focuses on WHAT to do (actions),
+          while run_jarvis.py focuses on HOW to configure things
+        - **Testability**: Easy to test action functions by passing mock values
+        - **Flexibility**: Same functions work with different configurations
+        - **Explicit Dependencies**: Clear what each module needs to function
+
+    Performance:
+        This function runs once at startup, so any validation or preprocessing
+        done here doesn't affect runtime performance.
+
+    Note:
+        This function must be called before any action functions are used,
+        typically during application startup in run_jarvis.py.
     """
 
     # WHAT ARE GLOBAL VARIABLES? (For Beginners)
@@ -388,8 +376,17 @@ def spotify():
 
 # 3. Microphone state function and toggle ON/OFF
 def is_mic_muted():
-    """
-    Function to check microophone mute status using amixer
+    """Check if the microphone is currently muted using amixer.
+
+    This function uses the ALSA amixer command to query the current state
+    of the Capture (microphone) audio device.
+
+    Returns:
+        bool: True if microphone is muted ("[off]" in output), False if active
+
+    Note:
+        Requires amixer to be installed and the Capture device to be available.
+        This is the standard microphone control on most Linux systems.
     """
     result = subprocess.run(
         ["amixer", "get", "Capture"],
@@ -399,11 +396,30 @@ def is_mic_muted():
     return "[off]" in result.stdout
 
 def toggle_mic(deck, key):
-    """
-    Function to toggle microphone mute and update the StreamDeck button icon.
-    Returns a lambda function for use in layout definitions.
+    """Create a function that toggles microphone mute and updates the StreamDeck icon.
+
+    This function implements a factory pattern that returns a callable which,
+    when executed, will toggle the microphone mute state and immediately update
+    the corresponding StreamDeck key with appropriate visual feedback.
+
+    Args:
+        deck: StreamDeck device object for updating key appearance
+        key (int): Key number (0-31) to update with new icon and label
+
+    Returns:
+        callable: Function that performs the mic toggle when called
+
+    Visual Feedback:
+        - Muted: Shows "OFF" label with "mic-off.png" icon
+        - Active: Shows "ON" label with "mic-on.png" icon
+
+    Note:
+        Uses amixer to control the Capture device. Requires ALSA to be configured.
     """
     def wrapper():
+        # Import render_keys here to avoid circular import
+        from ui.render import render_keys
+
         subprocess.run(["amixer", "set", "Capture", "toggle"])
         muted = is_mic_muted()
         render_keys(deck, key,
@@ -422,26 +438,24 @@ def hot_keys(*keys):
     Args:
         *keys: Variable number of key names (e.g., "CTRL", "C" for Ctrl+C)
 
-    TECHNICAL DETAILS:
-    - Keys are pressed in the order specified (left to right)
-    - Keys are released in reverse order (right to left)
-    - Each key event is formatted as "keycode:state" where state is 1 (press) or 0 (release)
-    - All events are sent in a single ydotool command for atomic execution
+    Technical Details:
+        - Keys are pressed in the order specified (left to right)
+        - Keys are released in reverse order (right to left) to prevent sticky keys
+        - Each key event is formatted as "keycode:state" (1=press, 0=release)
+        - All events are sent in a single ydotool command for atomic execution
 
-    EXAMPLES:
-    - hot_keys("CTRL", "C") -> Press Ctrl, press C, release C, release Ctrl
-    - hot_keys("CTRL", "SHIFT", "T") -> Press Ctrl, Shift, T, then release T, Shift, Ctrl
-    - hot_keys("ALT", "TAB") -> Press Alt, Tab, release Tab, release Alt
+    Examples:
+        - hot_keys("CTRL", "C") → Press Ctrl, press C, release C, release Ctrl
+        - hot_keys("CTRL", "SHIFT", "T") → Press Ctrl+Shift+T properly
+        - hot_keys("ALT", "TAB") → Alt+Tab window switching
 
-    WHY REVERSE ORDER FOR RELEASE:
-    Releasing keys in reverse order prevents "sticky key" behavior where
-    modifier keys (Ctrl, Alt, Shift) remain pressed after the hotkey.
-    This was a common bug when first implementing ydotool integration.
+    Raises:
+        RuntimeError: If actions module not initialized
+        ValueError: If unknown key name provided
 
-    PERFORMANCE NOTE:
-    This function executes immediately rather than returning a callable.
-    This is because hotkey actions are typically immediate and don't need
-    the factory pattern used by other functions.
+    Note:
+        Reverse release order prevents modifier keys from remaining "stuck"
+        after the hotkey sequence completes.
     """
     # Verify module initialization
     if KEYCODES is None or YDOTOOL_PATH is None:
@@ -476,30 +490,30 @@ def hot_keys(*keys):
     # This helps verify that ydotool is working and the keycodes are correct
 
 def hk_terminal():
-    """Open a new terminal window using standard Linux hotkey.
+    """Open a new terminal window using the standard Linux desktop hotkey.
 
-    This function simulates the standard Linux desktop shortcut Ctrl+Alt+T
-    to open a new terminal window. This works across most Linux desktop
-    environments (GNOME, KDE, XFCE, etc.) and is faster than launching
-    specific terminal applications.
+    This function simulates the Ctrl+Alt+T keyboard shortcut which is the
+    standard way to open a terminal window across most Linux desktop environments.
+    This approach respects the user's default terminal preference and integrates
+    properly with the desktop environment's window management.
 
-    DESKTOP ENVIRONMENT COMPATIBILITY:
-    - GNOME: Opens gnome-terminal
-    - KDE: Opens konsole
-    - XFCE: Opens xfce4-terminal
-    - i3/sway: Opens configured terminal ($TERMINAL)
-    - Most others: Opens system default terminal
+    Desktop Environment Compatibility:
+        - **GNOME**: Opens gnome-terminal
+        - **KDE**: Opens konsole
+        - **XFCE**: Opens xfce4-terminal
+        - **i3/sway**: Opens configured terminal ($TERMINAL)
+        - **Others**: Opens system default terminal
 
-    WHY USE HOTKEY INSTEAD OF DIRECT COMMAND:
-    - Respects user's default terminal preference
-    - Works consistently across different desktop environments
-    - Faster than discovering and launching specific terminal executable
-    - Integrates with desktop environment's window management
+    Advantages:
+        - Respects user's default terminal preference
+        - Works consistently across different desktop environments
+        - Faster than discovering and launching specific terminal executable
+        - Integrates with desktop environment's window management
 
-    ALTERNATIVE APPROACHES:
-    - subprocess.Popen(["x-terminal-emulator"]) - Debian alternative system
-    - subprocess.Popen(["gnome-terminal"]) - GNOME specific
-    - subprocess.Popen([os.environ.get("TERMINAL", "xterm")]) - Environment variable
+    Note:
+        This is preferred over direct terminal commands because it uses the
+        desktop environment's configured default rather than hardcoding a
+        specific terminal emulator.
     """
     # Send the standard Linux terminal hotkey combination
     # This is recognized by virtually all Linux desktop environments
@@ -510,50 +524,51 @@ def hk_terminal():
     # The desktop environment handles terminal selection and configuration
 
 def hk_copy():
-    """
-    Super simple example for using hotkeys function
+    """Copy selected text to clipboard using Ctrl+C hotkey.
+
+    Simple demonstration of the hot_keys function that sends the standard
+    copy-to-clipboard keyboard shortcut.
+
+    Note:
+        This is a basic example of hotkey usage. The selected text in the
+        currently focused application will be copied to the system clipboard.
     """
     hot_keys("CTRL", "C")
 
 # 5. Open VSCode application with a given project path
 def open_vscode(project_path):
-    """
-    Create a function that opens Visual Studio Code with a specific project.
+    """Create a function that opens Visual Studio Code with a specific project.
 
-    This function returns a callable that opens VSCode, waits for it to load,
-    then automatically opens the integrated terminal for immediate use.
+    This function returns a callable that opens VSCode, waits for initialization,
+    then automatically opens the integrated terminal for immediate development use.
 
     Args:
         project_path (str): Absolute path to the project directory to open
 
     Returns:
-        callable: A function that opens VSCode and configures it when called
+        callable: A function that launches and configures VSCode when called
 
-    WORKFLOW:
-    1. Launch VSCode with the specified project directory
-    2. Wait 2 seconds for VSCode to fully load and initialize
-    3. Send Ctrl+` hotkey to open the integrated terminal
+    Workflow:
+        1. Launch VSCode with the specified project directory
+        2. Wait 2 seconds for VSCode to fully load and initialize
+        3. Send Ctrl+` hotkey to open the integrated terminal
 
-    VSCODE INTEGRATION:
-    Each project should have a .vscode/settings.json file to configure:
-    - Terminal working directory
-    - Environment variables
-    - Python interpreter path
-    - Extensions and settings specific to that project
+    VSCode Integration:
+        Each project should have a .vscode/settings.json file to configure:
 
-    TIMING CONSIDERATIONS:
-    The 2-second delay is necessary because:
-    - VSCode needs time to initialize before accepting hotkeys
-    - Loading large projects takes longer than small ones
-    - Too short delay = hotkey ignored; too long = user impatience
-    - 2 seconds is a reasonable compromise for most hardware
+        - Terminal working directory
+        - Environment variables
+        - Python interpreter path
+        - Extensions and settings specific to that project
 
-    DESIGN DECISION: Lambda vs Function
-    Using lambda allows inline definition but has limitations:
-    - Cannot include complex logic or error handling
-    - Harder to debug when things go wrong
-    - Less readable for complex sequences
-    A dedicated function would be more maintainable for complex workflows.
+    Timing:
+        The 2-second delay is necessary because VSCode needs time to initialize
+        before accepting hotkeys. This delay works well for most hardware and
+        project sizes.
+
+    Note:
+        Uses lambda for inline definition. For complex workflows, a dedicated
+        function would be more maintainable.
     """
     return lambda: (
         # Launch VSCode with the project path as argument
@@ -584,9 +599,8 @@ def open_vscode(project_path):
 def type_text(text):
     """Create a function that types the specified text using ydotool.
 
-    This function returns a callable that, when executed, will simulate typing
-    the given text into the currently focused application. It uses ydotool
-    to send keyboard input events directly to the Linux input subsystem.
+    This function returns a callable that simulates typing the given text into
+    the currently focused application using ydotool for low-level input events.
 
     Args:
         text (str): The text to type when the returned function is called
@@ -594,20 +608,23 @@ def type_text(text):
     Returns:
         callable: A function that executes the text typing when called
 
-    TECHNICAL DETAILS:
-    - Uses "--" argument to prevent ydotool from interpreting text starting with "-" as flags
-    - ydotool works on both X11 and Wayland, unlike xdotool which only works on X11
-    - subprocess.Popen() is non-blocking, so typing doesn't freeze the UI
+    Technical Details:
+        - Uses "--" argument to prevent ydotool flag interpretation
+        - Works on both X11 and Wayland (unlike xdotool which is X11-only)
+        - Non-blocking execution doesn't freeze the UI
+        - Each character sent as separate input event
 
-    PERFORMANCE CONSIDERATIONS:
-    - Each character is sent as a separate input event, which is slow for long text
-    - For large text blocks, consider using clipboard operations instead
-    - ydotool has a small delay between characters to ensure proper delivery
+    Performance:
+        Character-by-character input is slower for long text. For large text
+        blocks, consider using clipboard operations instead.
 
-    DESIGN PATTERN: Factory Function
-    This function returns another function rather than executing immediately.
-    This allows us to configure the action when building layouts, but execute
-    it later when keys are pressed.
+    Design Pattern:
+        Factory function pattern - returns a function rather than executing
+        immediately. This allows configuration during layout building and
+        execution when keys are pressed.
+
+    Raises:
+        RuntimeError: If actions module not initialized
     """
     def execute():
         # Verify module has been properly initialized
@@ -631,8 +648,21 @@ def type_text(text):
     return execute  # Return the inner function for later execution
 
 def type_keyring():
-    """
-    Type and enter your password, as declared in config.env
+    """Type the configured password followed by Enter key.
+
+    This function types the password stored in the KEYRING_PW configuration
+    variable, followed by a newline character to submit forms or authenticate.
+
+    Returns:
+        callable: Function that types the password when called
+
+    Security Note:
+        The password is stored in environment variables via config.env.
+        While more secure than hardcoding, consider using proper password
+        managers for production systems.
+
+    Raises:
+        RuntimeError: If KEYRING_PW not configured in initialization
     """
     if KEYRING_PW is None:
         raise RuntimeError("KEYRING_PW not initialized. Call initialize_actions() from main first.")
@@ -837,31 +867,40 @@ def execute_bash(bash_script, *args, in_terminal=False):
     return wrapper()
 
 def terminal_env_jarvis():
-    """
-    Open a terminal with jarvis/busybee conda environment activated.
+    """Open a terminal with jarvis/busybee conda environment activated.
 
     This function launches a terminal window with a pre-configured conda environment
     that's set up for jarvis development work. The environment includes all necessary
     dependencies for StreamDeck development, Python automation, and related tools.
 
-    SCRIPT EXECUTION:
-    Executes the bash script "open_jarvisbusybee_env_T.sh" which handles:
-    - Opening a new terminal window
-    - Activating the appropriate conda environment
-    - Setting working directory to jarvis project
-    - Loading any necessary environment variables
+    Script Execution:
+        Executes "open_jarvisbusybee_env_T.sh" which handles:
 
-    DESIGN PATTERN: Script delegation
-    Complex terminal setup is handled by external bash scripts rather than
-    Python code because:
-    - Bash is better suited for terminal and environment manipulation
-    - Scripts can be easily modified without changing Python code
-    - Terminal setup often requires shell-specific commands
-    - Easier to debug and test independently
+        - Opening a new terminal window
+        - Activating the appropriate conda environment
+        - Setting working directory to jarvis project
+        - Loading any necessary environment variables
+
+    Design Pattern:
+        Script delegation - complex terminal setup is handled by external bash
+        scripts rather than Python code because bash is better suited for terminal
+        and environment manipulation, and scripts can be easily modified without
+        changing Python code.
+
+    Note:
+        The script file must exist in the configured BASHSCRIPTS_DIR.
     """
     execute_bash("open_jarvisbusybee_env_T.sh")
 
 def terminal_env_busybee():
+    """Open a terminal with busybee conda environment activated.
+
+    Similar to terminal_env_jarvis() but specifically for the busybee project
+    environment. Executes the "open_busybee_env_T.sh" script.
+
+    Note:
+        See terminal_env_jarvis() for detailed workflow explanation.
+    """
     execute_bash("open_busybee_env_T.sh")
 
 def defaultbranch_commit():

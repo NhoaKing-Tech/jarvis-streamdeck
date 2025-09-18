@@ -25,23 +25,31 @@ from pathlib import Path  # Modern path handling, more robust than os.path
 def create_config():
     """Create a personalized config.env file through interactive prompts.
 
-    This function implements an interactive configuration wizard that:
-    1. Checks for existing configuration and asks about overwriting
-    2. Provides intelligent defaults based on system detection
-    3. Prompts user for key configuration values
-    4. Generates properly formatted config.env file
-    5. Provides usage instructions
+    This function implements an interactive configuration wizard that guides
+    users through setting up their jarvis environment. It provides intelligent
+    defaults, validates input, and generates a properly formatted configuration file.
 
-    CONFIGURATION STRATEGY:
-    - Uses sensible defaults that work for most users
-    - Allows empty input to accept defaults (user-friendly)
-    - Validates critical paths where possible
-    - Generates self-documenting configuration file
+    Process:
+        1. Checks for existing configuration and asks about overwriting
+        2. Provides intelligent defaults based on system detection
+        3. Prompts user for key configuration values
+        4. Generates properly formatted config.env file
+        5. Provides usage instructions
 
-    ERROR HANDLING:
-    - Checks for existing config files to prevent accidental overwrites
-    - Handles file write permissions gracefully
-    - Provides clear feedback and instructions
+    Configuration Strategy:
+        - Uses sensible defaults that work for most users
+        - Allows empty input to accept defaults (user-friendly)
+        - Validates critical paths where possible
+        - Generates self-documenting configuration file
+
+    Error Handling:
+        - Checks for existing config files to prevent accidental overwrites
+        - Handles file write permissions gracefully
+        - Provides clear feedback and instructions
+
+    Generated Configuration:
+        Creates config.env with paths for ydotool, projects directory,
+        and Obsidian vaults, plus comments for additional options.
     """
     # Determine path for configuration file (same directory as this script)
     config_path = Path(__file__).parent / "config.env"
@@ -141,16 +149,26 @@ def which_ydotool():
     Returns:
         str: Path to ydotool executable, or a reasonable fallback
 
-    DETECTION STRATEGY:
-    1. Check system PATH using shutil.which()
-    2. Fall back to common installation locations
-    3. Provide user-friendly default that can be manually corrected
+    Detection Strategy:
+        1. Check system PATH using shutil.which()
+        2. Fall back to common installation locations
+        3. Provide user-friendly default that can be manually corrected
 
-    INSTALLATION METHODS SUPPORTED:
-    - Package manager installation (apt, yum, pacman, etc.)
-    - Manual compilation and installation
-    - Local user installation
-    - Custom installation paths
+    Installation Methods Supported:
+        - Package manager installation (apt, yum, pacman, etc.)
+        - Manual compilation and installation
+        - Local user installation
+        - Custom installation paths
+
+    Fallback Locations:
+        - /usr/local/bin/ydotool (manual compilation default)
+        - /usr/bin/ydotool (package manager installation)
+        - /opt/ydotool/bin/ydotool (custom installation)
+        - ~/.local/bin/ydotool (user-local installation)
+
+    Note:
+        If no ydotool installation is found, returns a reasonable default
+        path that the user can correct during the interactive setup.
     """
     # Standard library import for executable detection
     import shutil
@@ -194,16 +212,25 @@ def which_ydotool():
     # - Cross-platform compatible
     # - Fast and reliable
 
-# SCRIPT ENTRY POINT:
-# This ensures the configuration wizard only runs when script is executed directly,
-# not when imported as a module by other Python scripts
 if __name__ == "__main__":
-    # EXECUTION FLOW:
-    # 1. Script is run from command line: python setup_config.py
-    # 2. Interactive configuration wizard starts
-    # 3. User provides configuration values
-    # 4. config.env file is generated
-    # 5. Usage instructions are displayed
+    """Script entry point for interactive configuration setup.
+
+    This ensures the configuration wizard only runs when script is executed
+    directly, not when imported as a module by other Python scripts.
+
+    Execution Flow:
+        1. Script is run from command line: python setup_config.py
+        2. Interactive configuration wizard starts
+        3. User provides configuration values
+        4. config.env file is generated
+        5. Usage instructions are displayed
+
+    Post-Execution:
+        After this script completes:
+        - config.env file exists with user configuration
+        - User can run jarvis with: source config.env && python run_jarvis.py
+        - System service can be configured using the generated config
+    """
     create_config()
 
     # POST-EXECUTION:

@@ -41,22 +41,22 @@ def initialize_lifecycle(ydotool_path, keycodes):
     """Initialize the lifecycle module with required configuration.
 
     This function sets up the module with the configuration needed for
-    cleanup operations. It's called once during application startup.
+    cleanup operations. It's called once during application startup to
+    ensure cleanup tools are available for shutdown scenarios.
 
     Args:
         ydotool_path (str): Path to ydotool executable for key operations
         keycodes (dict): Mapping of key names to Linux input event codes
 
-    INITIALIZATION TIMING:
-    This is called early in the startup sequence, after configuration
-    is loaded but before StreamDeck operations begin. This ensures
-    cleanup tools are available if needed during startup or shutdown.
+    Initialization Timing:
+        Called early in the startup sequence, after configuration is loaded
+        but before StreamDeck operations begin. This ensures cleanup tools
+        are available if needed during startup or shutdown.
 
-    ERROR HANDLING:
-    No validation is performed here because:
-    - This is called during controlled startup with validated config
-    - Invalid configuration would be caught during actual cleanup attempts
-    - Simple assignment is fast and unlikely to fail
+    Error Handling:
+        No validation is performed here because this is called during
+        controlled startup with validated config. Invalid configuration
+        would be caught during actual cleanup attempts.
     """
     # Set module-level configuration variables
     global YDOTOOL_PATH, KEYCODES
@@ -82,29 +82,33 @@ def release_all_keys():
     This is essential because ydotool can leave keys in pressed state if
     the application crashes or exits unexpectedly.
 
-    STICKY KEY PROBLEM:
-    ydotool sends low-level input events to the Linux kernel. If a key press
-    event is sent but the corresponding key release event is never sent
-    (due to application crash, kill signal, etc.), the key remains "pressed"
-    from the system's perspective. This can make the system unusable.
+    Sticky Key Problem:
+        ydotool sends low-level input events to the Linux kernel. If a key press
+        event is sent but the corresponding key release event is never sent
+        (due to application crash, kill signal, etc.), the key remains "pressed"
+        from the system's perspective. This can make the system unusable.
 
-    SOLUTION STRATEGY:
-    Send release events (keycode:0) for all possible keys that jarvis might
-    have pressed. This is safe because:
-    - Releasing an already-released key has no effect
-    - Better to release too many keys than leave any stuck
-    - The overhead is minimal (small command, runs once at exit)
+    Solution Strategy:
+        Send release events (keycode:0) for all possible keys that jarvis might
+        have pressed. This is safe because:
 
-    WHEN THIS IS CALLED:
-    - Normal application shutdown (atexit handler)
-    - Signal-based shutdown (SIGINT/Ctrl+C handler)
-    - Manual cleanup calls
-    - Recovery scenarios (reset_jarvis.py)
+        - Releasing an already-released key has no effect
+        - Better to release too many keys than leave any stuck
+        - The overhead is minimal (small command, runs once at exit)
 
-    ERROR HANDLING:
-    Validates initialization but doesn't handle ydotool execution errors
-    because this is typically called during shutdown when error handling
-    options are limited.
+    Called During:
+        - Normal application shutdown (atexit handler)
+        - Signal-based shutdown (SIGINT/Ctrl+C handler)
+        - Manual cleanup calls
+        - Recovery scenarios (reset_jarvis.py)
+
+    Raises:
+        RuntimeError: If lifecycle module not initialized
+
+    Note:
+        Validates initialization but doesn't handle ydotool execution errors
+        because this is typically called during shutdown when error handling
+        options are limited.
     """
     # Verify module has been properly initialized
     if YDOTOOL_PATH is None or KEYCODES is None:
@@ -164,23 +168,27 @@ def cleanup(deck=None):
     Args:
         deck: Optional StreamDeck device object to clean up
 
-    CLEANUP OPERATIONS:
-    1. Release any stuck keyboard keys via ydotool
-    2. Reset StreamDeck display (clear all keys)
-    3. Close StreamDeck hardware connection
-    4. Prevent duplicate cleanup attempts
+    Cleanup Operations:
+        1. Release any stuck keyboard keys via ydotool
+        2. Reset StreamDeck display (clear all keys)
+        3. Close StreamDeck hardware connection
+        4. Prevent duplicate cleanup attempts
 
-    DESIGN PRINCIPLES:
-    - Idempotent: Safe to call multiple times
-    - Defensive: Handles errors gracefully
-    - Complete: Cleans up all acquired resources
-    - Fast: Minimal delay during shutdown
+    Design Principles:
+        - **Idempotent**: Safe to call multiple times
+        - **Defensive**: Handles errors gracefully
+        - **Complete**: Cleans up all acquired resources
+        - **Fast**: Minimal delay during shutdown
 
-    CALLING CONTEXTS:
-    - Registered with atexit for normal Python shutdown
-    - Called from signal handlers (Ctrl+C)
-    - Called manually in exception handlers
-    - Called from reset/recovery scripts
+    Calling Contexts:
+        - Registered with atexit for normal Python shutdown
+        - Called from signal handlers (Ctrl+C)
+        - Called manually in exception handlers
+        - Called from reset/recovery scripts
+
+    Note:
+        Uses a global flag to prevent duplicate cleanup from multiple triggers.
+        Cleanup errors are reported but don't prevent other cleanup steps.
     """
     global clean_stickykeys
 
@@ -248,24 +256,28 @@ def safe_exit(deck=None):
     Args:
         deck: Optional StreamDeck device object to clean up before exit
 
-    EXIT CODE:
-    Uses exit code 0 to indicate successful/intentional shutdown.
-    This is important for:
-    - System service management (systemd, etc.)
-    - Process monitoring tools
-    - Shell scripts that check exit codes
-    - Automated restart logic
+    Exit Code:
+        Uses exit code 0 to indicate successful/intentional shutdown.
+        This is important for:
 
-    USAGE CONTEXTS:
-    - Signal handlers (Ctrl+C interrupt)
-    - Error recovery after unrecoverable errors
-    - Manual shutdown commands
-    - Graceful restart scenarios
+        - System service management (systemd, etc.)
+        - Process monitoring tools
+        - Shell scripts that check exit codes
+        - Automated restart logic
 
-    SHUTDOWN SEQUENCE:
-    1. Run complete cleanup (release keys, close hardware)
-    2. Exit Python interpreter with success code
-    3. OS reclaims any remaining resources
+    Usage Contexts:
+        - Signal handlers (Ctrl+C interrupt)
+        - Error recovery after unrecoverable errors
+        - Manual shutdown commands
+        - Graceful restart scenarios
+
+    Shutdown Sequence:
+        1. Run complete cleanup (release keys, close hardware)
+        2. Exit Python interpreter with success code
+        3. OS reclaims any remaining resources
+
+    Note:
+        This function does not return - it terminates the Python process.
     """
     # Perform all necessary cleanup operations
     # This includes key release and StreamDeck hardware cleanup

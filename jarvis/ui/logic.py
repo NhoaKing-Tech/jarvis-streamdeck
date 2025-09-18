@@ -77,30 +77,31 @@ def initialize_logic(deck_instance, layouts_dict, initial_layout="main"):
 
     This function implements dependency injection pattern - all UI state needed
     by the logic module is passed in explicitly rather than being imported or
-    created internally.
+    created internally. It sets up the global state used by event handlers.
 
     Args:
         deck_instance: StreamDeck device object for hardware interaction
         layouts_dict (dict): Complete layout definitions mapping layout names to key configs
-        initial_layout (str): Name of the layout to display initially (default: "main")
+        initial_layout (str): Name of the layout to display initially. Defaults to "main"
 
-    INITIALIZATION SEQUENCE:
-    This function is called during application startup after:
-    1. StreamDeck hardware is discovered and opened
-    2. Layout definitions are created (in render.create_layouts())
-    3. Before key event callbacks are registered
+    Initialization Sequence:
+        This function is called during application startup after:
 
-    STATE MANAGEMENT:
-    Sets up the global state that will be used by:
-    - key_change() event handler
-    - switch_layout() layout transition function
-    - Any other UI logic functions
+        1. StreamDeck hardware is discovered and opened
+        2. Layout definitions are created (in render.create_layouts())
+        3. Before key event callbacks are registered
 
-    ERROR HANDLING:
-    No explicit error handling because:
-    - Called once during controlled startup sequence
-    - Invalid parameters would be caught immediately during testing
-    - Failure here should crash the application (fail-fast principle)
+    State Management:
+        Sets up the global state that will be used by:
+
+        - key_change() event handler
+        - switch_layout() layout transition function
+        - Any other UI logic functions
+
+    Error Handling:
+        No explicit error handling because this is called once during controlled
+        startup sequence. Invalid parameters would be caught immediately during
+        testing. Failure here should crash the application (fail-fast principle).
     """
     # Initialize global state variables for UI management
     # Using global keyword to modify module-level variables

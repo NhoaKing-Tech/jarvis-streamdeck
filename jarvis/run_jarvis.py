@@ -44,21 +44,28 @@ from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit       # Resour
 # - Star imports (from actions import *): Makes namespace pollution and unclear dependencies
 # - Direct file imports (exec(open('actions.py').read())): Fragile and bypasses Python's import system
 
-# Configuration loading function
-# This function reads environment variables from config.env file and loads them into os.environ
-# This approach allows for runtime configuration without hardcoding paths or credentials
 def load_config():
     """Load environment variables from config.env file into os.environ.
 
-    This function implements a simple .env file parser that:
-    1. Reads the config.env file line by line
-    2. Skips empty lines and comments (lines starting with #)
-    3. Parses KEY=VALUE pairs and adds them to environment variables
-    4. Gracefully handles missing config files
+    This function implements a simple .env file parser that reads environment
+    variables from a config.env file and loads them into the current process
+    environment. This approach allows for runtime configuration without
+    hardcoding paths or credentials in the source code.
 
-    PERFORMANCE CONSIDERATION: This function is called once at startup, so the
-    file I/O overhead is negligible. We could cache the results, but since this
-    runs only once, caching would add complexity without meaningful benefit.
+    Process:
+        1. Reads the config.env file line by line
+        2. Skips empty lines and comments (lines starting with #)
+        3. Parses KEY=VALUE pairs and adds them to environment variables
+        4. Gracefully handles missing config files
+
+    Performance:
+        This function is called once at startup, so the file I/O overhead is
+        negligible. We could cache the results, but since this runs only once,
+        caching would add complexity without meaningful benefit.
+
+    Note:
+        The config.env file should be located in the same directory as this script.
+        Each line should follow the format: KEY=VALUE
     """
     # Use pathlib for robust path handling - __file__ is the absolute path to this script
     config_path = Path(__file__).parent / "config.env"  # Looks for config.env in same directory as this script
@@ -231,17 +238,30 @@ KEYCODES = {
 # - ydotool: Works on both X11 and Wayland, precise low-level control
 
 def main():
-    """
-    Main entry point for the jarvis StreamDeck application.
+    """Main entry point for the jarvis StreamDeck application.
 
-    This function orchestrates the entire application startup process:
-    1. Initializes all modules with required configuration
-    2. Discovers and connects to StreamDeck hardware
-    3. Sets up UI layouts and event handling
-    4. Enters the main event loop
+    This function orchestrates the entire application startup process and handles
+    the complete lifecycle of the StreamDeck integration. It implements a robust
+    initialization sequence with retry logic for hardware discovery.
 
-    The function uses a retry mechanism to handle temporary StreamDeck disconnections
-    and ensures proper cleanup on exit via signal handlers.
+    Process:
+        1. Initializes all modules with required configuration
+        2. Discovers and connects to StreamDeck hardware with retry logic
+        3. Sets up UI layouts and event handling
+        4. Registers signal handlers for graceful shutdown
+        5. Enters the main event loop
+
+    Retry Mechanism:
+        Uses a retry mechanism to handle temporary StreamDeck disconnections,
+        USB timing issues, and device driver delays. Attempts connection for
+        up to 5 minutes with 5-second intervals.
+
+    Signal Handling:
+        Registers handlers for SIGINT (Ctrl+C) and sets up atexit cleanup
+        to ensure proper resource cleanup on exit.
+
+    Raises:
+        SystemExit: If StreamDeck hardware cannot be found after retry attempts
     """
     # Declare global variables that will be modified in this function
     # Using globals here is necessary because StreamDeck callbacks need access to these
@@ -347,7 +367,7 @@ def main():
 
     # Handle Ctrl+C (SIGINT) signal with graceful shutdown
     # Lambda function ignores the signal number and frame arguments
-    signal.signal(signal.SIGINT, lambda s, f: safe_exit(deck))
+    signal.signal(signal.SIGINT, lambda _s, _f: safe_exit(deck))
     # Alternative: signal.signal(signal.SIGINT, lambda *args: safe_exit(deck))
 
     # Register cleanup function to run automatically when Python interpreter exits

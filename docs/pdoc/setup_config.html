@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>setup_config API documentation</title>
+<meta name="description" content="Setup script to create personalized configuration for Jarvis StreamDeck …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>setup_config</code></h1>
+</header>
+<section id="section-intro">
+<p>Setup script to create personalized configuration for Jarvis StreamDeck.</p>
+<p>This script provides an interactive configuration wizard that helps users
+set up their jarvis environment by creating a personalized config.env file.
+It handles path detection, user prompts, and configuration file generation.</p>
+<p>Purpose:
+- Simplify initial jarvis setup for new users
+- Generate properly formatted configuration files
+- Detect system-specific paths and tools
+- Prevent common configuration errors</p>
+<h2 id="usage">Usage</h2>
+<p>python setup_config.py</p>
+<h2 id="output">Output</h2>
+<p>Creates config.env file with user-specific configuration</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="setup_config.create_config"><code class="name flex">
+<span>def <span class="ident">create_config</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_config():
+    &#34;&#34;&#34;Create a personalized config.env file through interactive prompts.
+
+    This function implements an interactive configuration wizard that guides
+    users through setting up their jarvis environment. It provides intelligent
+    defaults, validates input, and generates a properly formatted configuration file.
+
+    Process:
+        1. Checks for existing configuration and asks about overwriting
+        2. Provides intelligent defaults based on system detection
+        3. Prompts user for key configuration values
+        4. Generates properly formatted config.env file
+        5. Provides usage instructions
+
+    Configuration Strategy:
+        - Uses sensible defaults that work for most users
+        - Allows empty input to accept defaults (user-friendly)
+        - Validates critical paths where possible
+        - Generates self-documenting configuration file
+
+    Error Handling:
+        - Checks for existing config files to prevent accidental overwrites
+        - Handles file write permissions gracefully
+        - Provides clear feedback and instructions
+
+    Generated Configuration:
+        Creates config.env with paths for ydotool, projects directory,
+        and Obsidian vaults, plus comments for additional options.
+    &#34;&#34;&#34;
+    # Determine path for configuration file (same directory as this script)
+    config_path = Path(__file__).parent / &#34;config.env&#34;
+
+    # EXISTING FILE HANDLING:
+    # Check if configuration already exists and get user permission to overwrite
+    if config_path.exists():
+        response = input(&#34;File config.env already exists. Overwrite? (y/N): &#34;)
+        if response.lower() != &#39;y&#39;:
+            print(&#34;Past configuration not overwritten.&#34;)
+            return  # Exit early without making changes
+
+    # SETUP PROCESS INTRODUCTION:
+    # Provide clear information about what the setup process will do
+    print(&#34;Creating Jarvis StreamDeck configuration...&#34;)
+    print(&#34;Press Enter to use default path values&#34;)
+    print(&#34;&#34;)
+
+    # SYSTEM DETECTION:
+    # Get current user&#39;s home directory for generating intelligent defaults
+    home = Path.home()  # More reliable than os.path.expanduser(&#39;~&#39;)
+
+    # INTERACTIVE CONFIGURATION COLLECTION:
+    # Prompt for each configuration value with intelligent defaults
+
+    # ydotool path configuration
+    # Detect system ydotool installation and offer as default
+    default_ydotool = which_ydotool()  # Use helper function to find ydotool
+    ydotool_input = input(f&#34;ydotool path [{default_ydotool}]: &#34;)
+    ydotool_path = ydotool_input.strip() or default_ydotool  # Use default if empty
+
+    # Projects directory configuration
+    # Default to ~/projects (common convention) but allow customization
+    default_projects = home / &#39;projects&#39;
+    projects_input = input(f&#34;projects directory [{default_projects}]: &#34;)
+    projects_dir = projects_input.strip() or str(default_projects)
+
+    # Obsidian vault configuration
+    # Default to a vault within the projects directory
+    default_vault = f&#34;{projects_dir}/my_vault&#34;
+    obsidian_input = input(f&#34;Obsidian vault [{default_vault}]: &#34;)
+    obsidian_vault = obsidian_input.strip() or default_vault
+
+    # CONFIGURATION FILE GENERATION:
+    # Create properly formatted config.env file with collected values
+    config_content = f&#34;&#34;&#34;# Jarvis StreamDeck System Configuration
+# Generated by setup_config.py interactive configuration wizard
+# Modify these values to customize jarvis behavior
+
+# Path to ydotool executable for keyboard input simulation
+YDOTOOL_PATH={ydotool_path}
+
+# Directory containing your code projects
+PROJECTS_DIR={projects_dir}
+
+# Primary Obsidian vault path
+OBSIDIAN_VAULT={obsidian_vault}
+
+# Additional configuration options:
+# KEYRING_PW=your_password_here
+# OBSIDIAN_VAULT_JOURNAL=/path/to/journal/vault
+# OBSIDIAN_VAULT_NOTES=/path/to/notes/vault
+&#34;&#34;&#34;
+
+    # CONFIGURATION FILE WRITING:
+    try:
+        with open(config_path, &#39;w&#39;, encoding=&#39;utf-8&#39;) as f:
+            f.write(config_content)
+    except IOError as e:
+        print(f&#34;Error writing configuration file: {e}&#34;)
+        print(&#34;Please check file permissions and try again.&#34;)
+        return
+
+    # SUCCESS FEEDBACK AND USAGE INSTRUCTIONS:
+    print(f&#34;\n✅ Configuration saved to {config_path}&#34;)
+    print(&#34;\nTo use this configuration:&#34;)
+    print(&#34;\n1. Direct execution:&#34;)
+    print(&#34;   source config.env &amp;&amp; python run_jarvis.py&#34;)
+    print(&#34;\n2. System service setup:&#34;)
+    print(&#34;   See config_example.env for systemd service configuration&#34;)
+    print(&#34;\n3. Manual environment setup:&#34;)
+    print(&#34;   export $(cat config.env | xargs) &amp;&amp; python run_jarvis.py&#34;)
+
+    # NEXT STEPS GUIDANCE:
+    print(&#34;\nNext steps:&#34;)
+    print(&#34;1. Test the configuration: python run_jarvis.py&#34;)
+    print(&#34;2. Customize layouts in ui/render.py if needed&#34;)
+    print(&#34;3. Add custom icons to assets/jarvisicons/&#34;)
+    print(&#34;4. Create code snippets in assets/snippets/&#34;)</code></pre>
+</details>
+<div class="desc"><p>Create a personalized config.env file through interactive prompts.</p>
+<p>This function implements an interactive configuration wizard that guides
+users through setting up their jarvis environment. It provides intelligent
+defaults, validates input, and generates a properly formatted configuration file.</p>
+<h2 id="process">Process</h2>
+<ol>
+<li>Checks for existing configuration and asks about overwriting</li>
+<li>Provides intelligent defaults based on system detection</li>
+<li>Prompts user for key configuration values</li>
+<li>Generates properly formatted config.env file</li>
+<li>Provides usage instructions</li>
+</ol>
+<p>Configuration Strategy:
+- Uses sensible defaults that work for most users
+- Allows empty input to accept defaults (user-friendly)
+- Validates critical paths where possible
+- Generates self-documenting configuration file</p>
+<p>Error Handling:
+- Checks for existing config files to prevent accidental overwrites
+- Handles file write permissions gracefully
+- Provides clear feedback and instructions</p>
+<p>Generated Configuration:
+Creates config.env with paths for ydotool, projects directory,
+and Obsidian vaults, plus comments for additional options.</p></div>
+</dd>
+<dt id="setup_config.which_ydotool"><code class="name flex">
+<span>def <span class="ident">which_ydotool</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def which_ydotool():
+    &#34;&#34;&#34;Find ydotool executable in system PATH with intelligent fallbacks.
+
+    This function attempts to locate the ydotool executable using multiple
+    strategies to handle different installation methods and system configurations.
+
+    Returns:
+        str: Path to ydotool executable, or a reasonable fallback
+
+    Detection Strategy:
+        1. Check system PATH using shutil.which()
+        2. Fall back to common installation locations
+        3. Provide user-friendly default that can be manually corrected
+
+    Installation Methods Supported:
+        - Package manager installation (apt, yum, pacman, etc.)
+        - Manual compilation and installation
+        - Local user installation
+        - Custom installation paths
+
+    Fallback Locations:
+        - /usr/local/bin/ydotool (manual compilation default)
+        - /usr/bin/ydotool (package manager installation)
+        - /opt/ydotool/bin/ydotool (custom installation)
+        - ~/.local/bin/ydotool (user-local installation)
+
+    Note:
+        If no ydotool installation is found, returns a reasonable default
+        path that the user can correct during the interactive setup.
+    &#34;&#34;&#34;
+    # Standard library import for executable detection
+    import shutil
+
+    # PRIMARY DETECTION: Use shutil.which() to search system PATH
+    # This handles most standard installations where ydotool is in PATH
+    detected_path = shutil.which(&#39;ydotool&#39;)
+
+    if detected_path:
+        # Found ydotool in system PATH - this is the most reliable result
+        return detected_path
+
+    # FALLBACK DETECTION: Common installation locations
+    # If ydotool isn&#39;t in PATH, check common installation directories
+    common_locations = [
+        &#39;/usr/local/bin/ydotool&#39;,  # Manual compilation default
+        &#39;/usr/bin/ydotool&#39;,        # Package manager installation
+        &#39;/opt/ydotool/bin/ydotool&#39;, # Custom installation location
+        f&#39;{Path.home()}/.local/bin/ydotool&#39;,  # User-local installation
+    ]
+
+    for location in common_locations:
+        if Path(location).exists() and Path(location).is_file():
+            return location
+
+    # FINAL FALLBACK: Reasonable default that user can correct if needed
+    # This provides a starting point even if auto-detection fails
+    return &#39;/usr/local/bin/ydotool&#39;
+
+    # ALTERNATIVE DETECTION METHODS CONSIDERED:
+    # 1. which command: subprocess.run([&#39;which&#39;, &#39;ydotool&#39;])
+    #    - Less portable, depends on &#39;which&#39; being available
+    # 2. locate command: subprocess.run([&#39;locate&#39;, &#39;ydotool&#39;])
+    #    - Requires updatedb, may be outdated
+    # 3. find command: subprocess.run([&#39;find&#39;, &#39;/&#39;, &#39;-name&#39;, &#39;ydotool&#39;])
+    #    - Very slow, requires root access for full filesystem search
+    #
+    # shutil.which() chosen because:
+    # - Built into Python standard library
+    # - Respects PATH environment variable
+    # - Cross-platform compatible
+    # - Fast and reliable</code></pre>
+</details>
+<div class="desc"><p>Find ydotool executable in system PATH with intelligent fallbacks.</p>
+<p>This function attempts to locate the ydotool executable using multiple
+strategies to handle different installation methods and system configurations.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>Path to ydotool executable, or a reasonable fallback</dd>
+</dl>
+<p>Detection Strategy:
+1. Check system PATH using shutil.which()
+2. Fall back to common installation locations
+3. Provide user-friendly default that can be manually corrected</p>
+<p>Installation Methods Supported:
+- Package manager installation (apt, yum, pacman, etc.)
+- Manual compilation and installation
+- Local user installation
+- Custom installation paths</p>
+<p>Fallback Locations:
+- /usr/local/bin/ydotool (manual compilation default)
+- /usr/bin/ydotool (package manager installation)
+- /opt/ydotool/bin/ydotool (custom installation)
+- ~/.local/bin/ydotool (user-local installation)</p>
+<h2 id="note">Note</h2>
+<p>If no ydotool installation is found, returns a reasonable default
+path that the user can correct during the interactive setup.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="setup_config.create_config" href="#setup_config.create_config">create_config</a></code></li>
+<li><code><a title="setup_config.which_ydotool" href="#setup_config.which_ydotool">which_ydotool</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
