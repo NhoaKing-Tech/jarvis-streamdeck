@@ -728,14 +728,14 @@ def toggle_mic(deck, key):
     Function to toggle microphone mute and update the StreamDeck button icon.
     Returns a lambda function for use in layout definitions.
     """
-
-    return lambda: (
-        subprocess.run(["amixer", "set", "Capture", "toggle"]),
+    def toggle_action():
+        subprocess.run(["amixer", "set", "Capture", "toggle"])
+        muted = is_mic_muted()
         render_keys(deck, key,
-                   label="OFF" if is_mic_muted() else "ON",
-                   icon="mic-off.png" if is_mic_muted() else "mic-on.png")
-    )
+                   label="OFF" if muted else "ON",
+                   icon="mic-off.png" if muted else "mic-on.png")
 
+    return toggle_action
 
 # -------------------- Wrapper functions to simplify action definitions in keys
 def type_keyring():
