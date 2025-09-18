@@ -131,10 +131,16 @@ def open_spotify():
         subprocess.Popen(["spotify"])
 
 
-def open_terminal_env():
+def open_terminal_env_jarvis():
     if BASHSCRIPTS_DIR is None:
         raise RuntimeError("Call initialize_actions() from main first.")
     subprocess.Popen([os.path.join(BASHSCRIPTS_DIR, "open_jarvisbusybee_env_T.sh")])
+    #subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/jarvis/assets/bash_scripts/open_jarvisbusybee_env_T.sh"])
+
+def open_terminal_env_busybee():
+    if BASHSCRIPTS_DIR is None:
+        raise RuntimeError("Call initialize_actions() from main first.")
+    subprocess.Popen([os.path.join(BASHSCRIPTS_DIR, "open_busybee_env_T.sh")])
     #subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/jarvis/assets/bash_scripts/open_jarvisbusybee_env_T.sh"])
 
 
