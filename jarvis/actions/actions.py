@@ -8,26 +8,28 @@ FINISH DATE: September 18th 2025 (Thursday)
 
 """
 -- BRIEF DESCRIPTION --
-This module bridges key events (key presses) with system operations. 
+This module bridges key events (key presses) with system operations.
 
-Dependencies are configured using environment variables.
-The systemd service loads values from config.env via 'EnvironmentFile',
-and these values are injected into the application at runtime.
+CONFIGURATION FLOW (How Dependencies Get Here):
+===============================================
+1. systemd service loads config.env via 'EnvironmentFile' directive
+2. run_jarvis.py reads those environment variables using os.getenv()
+3. run_jarvis.py passes the loaded values to this module via initialize_actions()
+4. This module stores them in global variables for use by action functions
 
-This design principle is called DI pattern. DI stands for 'dependency injection'.
+This is called the Dependency Injection (DI) pattern.
 
-The module uses dependency injection (DI) pattern. This makes code easier to test, extend and maintain.
-My config.env (kept private as it stores sensible information) contains paths to my data, passwords, etc.
+WHY NOT READ ENVIRONMENT VARIABLES DIRECTLY HERE?
+=================================================
+We could have each action function call os.getenv() directly, but we chose
+dependency injection instead because:
+- Keeps configuration loading centralized in run_jarvis.py
+- Makes dependencies explicit (you can see what each module needs)
+- Easier to test (can pass mock values instead of real environment variables)
+- Better separation of concerns (run_jarvis.py handles config, this handles actions)
+
 The .env file provides the configuration, not the logic itself.
-
- configuration is passed in via
-initialize_actions() rather than being hardcoded or imported globally.
-
-# This service uses dependency injection principles:
-# - Dependencies (e.g., database URLs, API keys) are not hardcoded.
-# - systemd loads them from config.env via EnvironmentFile.
-# - The application reads these environment variables and injects them
-#   into the services/classes that need them at runtime.
+Configuration flows: config.env → systemd → run_jarvis.py → actions.py
 
 It handles so far the following topics. Function names are listed for each.
 1. Opening of URLs in default browser. In my case, Goggle Chrome. Functions here are:
@@ -75,6 +77,7 @@ which happens often if this check is not in place before opening the window
 import subprocess  # Execute external commands like ydotool, wmctrl, applications
 import time        # Time delays for application startup coordination
 import os          # File system operations and path manipulation
+from pathlib import Path  # Object-oriented filesystem paths
 
 # Import from our UI module for dynamic key rendering
 from ui.render import render_keys  # Function to update StreamDeck key appearance
@@ -109,11 +112,38 @@ KEYRING_PW = None       # Password for keyring/password manager access
 # 4. ERROR HANDLING: Can detect and report missing configuration
 
 def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes, keyring_pw):
-    """Initialize the actions module with required configuration from the main module.
+    """Initialize the actions module with required configuration from the main module (run_jarvis.py).
 
-    This function implements dependency injection pattern - all configuration needed
-    by action functions is passed in explicitly rather than being imported or read
-    from config files directly.
+    WHAT IS DEPENDENCY INJECTION?
+    ================================================================
+    Dependency Injection (DI) is a design pattern where a function or module receives
+    its dependencies from the outside, rather than creating
+    or finding them itself.
+
+    WHY USE DEPENDENCY INJECTION?
+    =============================
+    1. SEPARATION OF CONCERNS: The actions module focuses on WHAT to do (actions),
+       while run_jarvis.py focuses on HOW to configure things (loading config files)
+
+    2. TESTABILITY: We can easily test action functions by passing fake/mock values
+       instead of real file paths and passwords
+
+    3. FLEXIBILITY: We can run the same action functions with different configurations
+       (development vs production, different users, etc.)
+
+    4. SINGLE RESPONSIBILITY: Each module has one job:
+       - run_jarvis.py: Load configuration from files/environment
+       - actions.py: Execute StreamDeck key actions
+
+    THE ALTERNATIVE WE CONSIDERED:
+    ==============================
+    We could have made actions.py read environment variables directly, like:
+        YDOTOOL_PATH = os.getenv('YDOTOOL_PATH')
+
+    But we chose dependency injection because:
+    - It keeps configuration loading centralized in one place (run_jarvis.py)
+    - It makes the dependency explicit (you can see what each function needs)
+    - It follows the principle: "Don't make me hunt for where values come from"
 
     Args:
         ydotool_path (str): Path to ydotool executable for input simulation
@@ -126,10 +156,28 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
     PERFORMANCE NOTE: This function runs once at startup, so any validation
     or preprocessing we do here doesn't affect runtime performance.
     """
-    # Update module-level configuration variables
-    # Using global keyword to modify module-level variables from function scope
+
+    # WHAT ARE GLOBAL VARIABLES? (For Beginners)
+    # ==========================================
+    # Global variables are variables that can be accessed from anywhere in the module.
+    # They exist at the "module level" - outside of any function or class.
+    #
+    # WHY USE GLOBAL VARIABLES HERE?
+    # ==============================
+    # The StreamDeck library calls our action functions directly when keys are pressed.
+    # We can't change the function signatures (parameters) that StreamDeck expects.
+    # So we need a way for all action functions to access the configuration.
+    #
+    # EXAMPLE: When you press key 5, StreamDeck calls toggle_mic() with no parameters.
+    # But toggle_mic() needs YDOTOOL_PATH and KEYCODES to work. Global variables
+    # let us store these values once and access them from any function.
+
+    # The 'global' keyword tells Python: "I want to modify the module-level variables,
+    # not create new local variables inside this function"
     global YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW
 
+    # Store each parameter in its corresponding global variable
+    # This is like putting ingredients in labeled containers that any chef can access
     YDOTOOL_PATH = ydotool_path        # Store path to ydotool for input simulation
     SNIPPETS_DIR = snippets_dir        # Store directory for code snippets
     BASHSCRIPTS_DIR = bashscripts_dir  # Store directory for bash scripts
@@ -137,14 +185,36 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
     KEYCODES = keycodes                # Store keycode mapping dictionary
     KEYRING_PW = keyring_pw            # Store password for secure access
 
-    # ALTERNATIVE APPROACHES WE COULD USE:
-    # 1. Class-based approach: Create ActionManager class with these as attributes
-    # 2. Context object: Pass a config object to each action function
-    # 3. Import from main: Import these values directly from run_jarvis module
-    # We chose global variables because:
-    # - StreamDeck callback signatures are fixed, can't pass extra parameters
-    # - Simpler than class-based approach for this use case
-    # - More explicit than import-based approach
+    # DESIGN DECISION EXPLANATION:
+    # ============================
+    # We considered these alternatives but chose the current approach:
+    #
+    # 1. CLASS-BASED APPROACH:
+    #    - Create an ActionManager class with config as attributes
+    #    - PRO: More "object-oriented", encapsulates data and behavior
+    #    - CON: More complex, StreamDeck callbacks would need class instance
+    #
+    # 2. CONTEXT OBJECT:
+    #    - Pass a config dictionary to each action function
+    #    - PRO: Very explicit about dependencies
+    #    - CON: StreamDeck callback signatures are fixed, can't add parameters
+    #
+    # 3. IMPORT FROM MAIN:
+    #    - Import configuration directly from run_jarvis module
+    #    - PRO: No need for initialization function
+    #    - CON: Creates circular dependencies, harder to test
+    #
+    # 4. ENVIRONMENT VARIABLES EVERYWHERE:
+    #    - Read os.getenv() in every action function that needs config
+    #    - PRO: No global state, very explicit
+    #    - CON: Duplicate code, slower (multiple getenv calls), scattered configuration
+    #
+    # We chose GLOBAL VARIABLES WITH DEPENDENCY INJECTION because:
+    # - StreamDeck callback functions have fixed signatures (can't pass extra params)
+    # - Configuration is read-only after initialization (no mutation concerns)
+    # - Simpler than creating a dependency injection framework
+    # - Performance: No parameter passing overhead on every action call
+    # - Clear separation: run_jarvis.py handles config, actions.py handles actions
 
 # 1. URLs:
 def url_freecodecamp():

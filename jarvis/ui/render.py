@@ -314,8 +314,8 @@ def create_layouts(deck):
     layouts["conda_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
     1: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
-    2: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda activate ")},
-    3: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda deactivate\n")},
+    2: {"label": "Conda activate <env>", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
+    3: {"label": "Conda deactivate <env>", "color": "#1c2e1c", "action": actions.type_text("conda deactivate\n")},
     4: {"label": "List installed ALL packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
     5: {"label": "List install package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
     6: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
