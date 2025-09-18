@@ -1,10 +1,34 @@
 """
-AUTHOR: NhoaKing
+--GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
 NAME: actions.py
-DESCRIPTION: Python module containing all the action functions triggered by key presses.
+DESCRIPTION: Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
 FINISH DATE: September 18th 2025 (Thursday)
+"""
 
-This module bridges key events (press) with system operations. 
+"""
+-- BRIEF DESCRIPTION --
+This module bridges key events (key presses) with system operations. 
+
+Dependencies are configured using environment variables.
+The systemd service loads values from config.env via 'EnvironmentFile',
+and these values are injected into the application at runtime.
+
+This design principle is called DI pattern. DI stands for 'dependency injection'.
+
+The module uses dependency injection (DI) pattern. This makes code easier to test, extend and maintain.
+My config.env (kept private as it stores sensible information) contains paths to my data, passwords, etc.
+The .env file provides the configuration, not the logic itself.
+
+ configuration is passed in via
+initialize_actions() rather than being hardcoded or imported globally.
+
+# This service uses dependency injection principles:
+# - Dependencies (e.g., database URLs, API keys) are not hardcoded.
+# - systemd loads them from config.env via EnvironmentFile.
+# - The application reads these environment variables and injects them
+#   into the services/classes that need them at runtime.
+
 It handles so far the following topics. Function names are listed for each.
 1. Opening of URLs in default browser. In my case, Goggle Chrome. Functions here are:
 - url_freecodecamp
@@ -14,24 +38,37 @@ It handles so far the following topics. Function names are listed for each.
 - url_chatgpt
 2. Open spotify or trigger play/pause 
 - spotify
-3.Trigger hotkeys/shortcuts
-- 
-
-2. Microphone ON/OFF toggle
+3. Microphone ON/OFF toggle
 Achieved via:
 - is_mic_muted
 - toggle_mic
+4.Trigger hotkeys/shortcuts
+- hot_keys
+- Example of usage in hk_terminal and copy
+5. Open VSCode with a given project path.
+- open_vscode
+Control of vscode appearance for each project is done through the 
+hidden .vscode folder inside the project directory and the file settings.json
+6. Type text and text blocks or snippets
+- type_text
+- type_snippet
+- type_keyring (Type and enter passwords without exposing them in your codebase. 
+The password can be stored in config.env)
+7. Open obsidian with a given vault path. It supports the possibility to open multiple vaults at a time.
+- open_obsidian
+8. Execute bash scripts
+- execute_bash
+- Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
+- Example of 
+9. Open nautilus windows with a target path. If that path is already open in another window, 
+simply raise it, to avoid multiple nautilus windows with the same path..... 
+which happens often if this check is not in place before opening the window
+"""
 
-
-- Text input simulation via ydotool
-- Application launching and window management
-- File system operations
-- Audio control
-- Code snippet insertion
-- Git workflow automation
-
-The module uses dependency injection pattern configuration is passed in via
-initialize_actions() rather than being hardcoded or imported globally.
+"""
+-- TO DO --
+- Generalize nautilus_path function to work with other applications too (for obsidian is already done)
+- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized...
 """
 
 # Standard library imports for system interaction
@@ -104,13 +141,12 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
     # 1. Class-based approach: Create ActionManager class with these as attributes
     # 2. Context object: Pass a config object to each action function
     # 3. Import from main: Import these values directly from run_jarvis module
-    #
     # We chose global variables because:
     # - StreamDeck callback signatures are fixed, can't pass extra parameters
     # - Simpler than class-based approach for this use case
     # - More explicit than import-based approach
 
-# Open URLs:
+# 1. URLs:
 def url_freecodecamp():
     """Open freeCodeCamp website in the default web browser.
 
@@ -211,7 +247,7 @@ def url_chatgpt():
     # Open ChatGPT website with system default browser
     subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
 
-# Spotify
+# 2. Spotify
 def spotify():
     """Smart Spotify control: launch if not running, otherwise toggle play/pause.
 
@@ -280,7 +316,7 @@ def spotify():
     # - spotify command might fail if not in PATH
     # Current implementation gracefully handles these by allowing subprocess errors
 
-# Microphone state function and toggle ON/OFF
+# 3. Microphone state function and toggle ON/OFF
 def is_mic_muted():
     """
     Function to check microophone mute status using amixer
@@ -306,7 +342,7 @@ def toggle_mic(deck, key):
 
     return wrapper
 
-# Hotkeys
+# 4. Hotkeys
 def hot_keys(*keys):
     """Simulate a hotkey combination using ydotool.
 
@@ -360,7 +396,7 @@ def hot_keys(*keys):
 
     # Give ydotool daemon time to wake up from idle state
     # First command after idle needs a moment to initialize properly
-    #subprocess.run([YDOTOOL_PATH, "key", "29:1", "29:0"])  # Press and release CTRL key (truly harmless)
+    subprocess.run([YDOTOOL_PATH, "key", "29:1", "29:0"])  # Press and release CTRL key (truly harmless)
     time.sleep(0.05)  # Small delay to ensure completion
     subprocess.run([YDOTOOL_PATH, "key"] + sequence)
 
@@ -369,7 +405,7 @@ def hot_keys(*keys):
     # ydotool key 29:1 46:1 46:0 29:0  # Ctrl+C example
     # This helps verify that ydotool is working and the keycodes are correct
 
-def open_terminal():
+def hk_terminal():
     """Open a new terminal window using standard Linux hotkey.
 
     This function simulates the standard Linux desktop shortcut Ctrl+Alt+T
@@ -403,129 +439,16 @@ def open_terminal():
     # Hotkey simulation is faster than process discovery and launching
     # The desktop environment handles terminal selection and configuration
 
-def copy():
+def hk_copy():
     """
     Super simple example for using hotkeys function
     """
     hot_keys("CTRL", "C")
 
-
-def type_text(text):
-    """Create a function that types the specified text using ydotool.
-
-    This function returns a callable that, when executed, will simulate typing
-    the given text into the currently focused application. It uses ydotool
-    to send keyboard input events directly to the Linux input subsystem.
-
-    Args:
-        text (str): The text to type when the returned function is called
-
-    Returns:
-        callable: A function that executes the text typing when called
-
-    TECHNICAL DETAILS:
-    - Uses "--" argument to prevent ydotool from interpreting text starting with "-" as flags
-    - ydotool works on both X11 and Wayland, unlike xdotool which only works on X11
-    - subprocess.Popen() is non-blocking, so typing doesn't freeze the UI
-
-    PERFORMANCE CONSIDERATIONS:
-    - Each character is sent as a separate input event, which is slow for long text
-    - For large text blocks, consider using clipboard operations instead
-    - ydotool has a small delay between characters to ensure proper delivery
-
-    DESIGN PATTERN: Factory Function
-    This function returns another function rather than executing immediately.
-    This allows us to configure the action when building layouts, but execute
-    it later when keys are pressed.
-    """
-    def execute():
-        # Verify module has been properly initialized
-        if YDOTOOL_PATH is None:
-            raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
-
-        # Execute ydotool command to type the text
-        # Arguments:
-        # - YDOTOOL_PATH: Path to ydotool executable
-        # - "type": ydotool subcommand for typing text
-        # - "--": Indicates end of options, prevents text starting with "-" being interpreted as flags
-        # - text: The actual text to type
-        subprocess.Popen([YDOTOOL_PATH, "type", "--", text])
-
-        # ALTERNATIVE TOOLS CONSIDERED:
-        # - xdotool: More mature but X11-only, doesn't work on Wayland
-        # - PyAutoGUI: Cross-platform but has dependency issues and less precise timing
-        # - Direct X11/Wayland APIs: More complex and platform-specific
-        # - Clipboard + Ctrl+V: Faster for large text but modifies clipboard state
-
-    return execute  # Return the inner function for later execution
-
-def insert_snippet(snippet_name):
-    """Create a function that inserts a code snippet from a text file.
-
-    This function loads a code snippet from the snippets directory and types it
-    into the currently focused application. Snippets are stored as .txt files
-    and can contain boilerplate code, templates, commonly used commands, etc.
-
-    Args:
-        snippet_name (str): Name of the snippet file (without .txt extension)
-
-    Returns:
-        callable: A function that loads and types the snippet when called
-
-    USAGE EXAMPLES:
-    - insert_snippet("python_boilerplate") -> loads python_boilerplate.txt
-    - insert_snippet("html_template") -> loads html_template.txt
-    - insert_snippet("git_commit_msg") -> loads git_commit_msg.txt
-
-    ERROR HANDLING:
-    - Gracefully handles missing snippet files with user feedback
-    - Validates module initialization before attempting file operations
-
-    PERFORMANCE OPTIMIZATION OPPORTUNITIES:
-    - Could cache frequently used snippets in memory
-    - Could preload all snippets at startup
-    - Could use async I/O for large snippets
-    However, snippets are typically small and accessed infrequently,
-    so the current simple approach is adequate.
-    """
-    def execute():
-        # Verify required configuration is available
-        if SNIPPETS_DIR is None or YDOTOOL_PATH is None:
-            raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
-
-        # Construct path to snippet file
-        snippet_path = os.path.join(SNIPPETS_DIR, snippet_name + ".txt")
-
-        # Check if snippet file exists before trying to read it
-        if not os.path.exists(snippet_path):
-            print(f"Warning: Snippet '{snippet_name}' not found at {snippet_path}")
-            return  # Exit early without typing anything
-
-        # Read snippet content from file
-        # Using context manager (with statement) ensures file is properly closed
-        try:
-            with open(snippet_path, "r", encoding="utf-8") as f:
-                snippet_content = f.read()
-        except IOError as e:
-            print(f"Error reading snippet file {snippet_path}: {e}")
-            return
-
-        # Type the snippet content using ydotool
-        # Same approach as type_text() function
-        subprocess.Popen([YDOTOOL_PATH, "type", "--", snippet_content])
-
-        # DESIGN DECISION: File-based storage vs Database
-        # We use text files instead of a database because:
-        # 1. SIMPLICITY: Easy to edit snippets with any text editor
-        # 2. VERSION CONTROL: Can track snippet changes in git
-        # 3. PORTABILITY: No database setup required
-        # 4. TRANSPARENCY: Users can see exactly what will be typed
-
-    return execute  # Return the execution function
-
-
+# 5. Open VSCode application with a given project path
 def open_vscode(project_path):
-    """Create a function that opens Visual Studio Code with a specific project.
+    """
+    Create a function that opens Visual Studio Code with a specific project.
 
     This function returns a callable that opens VSCode, waits for it to load,
     then automatically opens the integrated terminal for immediate use.
@@ -587,8 +510,133 @@ def open_vscode(project_path):
     # - Use VSCode's remote development features for containerized projects
     # - Integrate with VSCode's workspace API for session management
 
+# 6. Type text and snippets
+def type_text(text):
+    """Create a function that types the specified text using ydotool.
+
+    This function returns a callable that, when executed, will simulate typing
+    the given text into the currently focused application. It uses ydotool
+    to send keyboard input events directly to the Linux input subsystem.
+
+    Args:
+        text (str): The text to type when the returned function is called
+
+    Returns:
+        callable: A function that executes the text typing when called
+
+    TECHNICAL DETAILS:
+    - Uses "--" argument to prevent ydotool from interpreting text starting with "-" as flags
+    - ydotool works on both X11 and Wayland, unlike xdotool which only works on X11
+    - subprocess.Popen() is non-blocking, so typing doesn't freeze the UI
+
+    PERFORMANCE CONSIDERATIONS:
+    - Each character is sent as a separate input event, which is slow for long text
+    - For large text blocks, consider using clipboard operations instead
+    - ydotool has a small delay between characters to ensure proper delivery
+
+    DESIGN PATTERN: Factory Function
+    This function returns another function rather than executing immediately.
+    This allows us to configure the action when building layouts, but execute
+    it later when keys are pressed.
+    """
+    def execute():
+        # Verify module has been properly initialized
+        if YDOTOOL_PATH is None:
+            raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
+
+        # Execute ydotool command to type the text
+        # Arguments:
+        # - YDOTOOL_PATH: Path to ydotool executable
+        # - "type": ydotool subcommand for typing text
+        # - "--": Indicates end of options, prevents text starting with "-" being interpreted as flags
+        # - text: The actual text to type
+        subprocess.Popen([YDOTOOL_PATH, "type", "--", text])
+
+        # ALTERNATIVE TOOLS CONSIDERED:
+        # - xdotool: More mature but X11-only, doesn't work on Wayland
+        # - PyAutoGUI: Cross-platform but has dependency issues and less precise timing
+        # - Direct X11/Wayland APIs: More complex and platform-specific
+        # - Clipboard + Ctrl+V: Faster for large text but modifies clipboard state
+
+    return execute  # Return the inner function for later execution
+
+def type_keyring():
+    """
+    Type and enter your password, as declared in config.env
+    """
+    if KEYRING_PW is None:
+        raise RuntimeError("KEYRING_PW not initialized. Call initialize_actions() from main first.")
+    return type_text(KEYRING_PW + "\n")
+
+def type_snippet(snippet_name):
+    """
+    Create a function that inserts a code snippet from a text file.
+
+    This function loads a code snippet from the snippets directory and types it
+    into the currently focused application. Snippets are stored as .txt files
+    and can contain boilerplate code, templates, commonly used commands, etc.
+
+    Args:
+        snippet_name (str): Name of the snippet file (without .txt extension)
+
+    Returns:
+        callable: A function that loads and types the snippet when called
+
+    USAGE EXAMPLES:
+    - type_snippet("python_boilerplate") -> loads python_boilerplate.txt
+    - type_snippet("html_template") -> loads html_template.txt
+    - type_snippet("git_commit_msg") -> loads git_commit_msg.txt
+
+    ERROR HANDLING:
+    - Gracefully handles missing snippet files with user feedback
+    - Validates module initialization before attempting file operations
+
+    PERFORMANCE OPTIMIZATION OPPORTUNITIES:
+    - Could cache frequently used snippets in memory
+    - Could preload all snippets at startup
+    - Could use async I/O for large snippets
+    However, snippets are typically small and accessed infrequently,
+    so the current simple approach is adequate.
+    """
+    def execute():
+        # Verify required configuration is available
+        if SNIPPETS_DIR is None or YDOTOOL_PATH is None:
+            raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
+
+        # Construct path to snippet file
+        snippet_path = os.path.join(SNIPPETS_DIR, snippet_name + ".txt")
+
+        # Check if snippet file exists before trying to read it
+        if not os.path.exists(snippet_path):
+            print(f"Warning: Snippet '{snippet_name}' not found at {snippet_path}")
+            return  # Exit early without typing anything
+
+        # Read snippet content from file
+        # Using context manager (with statement) ensures file is properly closed
+        try:
+            with open(snippet_path, "r", encoding="utf-8") as f:
+                snippet_content = f.read()
+        except IOError as e:
+            print(f"Error reading snippet file {snippet_path}: {e}")
+            return
+
+        # Type the snippet content using ydotool
+        # Same approach as type_text() function
+        subprocess.Popen([YDOTOOL_PATH, "type", "--", snippet_content])
+
+        # DESIGN DECISION: File-based storage vs Database
+        # We use text files instead of a database because:
+        # 1. SIMPLICITY: Easy to edit snippets with any text editor
+        # 2. VERSION CONTROL: Can track snippet changes in git
+        # 3. PORTABILITY: No database setup required
+        # 4. TRANSPARENCY: Users can see exactly what will be typed
+
+    return execute  # Return the execution function
+
+# 7. Open obsidian with a given vault path
 def open_obsidian(vault_path):
-    """Create a function that opens Obsidian with a specific vault.
+    """
+    Create a function that opens Obsidian with a specific vault.
 
     This function implements smart window management - it first checks if Obsidian
     is already open with the target vault, and if so, brings it to focus instead
@@ -668,9 +716,59 @@ def open_obsidian(vault_path):
     # - Could cache window list to avoid repeated wmctrl calls
     # - Could implement window title fuzzy matching for better reliability
 
+# 8. Execute bash scripts for automating stuff
+def execute_bash(bash_script, *args, in_terminal=False):
+    """
+    Arguments are optional
+    in_terminal=True when scripts need to be run in terminal for interactivity
+    """
+    # Verify module initialization
+    def wrapper():
+        # Verify module initialization
+        if BASHSCRIPTS_DIR is None:
+            raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
 
-def open_terminal_env_jarvis():
-    """Open a terminal with jarvis/busybee conda environment activated.
+        # Execute the jarvis environment setup script
+        # os.path.join() provides cross-platform path construction
+        script_path = os.path.join(BASHSCRIPTS_DIR, bash_script)
+        # Check if script exists
+        if not os.path.exists(script_path):
+            #print(f"Script not found: {script_path}")
+            return
+
+        # Auto-fix permissions if not executable.
+        if not os.access(script_path,os.X_OK):
+            try:
+                # The bash script should be executable (chmod +x)
+                os.chmod(script_path,0o755)  # rwxr-xr-x permissions
+                #print(f"Made script executable: {script_path}")
+            except Exception as e:
+                #print(f"Failed to make script executable: {e}")
+                return
+
+        # Execute the script with arguments
+        try:
+            if in_terminal:
+                # Build command for terminal execution
+                cmd_str = f"bash '{script_path}'"
+                if args:
+                    escaped_args = [f"'{arg}'" for arg in args]
+                    cmd_str += " " + " ".join(escaped_args)
+                subprocess.Popen([
+                    "gnome-terminal", "--", "bash", "-c", cmd_str
+                ])
+            else:
+                # Direct execution
+                cmd = [script_path] + list(args)
+                subprocess.Popen(cmd)
+        except Exception as e:
+            print(f"Failed to execute script: {e}")
+
+    return wrapper()
+
+def terminal_env_jarvis():
+    """
+    Open a terminal with jarvis/busybee conda environment activated.
 
     This function launches a terminal window with a pre-configured conda environment
     that's set up for jarvis development work. The environment includes all necessary
@@ -691,97 +789,23 @@ def open_terminal_env_jarvis():
     - Terminal setup often requires shell-specific commands
     - Easier to debug and test independently
     """
-    # Verify module initialization
-    if BASHSCRIPTS_DIR is None:
-        raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
+    execute_bash("open_jarvisbusybee_env_T.sh")
 
-    # Execute the jarvis environment setup script
-    # os.path.join() provides cross-platform path construction
-    script_path = os.path.join(BASHSCRIPTS_DIR, "open_jarvisbusybee_env_T.sh")
-    subprocess.Popen([script_path])
+def terminal_env_busybee():
+    execute_bash("open_busybee_env_T.sh")
 
-    # COMMENTED OUT: Old hardcoded path
-    # This shows the evolution from hardcoded paths to configurable directories
-    # The old approach would break if jarvis was moved or installed elsewhere
-    # subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/jarvis/assets/bash_scripts/open_jarvisbusybee_env_T.sh"])
-
-    # SCRIPT REQUIREMENTS:
-    # The bash script should be executable (chmod +x) and handle:
-    # - Terminal window creation (gnome-terminal, konsole, xterm, etc.)
-    # - Conda environment activation
-    # - Working directory setup
-    # - Error handling for missing environments or tools
-
-    # PERFORMANCE NOTE:
-    # Script execution is fast but terminal startup can be slow
-    # Consider caching terminal instances or using terminal multiplexers
-    # for better performance in high-frequency use cases
-
-def open_terminal_env_busybee():
-    """Open a terminal with busybee conda environment activated.
-
-    This function launches a terminal window with a conda environment specifically
-    configured for the busybee project. The busybee environment likely contains
-    different dependencies or Python versions optimized for that project's requirements.
-
-    PROJECT SEPARATION:
-    Having separate conda environments for different projects provides:
-    - Dependency isolation (no conflicts between project requirements)
-    - Different Python versions if needed
-    - Project-specific tools and configurations
-    - Clean development environments
-
-    This follows Python best practices for virtual environment management.
+def defaultbranch_commit():
     """
-    # Verify module initialization
-    if BASHSCRIPTS_DIR is None:
-        raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
-
-    # Execute the busybee environment setup script
-    script_path = os.path.join(BASHSCRIPTS_DIR, "open_busybee_env_T.sh")
-    subprocess.Popen([script_path])
-
-    # COMMENTED OUT: Old hardcoded path
-    # Shows migration from hardcoded to configurable paths
-    # subprocess.Popen(["/home/nhoaking/Zenith/jarvis-streamdeck/jarvis/assets/bash_scripts/open_jarvisbusybee_env_T.sh"])
-
-    # ENVIRONMENT MANAGEMENT STRATEGY:
-    # Using separate scripts and environments for each project allows:
-    # - Independent dependency management
-    # - Project-specific tooling and configuration
-    # - Easy switching between development contexts
-    # - Isolation of experimental or breaking changes
-
-
-
-
-
-
-# -------------------- Wrapper functions to simplify action definitions in keys
-def type_keyring():
-    if KEYRING_PW is None:
-        raise RuntimeError("KEYRING_PW not initialized. Call initialize_actions() from main first.")
-    return type_text(KEYRING_PW + "\n")
-
-def type_commit():
-    """
-    Executes a git commit workflow using a bash script.
+    Executes a git commit workflow using a bash script with interactivity.
+    That is why in_terminal=True.
+    Takes 'PROJECTS_DIR' as an argument
     Prompts user for project name, then navigates to PROJECTS_DIR/PROJECT_NAME
     and runs git status, git add ., and git commit with user prompts between each step.
     User can exit at any point using CTRL+C.
     """
-    if BASHSCRIPTS_DIR is None or PROJECTS_DIR is None:
-        raise RuntimeError("Call initialize_actions() from main first.")
+    execute_bash("git_commit_workflow.sh", PROJECTS_DIR, in_terminal=True)
 
-    # Open terminal and run the git workflow script with PROJECTS_DIR as parameter
-    subprocess.Popen([
-        "gnome-terminal", "--", "bash", "-c",
-        f"bash {os.path.join(BASHSCRIPTS_DIR, 'git_commit_workflow.sh')} '{PROJECTS_DIR}'"
-    ])
-
-
-
-# TO DO: Generalize the next function to work with other applications and to handle positioning and sizing of windows.
+# 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window
 def nautilus_path(target_dir):
     """
     I want this function to open file manager windows or raise them if there is
@@ -877,3 +901,6 @@ def nautilus_path(target_dir):
     #
     # I pass the target directory as an argument to nautilus so it opens there
     subprocess.Popen(["nautilus", target_dir])
+
+
+
