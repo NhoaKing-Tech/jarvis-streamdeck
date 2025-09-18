@@ -26,7 +26,7 @@ Git layout: <a href="https://www.flaticon.com/free-icons/git" title="git icons">
 Terminal <a href="https://www.flaticon.com/free-icons/terminal" title="terminal icons">Terminal icons created by Arkinasi - Flaticon</a>
 apps layout: <a href="https://www.flaticon.com/free-icons/more" title="more icons">More icons created by Vector Squad - Flaticon</a>
 PW: <a href="https://www.flaticon.com/free-icons/password" title="password icons">Password icons created by kostop - Flaticon</a>
-
+Youtube icon: <a href="https://www.flaticon.com/free-icons/logo" title="logo icons">Logo icons created by Alfredo Creates - Flaticon</a>
 """
 
 import os
@@ -275,8 +275,7 @@ def create_layouts(deck):
     layouts["apps"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
     1: {"icon": "spotify.png", "action": actions.open_spotify},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
+    2: {"icon": "youtube.png", "action": actions.open_youtube},    
 }
     layouts["git_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>

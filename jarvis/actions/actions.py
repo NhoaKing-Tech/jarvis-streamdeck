@@ -175,7 +175,6 @@ def open_chat():
     """
     subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
 
-
 def open_claude():
     """
     Open Claude in default web browser, in my case Chrome.
