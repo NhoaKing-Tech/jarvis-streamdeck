@@ -396,7 +396,7 @@ def is_mic_muted() -> bool:
     )
     return "[off]" in result.stdout
 
-def toggle_mic(deck: Any, key: int) -> Callable[[], None]:
+def toggle_mic(deck: Any, key: int) -> None:
     """Create a function that toggles microphone mute and updates the StreamDeck icon.
 
     This function implements a factory pattern that returns a callable which,
@@ -427,7 +427,7 @@ def toggle_mic(deck: Any, key: int) -> Callable[[], None]:
                    label="OFF" if muted else "ON",
                    icon="mic-off.png" if muted else "mic-on.png")
 
-    return wrapper
+    return wrapper()
 
 # 4. Hotkeys
 def hot_keys(*keys: str) -> None:
@@ -819,7 +819,7 @@ def open_obsidian(vault_path: str) -> Callable[[], None]:
     # - Could implement window title fuzzy matching for better reliability
 
 # 8. Execute bash scripts for automating stuff
-def execute_bash(bash_script: str, *args: str, in_terminal: bool = False) -> Callable[[], None]:
+def execute_bash(bash_script: str, *args: str, in_terminal: bool = False):
     """
     Arguments are optional
     in_terminal=True when scripts need to be run in terminal for interactivity
@@ -866,7 +866,7 @@ def execute_bash(bash_script: str, *args: str, in_terminal: bool = False) -> Cal
         except Exception as e:
             print(f"Failed to execute script: {e}")
 
-    return wrapper
+    return wrapper()
 
 def terminal_env_jarvis() -> None:
     """Open a terminal with jarvis/busybee conda environment activated.
