@@ -78,6 +78,7 @@ import subprocess  # Execute external commands like ydotool, wmctrl, application
 import time        # Time delays for application startup coordination
 import os          # File system operations and path manipulation
 from pathlib import Path  # Object-oriented filesystem paths
+from typing import Dict, Optional, Callable, Any
 
 # Import from our UI module for dynamic key rendering
 # Note: render_keys import moved inside toggle_mic function to avoid circular import
@@ -89,18 +90,18 @@ from pathlib import Path  # Object-oriented filesystem paths
 # Using None as default allows us to detect uninitialized state and provide helpful errors
 
 # Path to ydotool executable for keyboard/mouse input simulation
-YDOTOOL_PATH = None     # Will be set to system ydotool path or custom path from config
+YDOTOOL_PATH: Optional[str] = None     # Will be set to system ydotool path or custom path from config
 
 # Directory paths for various asset types
-SNIPPETS_DIR = None     # Directory containing code snippet text files
-BASHSCRIPTS_DIR = None  # Directory containing executable bash scripts
-PROJECTS_DIR = None     # User's main projects directory (usually ~/Zenith)
+SNIPPETS_DIR: Optional[str] = None     # Directory containing code snippet text files
+BASHSCRIPTS_DIR: Optional[str] = None  # Directory containing executable bash scripts
+PROJECTS_DIR: Optional[Path] = None     # User's main projects directory (usually ~/Zenith)
 
 # Keycode mapping dictionary for ydotool input simulation
-KEYCODES = None         # Dictionary mapping key names to Linux input event codes
+KEYCODES: Optional[Dict[str, int]] = None         # Dictionary mapping key names to Linux input event codes
 
 # User credentials (handled securely via environment variables)
-KEYRING_PW = None       # Password for keyring/password manager access
+KEYRING_PW: Optional[str] = None       # Password for keyring/password manager access
 
 # DESIGN PATTERN: Dependency Injection
 # Rather than importing these values or reading config files directly,
@@ -110,7 +111,7 @@ KEYRING_PW = None       # Password for keyring/password manager access
 # 3. CLARITY: Dependencies are explicit rather than hidden imports
 # 4. ERROR HANDLING: Can detect and report missing configuration
 
-def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir, keycodes, keyring_pw):
+def initialize_actions(ydotool_path: str, snippets_dir: str, bashscripts_dir: str, projects_dir: Path, keycodes: Dict[str, int], keyring_pw: str) -> None:
     """Initialize the actions module with required configuration from the main module.
 
     This function implements the Dependency Injection (DI) pattern where the actions
@@ -205,7 +206,7 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
     # - Clear separation: run_jarvis.py handles config, actions.py handles actions
 
 # 1. URLs:
-def url_freecodecamp():
+def url_freecodecamp() -> None:
     """Open freeCodeCamp website in the default web browser.
 
     Quick access to freeCodeCamp learning platform for coding tutorials,
@@ -218,7 +219,7 @@ def url_freecodecamp():
     # Open freeCodeCamp website with system default browser
     subprocess.Popen(["xdg-open", "https://www.freecodecamp.org/"])
 
-def url_youtube():
+def url_youtube() -> None:
     """Open YouTube in the default web browser.
 
     Simple utility function to quickly access YouTube using the system's
@@ -231,7 +232,7 @@ def url_youtube():
     # Open YouTube homepage with system default browser
     subprocess.Popen(["xdg-open", "https://www.youtube.com/"])
 
-def url_github():
+def url_github() -> None:
     """Open GitHub profile in the default web browser.
 
     This function opens the GitHub profile page using the system's default web browser.
@@ -279,7 +280,7 @@ def url_github():
     # - No browser automation or remote control involved
     # - Browser handles HTTPS validation and security
 
-def url_claude():
+def url_claude() -> None:
     """Open Claude AI in the default web browser.
 
     Provides quick access to Anthropic's Claude AI assistant for coding help,
@@ -292,7 +293,7 @@ def url_claude():
     # Open Claude AI website with system default browser
     subprocess.Popen(["xdg-open", "https://claude.ai/"])
 
-def url_chatgpt():
+def url_chatgpt() -> None:
     """Open ChatGPT in the default web browser.
 
     Provides quick access to ChatGPT for coding assistance, problem-solving,
@@ -306,7 +307,7 @@ def url_chatgpt():
     subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
 
 # 2. Spotify
-def spotify():
+def spotify() -> None:
     """Smart Spotify control: launch if not running, otherwise toggle play/pause.
 
     This function implements intelligent Spotify management:
@@ -375,7 +376,7 @@ def spotify():
     # Current implementation gracefully handles these by allowing subprocess errors
 
 # 3. Microphone state function and toggle ON/OFF
-def is_mic_muted():
+def is_mic_muted() -> bool:
     """Check if the microphone is currently muted using amixer.
 
     This function uses the ALSA amixer command to query the current state
@@ -395,7 +396,7 @@ def is_mic_muted():
     )
     return "[off]" in result.stdout
 
-def toggle_mic(deck, key):
+def toggle_mic(deck: Any, key: int) -> Callable[[], None]:
     """Create a function that toggles microphone mute and updates the StreamDeck icon.
 
     This function implements a factory pattern that returns a callable which,
@@ -429,7 +430,7 @@ def toggle_mic(deck, key):
     return wrapper
 
 # 4. Hotkeys
-def hot_keys(*keys):
+def hot_keys(*keys: str) -> None:
     """Simulate a hotkey combination using ydotool.
 
     This function presses multiple keys simultaneously (like Ctrl+C, Alt+Tab, etc.)
@@ -489,7 +490,7 @@ def hot_keys(*keys):
     # ydotool key 29:1 46:1 46:0 29:0  # Ctrl+C example
     # This helps verify that ydotool is working and the keycodes are correct
 
-def hk_terminal():
+def hk_terminal() -> None:
     """Open a new terminal window using the standard Linux desktop hotkey.
 
     This function simulates the Ctrl+Alt+T keyboard shortcut which is the
@@ -523,7 +524,7 @@ def hk_terminal():
     # Hotkey simulation is faster than process discovery and launching
     # The desktop environment handles terminal selection and configuration
 
-def hk_copy():
+def hk_copy() -> None:
     """Copy selected text to clipboard using Ctrl+C hotkey.
 
     Simple demonstration of the hot_keys function that sends the standard
@@ -536,7 +537,7 @@ def hk_copy():
     hot_keys("CTRL", "C")
 
 # 5. Open VSCode application with a given project path
-def open_vscode(project_path):
+def open_vscode(project_path: str) -> Callable[[], None]:
     """Create a function that opens Visual Studio Code with a specific project.
 
     This function returns a callable that opens VSCode, waits for initialization,
@@ -570,19 +571,20 @@ def open_vscode(project_path):
         Uses lambda for inline definition. For complex workflows, a dedicated
         function would be more maintainable.
     """
-    return lambda: (
+    def execute():
         # Launch VSCode with the project path as argument
         # VSCode will open the directory and load workspace settings
-        subprocess.Popen(["code", project_path]),
+        subprocess.Popen(["code", project_path])
 
         # Wait for VSCode to fully initialize before sending hotkeys
         # This prevents the terminal hotkey from being ignored
-        time.sleep(2),
+        time.sleep(2)
 
         # Open VSCode integrated terminal using Ctrl+` (grave/backtick)
         # This provides immediate access to command line in project context
         hot_keys("CTRL", "GRAVE")
-    )
+
+    return execute
 
     # PERFORMANCE OPTIMIZATION OPPORTUNITIES:
     # - Check if VSCode is already running and has the project open
@@ -596,7 +598,7 @@ def open_vscode(project_path):
     # - Integrate with VSCode's workspace API for session management
 
 # 6. Type text and snippets
-def type_text(text):
+def type_text(text: str) -> Callable[[], None]:
     """Create a function that types the specified text using ydotool.
 
     This function returns a callable that simulates typing the given text into
@@ -647,7 +649,7 @@ def type_text(text):
 
     return execute  # Return the inner function for later execution
 
-def type_keyring():
+def type_keyring() -> Callable[[], None]:
     """Type the configured password followed by Enter key.
 
     This function types the password stored in the KEYRING_PW configuration
@@ -668,7 +670,7 @@ def type_keyring():
         raise RuntimeError("KEYRING_PW not initialized. Call initialize_actions() from main first.")
     return type_text(KEYRING_PW + "\n")
 
-def type_snippet(snippet_name):
+def type_snippet(snippet_name: str) -> Callable[[], None]:
     """
     Create a function that inserts a code snippet from a text file.
 
@@ -734,7 +736,7 @@ def type_snippet(snippet_name):
     return execute  # Return the execution function
 
 # 7. Open obsidian with a given vault path
-def open_obsidian(vault_path):
+def open_obsidian(vault_path: str) -> Callable[[], None]:
     """
     Create a function that opens Obsidian with a specific vault.
 
@@ -817,7 +819,7 @@ def open_obsidian(vault_path):
     # - Could implement window title fuzzy matching for better reliability
 
 # 8. Execute bash scripts for automating stuff
-def execute_bash(bash_script, *args, in_terminal=False):
+def execute_bash(bash_script: str, *args: str, in_terminal: bool = False) -> Callable[[], None]:
     """
     Arguments are optional
     in_terminal=True when scripts need to be run in terminal for interactivity
@@ -864,9 +866,9 @@ def execute_bash(bash_script, *args, in_terminal=False):
         except Exception as e:
             print(f"Failed to execute script: {e}")
 
-    return wrapper()
+    return wrapper
 
-def terminal_env_jarvis():
+def terminal_env_jarvis() -> None:
     """Open a terminal with jarvis/busybee conda environment activated.
 
     This function launches a terminal window with a pre-configured conda environment
@@ -892,7 +894,7 @@ def terminal_env_jarvis():
     """
     execute_bash("open_jarvisbusybee_env_T.sh")
 
-def terminal_env_busybee():
+def terminal_env_busybee() -> None:
     """Open a terminal with busybee conda environment activated.
 
     Similar to terminal_env_jarvis() but specifically for the busybee project
@@ -903,7 +905,7 @@ def terminal_env_busybee():
     """
     execute_bash("open_busybee_env_T.sh")
 
-def defaultbranch_commit():
+def defaultbranch_commit() -> None:
     """
     Executes a git commit workflow using a bash script with interactivity.
     That is why in_terminal=True.
@@ -912,10 +914,10 @@ def defaultbranch_commit():
     and runs git status, git add ., and git commit with user prompts between each step.
     User can exit at any point using CTRL+C.
     """
-    execute_bash("git_commit_workflow.sh", PROJECTS_DIR, in_terminal=True)
+    execute_bash("git_commit_workflow.sh", str(PROJECTS_DIR), in_terminal=True)
 
 # 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window
-def nautilus_path(target_dir):
+def nautilus_path(target_dir: str) -> None:
     """
     I want this function to open file manager windows or raise them if there is
     already one open with my target directory. Instead of always opening a new Nautilus window,

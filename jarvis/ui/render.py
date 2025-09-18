@@ -35,18 +35,20 @@ from StreamDeck.ImageHelpers import PILHelper # Functions from PILHelper from th
 from PIL import Image, ImageDraw, ImageFont # PIL modules
 import textwrap
 from actions import actions
+from typing import Optional, Dict, Any
+from pathlib import Path
 
 # Directories for assets - will be set by importing modules
-FONT_DIR = None
-ICONS_DIR = None
+FONT_DIR: Optional[str] = None
+ICONS_DIR: Optional[str] = None
 
 # Configuration paths - will be set by importing modules
-USER_HOME = None
-PROJECTS_DIR = None
-OBSIDIAN_VAULTS = None
-KEYRING_PW = None
+USER_HOME: Optional[Path] = None
+PROJECTS_DIR: Optional[Path] = None
+OBSIDIAN_VAULTS: Optional[Dict[str, str]] = None
+KEYRING_PW: Optional[str] = None
 
-def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, obsidian_vaults=None, keyring_pw=None):
+def initialize_render(font_dir: str, icons_dir: str, user_home: Optional[Path] = None, projects_dir: Optional[Path] = None, obsidian_vaults: Optional[Dict[str, str]] = None, keyring_pw: Optional[str] = None) -> None:
     """Initialize the render module with required directories and paths.
 
     This function sets up the global configuration variables needed by the render
@@ -73,7 +75,7 @@ def initialize_render(font_dir, icons_dir, user_home=None, projects_dir=None, ob
     OBSIDIAN_VAULTS = obsidian_vaults or {}
     KEYRING_PW = keyring_pw
 
-def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="white"):
+def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional[str] = None, color: str = "black", labelcolor: str = "white") -> None:
     """Render the visual appearance of a StreamDeck key with icon and/or text.
 
     This function handles the visual rendering of StreamDeck buttons, supporting
@@ -220,7 +222,7 @@ def render_keys(deck, key, label=None, icon=None, color="black", labelcolor="whi
     deck.set_key_image(key, PILHelper.to_native_key_format(deck, key_image)) # set_key_image comes from StreamDeck.py from the original repo
     # to_native_key_format comes from PILHelper.py from the original repo
 
-def render_layout(deck, layout):
+def render_layout(deck: Any, layout: Dict[int, Dict[str, Any]]) -> None:
     """Render all keys for the given layout configuration.
 
     This function updates the entire StreamDeck display by rendering each key
@@ -272,11 +274,11 @@ def render_layout(deck, layout):
             key,
             config.get("label"), # text label to display on the key (if specified)
             config.get("icon"), # icon filename to display on the key (if specified)
-            config.get("color"), # the background color of the key (if specified)
-            config.get("labelcolor") # the color of the text label (if specified)
+            config.get("color", "black"), # the background color of the key (if specified)
+            config.get("labelcolor", "white") # the color of the text label (if specified)
         )
 
-def create_layouts(deck):
+def create_layouts(deck: Any) -> Dict[str, Dict[int, Dict[str, Any]]]:
     """Create all layout definitions for the StreamDeck interface.
 
     This function generates all layout configurations used by the jarvis application.

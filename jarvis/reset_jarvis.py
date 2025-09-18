@@ -32,8 +32,9 @@ import subprocess
 import os
 from StreamDeck.DeviceManager import DeviceManager
 from pathlib import Path
+from typing import Dict
 
-def load_config():
+def load_config() -> None:
     """Load configuration from config.env file for reset operations.
 
     This function reads the same configuration file used by the main jarvis
@@ -59,15 +60,15 @@ load_config()
 
 # Tool path configuration with fallback to system PATH
 # Uses same configuration approach as main jarvis application
-YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Path to ydotool for key release operations
+YDOTOOL_PATH: str = os.getenv('YDOTOOL_PATH', 'ydotool')  # Path to ydotool for key release operations
 
 # Optional: same KEYCODES dictionary from your workflow
-KEYCODES = {
+KEYCODES: Dict[str, int] = {
     "CTRL": 29, "SHIFT": 42, "ALT": 56, "SUPER": 125,
     "C": 46, "V": 47,  # add more if needed
 }
 
-def release_all_keys():
+def release_all_keys() -> None:
     """Release all potentially stuck keyboard keys.
 
     This function sends key release events for common keys that might be
@@ -87,7 +88,7 @@ def release_all_keys():
         check=False
     )
 
-def reset_all_streamdecks():
+def reset_all_streamdecks() -> None:
     """Reset all connected StreamDeck devices to blank state.
 
     This function discovers all connected StreamDeck devices and resets

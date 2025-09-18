@@ -18,16 +18,17 @@ can leave the system in an unusable state if not properly cleaned up.
 # Standard library imports for system interaction and process control
 import subprocess  # Execute ydotool commands for key release
 import sys         # System exit functions for controlled shutdown
+from typing import Optional, Dict, Any
 
 # ==================== MODULE CONFIGURATION ====================
 # These variables are set via dependency injection from the main module
 # They provide access to system tools needed for cleanup operations
 
 # Path to ydotool executable for keyboard input simulation
-YDOTOOL_PATH = None  # Will be set to system ydotool path from main configuration
+YDOTOOL_PATH: Optional[str] = None  # Will be set to system ydotool path from main configuration
 
 # Dictionary mapping key names to Linux input event codes
-KEYCODES = None      # Will be set to the same keycode mapping used throughout jarvis
+KEYCODES: Optional[Dict[str, int]] = None      # Will be set to the same keycode mapping used throughout jarvis
 
 # DEPENDENCY INJECTION PATTERN:
 # Rather than importing these values or reading config directly,
@@ -37,7 +38,7 @@ KEYCODES = None      # Will be set to the same keycode mapping used throughout j
 # 3. FLEXIBILITY: Can be configured differently for different environments
 # 4. EXPLICIT DEPENDENCIES: Clear what this module needs to function
 
-def initialize_lifecycle(ydotool_path, keycodes):
+def initialize_lifecycle(ydotool_path: str, keycodes: Dict[str, int]) -> None:
     """Initialize the lifecycle module with required configuration.
 
     This function sets up the module with the configuration needed for
@@ -74,7 +75,7 @@ def initialize_lifecycle(ydotool_path, keycodes):
     # - Compatibility with atexit.register() usage
     # - Consistent with other jarvis modules
 
-def release_all_keys():
+def release_all_keys() -> None:
     """Release all keyboard keys to prevent "sticky key" problems.
 
     This function sends key release events for all keys defined in KEYCODES
@@ -148,7 +149,7 @@ def release_all_keys():
 # - exception handlers
 
 # Flag to track whether cleanup has already been performed
-clean_stickykeys = False  # Set to False initially - cleanup not yet performed
+clean_stickykeys: bool = False  # Set to False initially - cleanup not yet performed
 
 # RACE CONDITION PREVENTION:
 # Without this flag, multiple cleanup triggers could cause:
@@ -158,7 +159,7 @@ clean_stickykeys = False  # Set to False initially - cleanup not yet performed
 #
 # The flag ensures cleanup runs exactly once, even if triggered multiple times
 
-def cleanup(deck=None):
+def cleanup(deck: Optional[Any] = None) -> None:
     """Perform complete application cleanup and resource release.
 
     This function handles all necessary cleanup operations when jarvis shuts down.
@@ -246,7 +247,7 @@ def cleanup(deck=None):
     # - USB resources are handled by kernel drivers
     # - Python memory is reclaimed by interpreter shutdown
 
-def safe_exit(deck=None):
+def safe_exit(deck: Optional[Any] = None) -> None:
     """Perform cleanup and exit the application gracefully.
 
     This function provides a single point for graceful application shutdown.

@@ -7,12 +7,12 @@ NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSC
 """
 
 # Standard library imports for system operations and process management
-import subprocess  # Used to execute external commands like ydotool, wmctrl, xdg-open, etc.
 import atexit      # Registers cleanup functions to run when Python interpreter exits
 import time        # Provides time-related functions like sleep() for delays
 import os          # Operating system interface for environment variables and file paths
 import signal      # Handles Unix signals like SIGINT (Ctrl+C) for graceful shutdown
 import sys         # System-specific parameters and functions, used for sys.exit()
+from typing import Dict, Any
 
 # Third-party StreamDeck library imports
 # NOTE: This imports from the original Elgato StreamDeck repository in ../src/
@@ -44,7 +44,7 @@ from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit       # Resour
 # - Star imports (from actions import *): Makes namespace pollution and unclear dependencies
 # - Direct file imports (exec(open('actions.py').read())): Fragile and bypasses Python's import system
 
-def load_config():
+def load_config() -> None:
     """Load environment variables from config.env file into os.environ.
 
     This function implements a simple .env file parser that reads environment
@@ -97,22 +97,22 @@ load_config()
 # Configuration constants - these can be customized via environment variables in config.env
 # Using environment variables instead of hardcoded paths makes jarvis portable across different systems
 # Get current user's home directory using pathlib (more robust than os.path.expanduser('~'))
-USER_HOME = Path.home()  # Returns Path object like /home/username or /Users/username
+USER_HOME: Path = Path.home()  # Returns Path object like /home/username or /Users/username
 
 # Tool path configuration with fallback to system PATH
 # ydotool is used for sending keyboard/mouse input to applications
 # PERFORMANCE NOTE: We store the path once rather than calling os.getenv() repeatedly
-YDOTOOL_PATH = os.getenv('YDOTOOL_PATH', 'ydotool')  # Defaults to 'ydotool' which relies on system PATH
+YDOTOOL_PATH: str = os.getenv('YDOTOOL_PATH', 'ydotool')  # Defaults to 'ydotool' which relies on system PATH
 
 # Projects directory configuration with intelligent default
 # This is where the user's code projects are stored
-PROJECTS_DIR = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Defaults to ~/Zenith
+PROJECTS_DIR: Path = Path(os.getenv('PROJECTS_DIR', USER_HOME / 'Zenith'))  # Defaults to ~/Zenith
 # We convert to Path object for consistent path handling throughout the application
 
 # Dynamic Obsidian vault configuration loading
 # This allows for multiple Obsidian vaults to be configured via environment variables
 # Pattern: OBSIDIAN_VAULT_<NAME>=<PATH> becomes OBSIDIAN_VAULTS[<name>] = <PATH>
-OBSIDIAN_VAULTS = {}  # Dictionary to store vault_name -> vault_path mappings
+OBSIDIAN_VAULTS: Dict[str, str] = {}  # Dictionary to store vault_name -> vault_path mappings
 
 # Iterate through all environment variables to find Obsidian vault configurations
 for key, value in os.environ.items():
@@ -134,7 +134,7 @@ for key, value in os.environ.items():
 # SECURITY NOTE: Environment variables are more secure than hardcoded passwords
 # but still visible to other processes. For production use, consider using
 # a proper secrets management system or encrypted password manager integration
-KEYRING_PW = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not configured
+KEYRING_PW: str = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not configured
 
 # Asset directory configuration
 # These directories contain resources used by jarvis: fonts, icons, code snippets, and scripts
@@ -142,19 +142,19 @@ KEYRING_PW = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not conf
 
 # Font file path for StreamDeck key text rendering
 # We use Roboto-Regular.ttf for clean, readable text on small StreamDeck keys
-FONT_DIR = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
+FONT_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
 
 # Directory containing custom icons for StreamDeck keys
 # Icons should be PNG format, ideally 96x96 pixels for StreamDeck XL
-ICONS_DIR = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
+ICONS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
 
 # Directory containing code snippets that can be inserted via StreamDeck
 # Snippets are stored as .txt files and can contain boilerplate code, templates, etc.
-SNIPPETS_DIR = os.path.join(os.path.dirname(__file__), "assets", "snippets")
+SNIPPETS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "snippets")
 
 # Directory containing bash scripts that can be executed via StreamDeck
 # These scripts handle complex workflows like git operations, environment setup, etc.
-BASHSCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "assets", "bash_scripts")
+BASHSCRIPTS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "bash_scripts")
 
 # DESIGN DECISION: We use relative paths from the script location rather than
 # absolute paths or environment variables. This keeps the assets bundled with
@@ -166,11 +166,11 @@ BASHSCRIPTS_DIR = os.path.join(os.path.dirname(__file__), "assets", "bash_script
 # Dictionary to store all layout definitions
 # Each layout is a dictionary mapping key numbers (0-31) to key configurations
 # Example: layouts["main"][0] = {"icon": "spotify.png", "action": open_spotify}
-layouts = {}  # Will be populated by create_layouts() after deck initialization
+layouts: Dict[str, Dict[int, Dict[str, Any]]] = {}  # Will be populated by create_layouts() after deck initialization
 
 # Track which layout is currently displayed on the StreamDeck
 # This variable is modified by the switch_layout() function in ui.logic
-current_layout = "main"  # Start with the main layout as default
+current_layout: str = "main"  # Start with the main layout as default
 
 # PERFORMANCE CONSIDERATION: We use a global variable instead of passing layout
 # state around because StreamDeck key callbacks need access to this information
@@ -191,7 +191,7 @@ current_layout = "main"  # Start with the main layout as default
 # 1. Lookup is O(1) constant time
 # 2. No repeated computation during hotkey operations
 # 3. Makes the mapping explicit and debuggable
-KEYCODES = {
+KEYCODES: Dict[str, int] = {
     # Letter keys (QWERTY layout positions, not alphabetical)
     "A": 30, "B": 48, "C": 46, "D": 32, "E": 18,
     "F": 33, "G": 34, "H": 35, "I": 23, "J": 36,
@@ -237,7 +237,7 @@ KEYCODES = {
 # - Direct X11/Wayland libraries: More complex and display-server specific
 # - ydotool: Works on both X11 and Wayland, precise low-level control
 
-def main():
+def main() -> None:
     """Main entry point for the jarvis StreamDeck application.
 
     This function orchestrates the entire application startup process and handles
@@ -367,7 +367,7 @@ def main():
 
     # Handle Ctrl+C (SIGINT) signal with graceful shutdown
     # Lambda function ignores the signal number and frame arguments
-    signal.signal(signal.SIGINT, lambda _s, _f: safe_exit(deck))
+    signal.signal(signal.SIGINT, lambda _signum, _frame: safe_exit(deck))
     # Alternative: signal.signal(signal.SIGINT, lambda *args: safe_exit(deck))
 
     # Register cleanup function to run automatically when Python interpreter exits

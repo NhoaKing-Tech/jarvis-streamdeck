@@ -12,8 +12,9 @@ With this script I can verify that:
 from StreamDeck.DeviceManager import DeviceManager #From original repo
 from StreamDeck.ImageHelpers import PILHelper #From original repo
 from PIL import Image #From PIL module
+from typing import Any, Union, Tuple
 
-def create_color_key(deck, color):
+def create_color_key(deck: Any, color: Union[str, Tuple[int, int, int]]) -> bytes:
     """
     Generates a solid color image for a key of the stream deck.
 
@@ -44,7 +45,7 @@ def create_color_key(deck, color):
     return native_image
 
 
-def reset_deck(deck):
+def reset_deck(deck: Any) -> None:
     """
     Reset the Stream Deck to clear all keys.
 
@@ -59,7 +60,7 @@ def reset_deck(deck):
     print("Stream Deck reset complete")
 
 
-def main():
+def main() -> None:
     """
     Main function for the testing of the deck.
     """

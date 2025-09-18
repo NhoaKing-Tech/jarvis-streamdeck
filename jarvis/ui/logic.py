@@ -18,6 +18,7 @@ common pattern in event-driven GUI programming.
 """
 
 from .render import render_layout
+from typing import Optional, Dict, Any, Callable
 
 # CIRCULAR IMPORT ANALYSIS:
 # This module imports from render, and render imports from logic (for switch_layout)
@@ -46,14 +47,14 @@ from .render import render_layout
 # They are set by initialize_logic() and used by event handlers
 
 # Current active layout name (e.g., "main", "python_layout", "git_layout")
-current_layout = None  # String identifier for the currently displayed layout
+current_layout: Optional[str] = None  # String identifier for the currently displayed layout
 
 # Dictionary containing all layout definitions
 # Structure: {layout_name: {key_number: {"icon": "file.png", "action": function, ...}}}
-layouts = None  # Will be populated with layout configurations from render module
+layouts: Optional[Dict[str, Dict[int, Dict[str, Any]]]] = None  # Will be populated with layout configurations from render module
 
 # Reference to the StreamDeck hardware device object
-deck = None  # Will hold the StreamDeck instance for key updates and rendering
+deck: Optional[Any] = None  # Will hold the StreamDeck instance for key updates and rendering
 
 # GLOBAL STATE JUSTIFICATION:
 # StreamDeck library uses callback functions with fixed signatures:
@@ -72,7 +73,7 @@ deck = None  # Will hold the StreamDeck instance for key updates and rendering
 # - No complex shared state manipulation
 # So thread safety is not a concern for this application
 
-def initialize_logic(deck_instance, layouts_dict, initial_layout="main"):
+def initialize_logic(deck_instance: Any, layouts_dict: Dict[str, Dict[int, Dict[str, Any]]], initial_layout: str = "main") -> None:
     """Initialize the UI logic module with required state from main application.
 
     This function implements dependency injection pattern - all UI state needed
@@ -128,7 +129,7 @@ def initialize_logic(deck_instance, layouts_dict, initial_layout="main"):
     # - Compatibility with StreamDeck callback requirements
     # - Ease of testing and debugging
 
-def switch_layout(layout_name):
+def switch_layout(layout_name: str) -> Callable[[], None]:
     """Create a function that switches to the specified StreamDeck layout.
 
     This function implements the Factory Pattern - it returns a callable that,
@@ -202,7 +203,7 @@ def switch_layout(layout_name):
     #
     # Factory function pattern chosen for balance of simplicity and functionality
 
-def key_change(deck_instance, key, state):
+def key_change(_deck_instance: Any, key: int, state: bool) -> None:
     """Event handler for StreamDeck key press and release events.
 
     This function is registered as a callback with the StreamDeck library and
@@ -268,7 +269,7 @@ def key_change(deck_instance, key, state):
         # - Blocking actions (subprocess.run) will delay next key presses
         # - Most actions are designed to be non-blocking for responsiveness
 
-    except Exception as e:
+    except Exception:
         # BROAD EXCEPTION HANDLING:
         # Catch all exceptions to prevent StreamDeck becoming unresponsive
         # In production environment, could:

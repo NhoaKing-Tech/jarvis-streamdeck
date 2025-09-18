@@ -22,7 +22,7 @@ Output:
 # Standard library imports for file and path operations
 from pathlib import Path  # Modern path handling, more robust than os.path
 
-def create_config():
+def create_config() -> None:
     """Create a personalized config.env file through interactive prompts.
 
     This function implements an interactive configuration wizard that guides
@@ -140,7 +140,7 @@ OBSIDIAN_VAULT={obsidian_vault}
     print("3. Add custom icons to assets/jarvisicons/")
     print("4. Create code snippets in assets/snippets/")
 
-def which_ydotool():
+def which_ydotool() -> str:
     """Find ydotool executable in system PATH with intelligent fallbacks.
 
     This function attempts to locate the ydotool executable using multiple
