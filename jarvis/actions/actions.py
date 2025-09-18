@@ -1,9 +1,28 @@
 """
-Action functions for the Stream Deck Jarvis application.
-This module contains all the action functions that are triggered by Stream Deck key presses.
+AUTHOR: NhoaKing
+NAME: actions.py
+DESCRIPTION: Python module containing all the action functions triggered by key presses.
+FINISH DATE: September 18th 2025 (Thursday)
 
-This module serves as the "business logic" layer that bridges StreamDeck key events
-with actual system operations. It handles:
+This module bridges key events (press) with system operations. 
+It handles so far the following topics. Function names are listed for each.
+1. Opening of URLs in default browser. In my case, Goggle Chrome. Functions here are:
+- url_freecodecamp
+- url_youtube
+- url_github
+- url_claude
+- url_chatgpt
+2. Open spotify or trigger play/pause 
+- spotify
+3.Trigger hotkeys/shortcuts
+- 
+
+2. Microphone ON/OFF toggle
+Achieved via:
+- is_mic_muted
+- toggle_mic
+
+
 - Text input simulation via ydotool
 - Application launching and window management
 - File system operations
@@ -11,7 +30,7 @@ with actual system operations. It handles:
 - Code snippet insertion
 - Git workflow automation
 
-The module uses dependency injection pattern - configuration is passed in via
+The module uses dependency injection pattern configuration is passed in via
 initialize_actions() rather than being hardcoded or imported globally.
 """
 
@@ -91,6 +110,306 @@ def initialize_actions(ydotool_path, snippets_dir, bashscripts_dir, projects_dir
     # - Simpler than class-based approach for this use case
     # - More explicit than import-based approach
 
+# Open URLs:
+def url_freecodecamp():
+    """Open freeCodeCamp website in the default web browser.
+
+    Quick access to freeCodeCamp learning platform for coding tutorials,
+    challenges, and educational content.
+
+    EDUCATIONAL WORKFLOW:
+    Having quick access to learning platforms supports continuous learning
+    and skill development during coding sessions.
+    """
+    # Open freeCodeCamp website with system default browser
+    subprocess.Popen(["xdg-open", "https://www.freecodecamp.org/"])
+
+def url_youtube():
+    """Open YouTube in the default web browser.
+
+    Simple utility function to quickly access YouTube using the system's
+    default web browser via xdg-open standard.
+
+    DESIGN CONSISTENCY:
+    Follows same pattern as other web-opening functions for consistency
+    and predictable behavior across all web-based StreamDeck actions.
+    """
+    # Open YouTube homepage with system default browser
+    subprocess.Popen(["xdg-open", "https://www.youtube.com/"])
+
+def url_github():
+    """Open GitHub profile in the default web browser.
+
+    This function opens the GitHub profile page using the system's default web browser.
+    It uses xdg-open which is the standard Linux way to open URLs and files with
+    their associated default applications.
+
+    BROWSER INTEGRATION DECISIONS:
+    Originally considered checking for existing browser tabs and focusing them
+    instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
+    or similar browser automation tools.
+
+    WHY SIMPLE APPROACH WAS CHOSEN:
+    - CDP is complex and overkill for simple URL opening
+    - Security risks with browser automation protocols
+    - xdg-open is simpler, safer, and more reliable
+    - Works with any browser (Chrome, Firefox, Edge, etc.)
+    - Respects user's default browser preference
+
+    TECHNICAL DETAILS:
+    - xdg-open delegates to desktop environment's URL handler
+    - Most browsers will reuse existing windows when possible
+    - URL opening is non-blocking (doesn't freeze jarvis)
+
+    ALTERNATIVE METHODS CONSIDERED:
+    - webbrowser.open(): Python standard library, but less robust on Linux
+    - Direct browser commands: Browser-specific, not portable
+    - CDP/WebDriver: Overkill and security risks for simple URL opening
+    """
+    # Use xdg-open to open URL with system default browser
+    # xdg-open is the freedesktop.org standard for opening files/URLs
+    subprocess.Popen(["xdg-open", "https://github.com/NhoaKing-Tech"])
+
+    # BROWSER COMPATIBILITY:
+    # xdg-open works with all major browsers:
+    # - Chrome/Chromium: google-chrome
+    # - Firefox: firefox
+    # - Edge: microsoft-edge
+    # - Safari: (not available on Linux)
+    # - Brave: brave-browser
+    # - Opera: opera
+
+    # SECURITY CONSIDERATIONS:
+    # - URL is hardcoded and safe (no user input injection)
+    # - xdg-open is a trusted system utility
+    # - No browser automation or remote control involved
+    # - Browser handles HTTPS validation and security
+
+def url_claude():
+    """Open Claude AI in the default web browser.
+
+    Provides quick access to Anthropic's Claude AI assistant for coding help,
+    analysis, and development support.
+
+    AI WORKFLOW INTEGRATION:
+    Having multiple AI assistants available allows choosing the best tool
+    for specific tasks (Claude for analysis, ChatGPT for coding, etc.).
+    """
+    # Open Claude AI website with system default browser
+    subprocess.Popen(["xdg-open", "https://claude.ai/"])
+
+def url_chatgpt():
+    """Open ChatGPT in the default web browser.
+
+    Provides quick access to ChatGPT for coding assistance, problem-solving,
+    and AI-powered development support during coding sessions.
+
+    AI INTEGRATION WORKFLOW:
+    Quick access to AI assistants supports modern development practices
+    where AI tools are used for code review, debugging, and learning.
+    """
+    # Open ChatGPT website with system default browser
+    subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
+
+# Spotify
+def spotify():
+    """Smart Spotify control: launch if not running, otherwise toggle play/pause.
+
+    This function implements intelligent Spotify management:
+    - If Spotify is not running: Launch the application
+    - If Spotify is running: Toggle play/pause state
+
+    This dual behavior makes the StreamDeck key work like a smart media button
+    that adapts based on current state.
+
+    TECHNICAL IMPLEMENTATION:
+    - Uses pgrep to check if Spotify process is running
+    - Uses playerctl for media control (works with any MPRIS-compatible player)
+    - Non-blocking execution for responsive UI
+
+    PLAYERCTL ADVANTAGES:
+    - Works with multiple media players (Spotify, VLC, Firefox, etc.)
+    - Provides standardized media control interface
+    - Handles player focus and switching automatically
+    - More reliable than application-specific APIs
+
+    DESIGN DECISION: No lambda wrapper needed
+    This function doesn't take parameters and executes immediately,
+    so it doesn't need the factory pattern used by parameterized functions.
+    """
+    # Check if Spotify process is currently running
+    # pgrep flags: -x (exact match), searches for process name "spotify"
+    # capture_output=True prevents command output from appearing in terminal
+    spotify_check = subprocess.run(["pgrep", "-x", "spotify"], capture_output=True)
+
+    # Check return code: 0 = found process, non-zero = process not found
+    if spotify_check.returncode == 0:
+        # Spotify is running - toggle play/pause state
+        # playerctl flags: --player=spotify (target specific player), play-pause (toggle command)
+        subprocess.Popen(["playerctl", "--player=spotify", "play-pause"])
+
+        # ALTERNATIVE PLAYERCTL COMMANDS:
+        # - "play" - force play state
+        # - "pause" - force pause state
+        # - "next" - skip to next track
+        # - "previous" - go to previous track
+        # - "stop" - stop playback
+
+    else:
+        # Spotify not running - launch the application
+        # This will start Spotify in the background
+        subprocess.Popen(["spotify"])
+
+        # SPOTIFY LAUNCH ALTERNATIVES:
+        # - Flatpak: flatpak run com.spotify.Client
+        # - Snap: snap run spotify
+        # - Web player: xdg-open https://open.spotify.com
+        #
+        # Using simple "spotify" command works with most installation methods
+        # as they typically create a symlink in PATH
+
+    # PERFORMANCE OPTIMIZATION OPPORTUNITIES:
+    # - Cache Spotify running state to avoid repeated pgrep calls
+    # - Use D-Bus to communicate directly with Spotify (more efficient)
+    # - Implement timeout for Spotify launch detection
+    # - Add visual feedback on StreamDeck key for current state
+
+    # ERROR HANDLING CONSIDERATIONS:
+    # - pgrep might fail if procfs is not available
+    # - playerctl might fail if no MPRIS session exists
+    # - spotify command might fail if not in PATH
+    # Current implementation gracefully handles these by allowing subprocess errors
+
+# Microphone state function and toggle ON/OFF
+def is_mic_muted():
+    """
+    Function to check microophone mute status using amixer
+    """
+    result = subprocess.run(
+        ["amixer", "get", "Capture"],
+        capture_output=True,
+        text=True
+    )
+    return "[off]" in result.stdout
+
+def toggle_mic(deck, key):
+    """
+    Function to toggle microphone mute and update the StreamDeck button icon.
+    Returns a lambda function for use in layout definitions.
+    """
+    def wrapper():
+        subprocess.run(["amixer", "set", "Capture", "toggle"])
+        muted = is_mic_muted()
+        render_keys(deck, key,
+                   label="OFF" if muted else "ON",
+                   icon="mic-off.png" if muted else "mic-on.png")
+
+    return wrapper
+
+# Hotkeys
+def hot_keys(*keys):
+    """Simulate a hotkey combination using ydotool.
+
+    This function presses multiple keys simultaneously (like Ctrl+C, Alt+Tab, etc.)
+    and releases them in the correct order to avoid "sticky key" issues.
+
+    Args:
+        *keys: Variable number of key names (e.g., "CTRL", "C" for Ctrl+C)
+
+    TECHNICAL DETAILS:
+    - Keys are pressed in the order specified (left to right)
+    - Keys are released in reverse order (right to left)
+    - Each key event is formatted as "keycode:state" where state is 1 (press) or 0 (release)
+    - All events are sent in a single ydotool command for atomic execution
+
+    EXAMPLES:
+    - hot_keys("CTRL", "C") -> Press Ctrl, press C, release C, release Ctrl
+    - hot_keys("CTRL", "SHIFT", "T") -> Press Ctrl, Shift, T, then release T, Shift, Ctrl
+    - hot_keys("ALT", "TAB") -> Press Alt, Tab, release Tab, release Alt
+
+    WHY REVERSE ORDER FOR RELEASE:
+    Releasing keys in reverse order prevents "sticky key" behavior where
+    modifier keys (Ctrl, Alt, Shift) remain pressed after the hotkey.
+    This was a common bug when first implementing ydotool integration.
+
+    PERFORMANCE NOTE:
+    This function executes immediately rather than returning a callable.
+    This is because hotkey actions are typically immediate and don't need
+    the factory pattern used by other functions.
+    """
+    # Verify module initialization
+    if KEYCODES is None or YDOTOOL_PATH is None:
+        raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
+
+    # Build sequence of key events
+    sequence = []
+
+    # Press all keys in forward order
+    for key in keys:
+        # Look up the Linux input event code for this key name
+        if key not in KEYCODES:
+            raise ValueError(f"Unknown key: {key}. Available keys: {list(KEYCODES.keys())}")
+
+        # Format as "keycode:1" for key press event
+        sequence.append(f"{KEYCODES[key]}:1")
+
+    # Release all keys in reverse order (essential for proper modifier key handling)
+    for key in reversed(keys):
+        # Format as "keycode:0" for key release event
+        sequence.append(f"{KEYCODES[key]}:0")
+
+    # Give ydotool daemon time to wake up from idle state
+    # First command after idle needs a moment to initialize properly
+    #subprocess.run([YDOTOOL_PATH, "key", "29:1", "29:0"])  # Press and release CTRL key (truly harmless)
+    time.sleep(0.05)  # Small delay to ensure completion
+    subprocess.run([YDOTOOL_PATH, "key"] + sequence)
+
+    # DEBUGGING TIP:
+    # If hotkeys aren't working, try running this manually:
+    # ydotool key 29:1 46:1 46:0 29:0  # Ctrl+C example
+    # This helps verify that ydotool is working and the keycodes are correct
+
+def open_terminal():
+    """Open a new terminal window using standard Linux hotkey.
+
+    This function simulates the standard Linux desktop shortcut Ctrl+Alt+T
+    to open a new terminal window. This works across most Linux desktop
+    environments (GNOME, KDE, XFCE, etc.) and is faster than launching
+    specific terminal applications.
+
+    DESKTOP ENVIRONMENT COMPATIBILITY:
+    - GNOME: Opens gnome-terminal
+    - KDE: Opens konsole
+    - XFCE: Opens xfce4-terminal
+    - i3/sway: Opens configured terminal ($TERMINAL)
+    - Most others: Opens system default terminal
+
+    WHY USE HOTKEY INSTEAD OF DIRECT COMMAND:
+    - Respects user's default terminal preference
+    - Works consistently across different desktop environments
+    - Faster than discovering and launching specific terminal executable
+    - Integrates with desktop environment's window management
+
+    ALTERNATIVE APPROACHES:
+    - subprocess.Popen(["x-terminal-emulator"]) - Debian alternative system
+    - subprocess.Popen(["gnome-terminal"]) - GNOME specific
+    - subprocess.Popen([os.environ.get("TERMINAL", "xterm")]) - Environment variable
+    """
+    # Send the standard Linux terminal hotkey combination
+    # This is recognized by virtually all Linux desktop environments
+    hot_keys("CTRL", "ALT", "T")
+
+    # PERFORMANCE NOTE:
+    # Hotkey simulation is faster than process discovery and launching
+    # The desktop environment handles terminal selection and configuration
+
+def copy():
+    """
+    Super simple example for using hotkeys function
+    """
+    hot_keys("CTRL", "C")
+
+
 def type_text(text):
     """Create a function that types the specified text using ydotool.
 
@@ -139,7 +458,6 @@ def type_text(text):
         # - Clipboard + Ctrl+V: Faster for large text but modifies clipboard state
 
     return execute  # Return the inner function for later execution
-
 
 def insert_snippet(snippet_name):
     """Create a function that inserts a code snippet from a text file.
@@ -206,67 +524,6 @@ def insert_snippet(snippet_name):
     return execute  # Return the execution function
 
 
-def hot_keys(*keys):
-    """Simulate a hotkey combination using ydotool.
-
-    This function presses multiple keys simultaneously (like Ctrl+C, Alt+Tab, etc.)
-    and releases them in the correct order to avoid "sticky key" issues.
-
-    Args:
-        *keys: Variable number of key names (e.g., "CTRL", "C" for Ctrl+C)
-
-    TECHNICAL DETAILS:
-    - Keys are pressed in the order specified (left to right)
-    - Keys are released in reverse order (right to left)
-    - Each key event is formatted as "keycode:state" where state is 1 (press) or 0 (release)
-    - All events are sent in a single ydotool command for atomic execution
-
-    EXAMPLES:
-    - hot_keys("CTRL", "C") -> Press Ctrl, press C, release C, release Ctrl
-    - hot_keys("CTRL", "SHIFT", "T") -> Press Ctrl, Shift, T, then release T, Shift, Ctrl
-    - hot_keys("ALT", "TAB") -> Press Alt, Tab, release Tab, release Alt
-
-    WHY REVERSE ORDER FOR RELEASE:
-    Releasing keys in reverse order prevents "sticky key" behavior where
-    modifier keys (Ctrl, Alt, Shift) remain pressed after the hotkey.
-    This was a common bug when first implementing ydotool integration.
-
-    PERFORMANCE NOTE:
-    This function executes immediately rather than returning a callable.
-    This is because hotkey actions are typically immediate and don't need
-    the factory pattern used by other functions.
-    """
-    # Verify module initialization
-    if KEYCODES is None or YDOTOOL_PATH is None:
-        raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
-
-    # Build sequence of key events
-    sequence = []
-
-    # Press all keys in forward order
-    for key in keys:
-        # Look up the Linux input event code for this key name
-        if key not in KEYCODES:
-            raise ValueError(f"Unknown key: {key}. Available keys: {list(KEYCODES.keys())}")
-
-        # Format as "keycode:1" for key press event
-        sequence.append(f"{KEYCODES[key]}:1")
-
-    # Release all keys in reverse order (essential for proper modifier key handling)
-    for key in reversed(keys):
-        # Format as "keycode:0" for key release event
-        sequence.append(f"{KEYCODES[key]}:0")
-
-    # Execute the complete key sequence atomically
-    # All events are sent in a single command to ensure proper timing
-    subprocess.Popen([YDOTOOL_PATH, "key"] + sequence)
-
-    # DEBUGGING TIP:
-    # If hotkeys aren't working, try running this manually:
-    # ydotool key 29:1 46:1 46:0 29:0  # Ctrl+C example
-    # This helps verify that ydotool is working and the keycodes are correct
-
-
 def open_vscode(project_path):
     """Create a function that opens Visual Studio Code with a specific project.
 
@@ -329,7 +586,6 @@ def open_vscode(project_path):
     # - Use VSCode's --command flag: code --command workbench.action.terminal.new
     # - Use VSCode's remote development features for containerized projects
     # - Integrate with VSCode's workspace API for session management
-
 
 def open_obsidian(vault_path):
     """Create a function that opens Obsidian with a specific vault.
@@ -411,74 +667,6 @@ def open_obsidian(vault_path):
     # - URI opening is handled by desktop environment, also fast
     # - Could cache window list to avoid repeated wmctrl calls
     # - Could implement window title fuzzy matching for better reliability
-
-def open_spotify():
-    """Smart Spotify control: launch if not running, otherwise toggle play/pause.
-
-    This function implements intelligent Spotify management:
-    - If Spotify is not running: Launch the application
-    - If Spotify is running: Toggle play/pause state
-
-    This dual behavior makes the StreamDeck key work like a smart media button
-    that adapts based on current state.
-
-    TECHNICAL IMPLEMENTATION:
-    - Uses pgrep to check if Spotify process is running
-    - Uses playerctl for media control (works with any MPRIS-compatible player)
-    - Non-blocking execution for responsive UI
-
-    PLAYERCTL ADVANTAGES:
-    - Works with multiple media players (Spotify, VLC, Firefox, etc.)
-    - Provides standardized media control interface
-    - Handles player focus and switching automatically
-    - More reliable than application-specific APIs
-
-    DESIGN DECISION: No lambda wrapper needed
-    This function doesn't take parameters and executes immediately,
-    so it doesn't need the factory pattern used by parameterized functions.
-    """
-    # Check if Spotify process is currently running
-    # pgrep flags: -x (exact match), searches for process name "spotify"
-    # capture_output=True prevents command output from appearing in terminal
-    spotify_check = subprocess.run(["pgrep", "-x", "spotify"], capture_output=True)
-
-    # Check return code: 0 = found process, non-zero = process not found
-    if spotify_check.returncode == 0:
-        # Spotify is running - toggle play/pause state
-        # playerctl flags: --player=spotify (target specific player), play-pause (toggle command)
-        subprocess.Popen(["playerctl", "--player=spotify", "play-pause"])
-
-        # ALTERNATIVE PLAYERCTL COMMANDS:
-        # - "play" - force play state
-        # - "pause" - force pause state
-        # - "next" - skip to next track
-        # - "previous" - go to previous track
-        # - "stop" - stop playback
-
-    else:
-        # Spotify not running - launch the application
-        # This will start Spotify in the background
-        subprocess.Popen(["spotify"])
-
-        # SPOTIFY LAUNCH ALTERNATIVES:
-        # - Flatpak: flatpak run com.spotify.Client
-        # - Snap: snap run spotify
-        # - Web player: xdg-open https://open.spotify.com
-        #
-        # Using simple "spotify" command works with most installation methods
-        # as they typically create a symlink in PATH
-
-    # PERFORMANCE OPTIMIZATION OPPORTUNITIES:
-    # - Cache Spotify running state to avoid repeated pgrep calls
-    # - Use D-Bus to communicate directly with Spotify (more efficient)
-    # - Implement timeout for Spotify launch detection
-    # - Add visual feedback on StreamDeck key for current state
-
-    # ERROR HANDLING CONSIDERATIONS:
-    # - pgrep might fail if procfs is not available
-    # - playerctl might fail if no MPRIS session exists
-    # - spotify command might fail if not in PATH
-    # Current implementation gracefully handles these by allowing subprocess errors
 
 
 def open_terminal_env_jarvis():
@@ -565,177 +753,9 @@ def open_terminal_env_busybee():
     # - Isolation of experimental or breaking changes
 
 
-def open_terminal():
-    """Open a new terminal window using standard Linux hotkey.
-
-    This function simulates the standard Linux desktop shortcut Ctrl+Alt+T
-    to open a new terminal window. This works across most Linux desktop
-    environments (GNOME, KDE, XFCE, etc.) and is faster than launching
-    specific terminal applications.
-
-    DESKTOP ENVIRONMENT COMPATIBILITY:
-    - GNOME: Opens gnome-terminal
-    - KDE: Opens konsole
-    - XFCE: Opens xfce4-terminal
-    - i3/sway: Opens configured terminal ($TERMINAL)
-    - Most others: Opens system default terminal
-
-    WHY USE HOTKEY INSTEAD OF DIRECT COMMAND:
-    - Respects user's default terminal preference
-    - Works consistently across different desktop environments
-    - Faster than discovering and launching specific terminal executable
-    - Integrates with desktop environment's window management
-
-    ALTERNATIVE APPROACHES:
-    - subprocess.Popen(["x-terminal-emulator"]) - Debian alternative system
-    - subprocess.Popen(["gnome-terminal"]) - GNOME specific
-    - subprocess.Popen([os.environ.get("TERMINAL", "xterm")]) - Environment variable
-    """
-    # Send the standard Linux terminal hotkey combination
-    # This is recognized by virtually all Linux desktop environments
-    hot_keys("CTRL", "ALT", "T")
-
-    # PERFORMANCE NOTE:
-    # Hotkey simulation is faster than process discovery and launching
-    # The desktop environment handles terminal selection and configuration
 
 
-def open_github():
-    """Open GitHub profile in the default web browser.
 
-    This function opens the GitHub profile page using the system's default web browser.
-    It uses xdg-open which is the standard Linux way to open URLs and files with
-    their associated default applications.
-
-    BROWSER INTEGRATION DECISIONS:
-    Originally considered checking for existing browser tabs and focusing them
-    instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
-    or similar browser automation tools.
-
-    WHY SIMPLE APPROACH WAS CHOSEN:
-    - CDP is complex and overkill for simple URL opening
-    - Security risks with browser automation protocols
-    - xdg-open is simpler, safer, and more reliable
-    - Works with any browser (Chrome, Firefox, Edge, etc.)
-    - Respects user's default browser preference
-
-    TECHNICAL DETAILS:
-    - xdg-open delegates to desktop environment's URL handler
-    - Most browsers will reuse existing windows when possible
-    - URL opening is non-blocking (doesn't freeze jarvis)
-
-    ALTERNATIVE METHODS CONSIDERED:
-    - webbrowser.open(): Python standard library, but less robust on Linux
-    - Direct browser commands: Browser-specific, not portable
-    - CDP/WebDriver: Overkill and security risks for simple URL opening
-    """
-    # Use xdg-open to open URL with system default browser
-    # xdg-open is the freedesktop.org standard for opening files/URLs
-    subprocess.Popen(["xdg-open", "https://github.com/NhoaKing-Tech"])
-
-    # BROWSER COMPATIBILITY:
-    # xdg-open works with all major browsers:
-    # - Chrome/Chromium: google-chrome
-    # - Firefox: firefox
-    # - Edge: microsoft-edge
-    # - Safari: (not available on Linux)
-    # - Brave: brave-browser
-    # - Opera: opera
-
-    # SECURITY CONSIDERATIONS:
-    # - URL is hardcoded and safe (no user input injection)
-    # - xdg-open is a trusted system utility
-    # - No browser automation or remote control involved
-    # - Browser handles HTTPS validation and security
-
-
-def open_youtube():
-    """Open YouTube in the default web browser.
-
-    Simple utility function to quickly access YouTube using the system's
-    default web browser via xdg-open standard.
-
-    DESIGN CONSISTENCY:
-    Follows same pattern as other web-opening functions for consistency
-    and predictable behavior across all web-based StreamDeck actions.
-    """
-    # Open YouTube homepage with system default browser
-    subprocess.Popen(["xdg-open", "https://www.youtube.com/"])
-
-
-def open_freecodecamp():
-    """Open freeCodeCamp website in the default web browser.
-
-    Quick access to freeCodeCamp learning platform for coding tutorials,
-    challenges, and educational content.
-
-    EDUCATIONAL WORKFLOW:
-    Having quick access to learning platforms supports continuous learning
-    and skill development during coding sessions.
-    """
-    # Open freeCodeCamp website with system default browser
-    subprocess.Popen(["xdg-open", "https://www.freecodecamp.org/"])
-
-
-def open_chat():
-    """Open ChatGPT in the default web browser.
-
-    Provides quick access to ChatGPT for coding assistance, problem-solving,
-    and AI-powered development support during coding sessions.
-
-    AI INTEGRATION WORKFLOW:
-    Quick access to AI assistants supports modern development practices
-    where AI tools are used for code review, debugging, and learning.
-    """
-    # Open ChatGPT website with system default browser
-    subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
-
-def open_claude():
-    """Open Claude AI in the default web browser.
-
-    Provides quick access to Anthropic's Claude AI assistant for coding help,
-    analysis, and development support.
-
-    AI WORKFLOW INTEGRATION:
-    Having multiple AI assistants available allows choosing the best tool
-    for specific tasks (Claude for analysis, ChatGPT for coding, etc.).
-    """
-    # Open Claude AI website with system default browser
-    subprocess.Popen(["xdg-open", "https://claude.ai/"])
-
-# Microphone control and state check functions
-def toggle_output_mute():
-    """
-    Function to toggle system audio output mute using amixer
-    """
-    subprocess.Popen(["amixer", "set", "Master", "toggle"])
-
-
-def is_mic_muted():
-    """
-    Function to check microophone mute status using amixer
-    """
-    result = subprocess.run(
-        ["amixer", "get", "Capture"],
-        capture_output=True,
-        text=True
-    )
-    return "[off]" in result.stdout  # True if mic muted
-
-
-def toggle_mic(deck, key):
-    """
-    Function to toggle microphone mute and update the StreamDeck button icon.
-    Returns a lambda function for use in layout definitions.
-    """
-    def toggle_action():
-        subprocess.run(["amixer", "set", "Capture", "toggle"])
-        muted = is_mic_muted()
-        render_keys(deck, key,
-                   label="OFF" if muted else "ON",
-                   icon="mic-off.png" if muted else "mic-on.png")
-
-    return toggle_action
 
 # -------------------- Wrapper functions to simplify action definitions in keys
 def type_keyring():
@@ -759,12 +779,6 @@ def type_commit():
         f"bash {os.path.join(BASHSCRIPTS_DIR, 'git_commit_workflow.sh')} '{PROJECTS_DIR}'"
     ])
 
-
-def copy():
-    """
-    Super simple example for using hotkeys function
-    """
-    hot_keys("CTRL", "C")
 
 
 # TO DO: Generalize the next function to work with other applications and to handle positioning and sizing of windows.

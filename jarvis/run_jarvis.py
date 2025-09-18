@@ -1,5 +1,5 @@
 """
-SCRIPT NAME: run_jarvis.py
+NAME: run_jarvis.py
 DESCRIPTION: Python script to run my stream deck XL with custom icons and actions.
 AUTHOR: NhoaKing
 FINISH DATE: September 14th 2025 (Sunday)

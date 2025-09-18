@@ -243,7 +243,7 @@ def create_layouts(deck):
         3: {"icon": "project4.png", "action": actions.open_vscode(str(projects_path / 'nhoaking_website'))},
         4: {"icon": "commit.png", "action": actions.type_commit},
         5: {"icon": "git_layout.png", "action": switch_layout("git_layout")},
-        6: {"icon": "github.png", "action": actions.open_github},
+        6: {"icon": "github.png", "action": actions.url_github},
         7: {"icon": "busybee_layout.png", "color": "#fdff8a", "action": switch_layout("busybee_layout")},
         8: {"icon": "quartz.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('quartz', ''))},
         12: {"icon": "journal.png", "action": actions.open_obsidian(OBSIDIAN_VAULTS.get('journal', ''))},
@@ -254,9 +254,9 @@ def create_layouts(deck):
         17: {"icon": "terminal_busybee.png", "action": actions.open_terminal_env_busybee},
         18: {"icon": "terminal_pandora.png", "action": actions.open_terminal_env_jarvis},
         19: {"icon": "terminal_website.png", "action": actions.open_terminal_env_jarvis},
-        20: {"icon": "freecodecamp.png", "action": actions.open_freecodecamp},
-        21: {"icon": "claude.png", "action": actions.open_claude},
-        22: {"icon": "chatgpt.png", "action": actions.open_chat},
+        20: {"icon": "freecodecamp.png", "action": actions.url_freecodecamp},
+        21: {"icon": "claude.png", "action": actions.url_claude},
+        22: {"icon": "chatgpt.png", "action": actions.url_chatgpt},
         23: {"icon": "key.png", "action": actions.type_keyring()},
         24: {"icon": "python_layout.png", "action": switch_layout("python_layout")},
         25: {"icon": "html_layout.png", "action": switch_layout("html_layout")},
@@ -272,42 +272,42 @@ def create_layouts(deck):
     # Terminal layout
     layouts["apps"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
-    2: {"icon": "youtube.png", "action": actions.open_youtube},    
+    1: {"icon": "spotify.png", "action": actions.spotify},
+    2: {"icon": "youtube.png", "action": actions.url_youtube},    
 }
     layouts["git_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["busybee_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["python_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["html_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["css_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
     layouts["javascript_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
@@ -329,7 +329,7 @@ def create_layouts(deck):
 }
     layouts["terminal_layout"] = {
     0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"icon": "spotify.png", "action": actions.open_spotify},
+    1: {"icon": "spotify.png", "action": actions.spotify},
     2: {"label": "Simple Snippet", "color": "cyan", "action": actions.insert_snippet("hello")},
     3: {"label": "Python Boilerplate", "color": "orange", "action": actions.insert_snippet("python_boilerplate")},
 }
@@ -339,13 +339,13 @@ def create_layouts(deck):
 """ EXAMPLE
 # Main layout
 layouts["main"] = {
-    0: {"icon": "spotify.png", "action": actions.open_spotify},
+    0: {"icon": "spotify.png", "action": actions.spotify},
     1: {"icon": "obsidian.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
     ,
     2: {"icon": "jarviscode.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
     3: {"icon": "busybeecode.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
     10: {"icon": "python.png", "action": switch_layout("python")},
-    18: {"icon": "github.png", "color": "#2f3036", "action": actions.open_github},
+    18: {"icon": "github.png", "color": "#2f3036", "action": actions.url_github},
     19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
     4: {"icon": "terminal.png", "action": actions.open_terminal},
     5: {"icon": "terminalenv.png", "action": actions.open_terminal_env},
@@ -360,7 +360,6 @@ layouts["main"] = {
     #11: {"label": "Paste", "color": "pink", "action": paste},
     #12: {"label": "Hola", "color": "blue", "action": type_hola},
     #13: {"label": "More", "color": "purple", "action": lambda: switch_layout("terminal")},
-    #14: {"icon": "shine.png", "action": open_shine},
     31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
 }
 # Terminal layout
