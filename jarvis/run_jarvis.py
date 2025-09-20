@@ -141,23 +141,23 @@ KEYRING_PW: str = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not
 
 # Asset directory configuration
 # These directories contain resources used by jarvis: fonts, icons, code snippets, and scripts
-# We use os.path.join() for cross-platform compatibility (works on Windows, macOS, Linux)
+# We use pathlib.Path for cross-platform compatibility (works on Windows, macOS, Linux)
 
 # Font file path for StreamDeck key text rendering
 # We use Roboto-Regular.ttf for clean, readable text on small StreamDeck keys
-FONT_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "font", "Roboto-Regular.ttf")
+FONT_DIR: Path = Path(__file__).parent / "assets" / "font" / "Roboto-Regular.ttf"
 
 # Directory containing custom icons for StreamDeck keys
 # Icons should be PNG format, ideally 96x96 pixels for StreamDeck XL
-ICONS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "jarvisicons")
+ICONS_DIR: Path = Path(__file__).parent / "assets" / "jarvisicons"
 
 # Directory containing code snippets that can be inserted via StreamDeck
 # Snippets are stored as .txt files and can contain boilerplate code, templates, etc.
-SNIPPETS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "snippets")
+SNIPPETS_DIR: Path = Path(__file__).parent / "assets" / "snippets"
 
 # Directory containing bash scripts that can be executed via StreamDeck
 # These scripts handle complex workflows like git operations, environment setup, etc.
-BASHSCRIPTS_DIR: str = os.path.join(os.path.dirname(__file__), "assets", "bash_scripts")
+BASHSCRIPTS_DIR: Path = Path(__file__).parent / "assets" / "bash_scripts"
 
 # DESIGN DECISION: We use relative paths from the script location rather than
 # absolute paths or environment variables. This keeps the assets bundled with

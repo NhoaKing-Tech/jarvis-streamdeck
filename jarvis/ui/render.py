@@ -39,8 +39,8 @@ from typing import Optional, Dict, Any
 from pathlib import Path
 
 # Directories for assets - will be set by importing modules
-FONT_DIR: Optional[str] = None
-ICONS_DIR: Optional[str] = None
+FONT_DIR: Optional[Path] = None
+ICONS_DIR: Optional[Path] = None
 
 # Configuration paths - will be set by importing modules
 USER_HOME: Optional[Path] = None
@@ -48,7 +48,7 @@ PROJECTS_DIR: Optional[Path] = None
 OBSIDIAN_VAULTS: Optional[Dict[str, str]] = None
 KEYRING_PW: Optional[str] = None
 
-def initialize_render(font_dir: str, icons_dir: str, user_home: Optional[Path] = None, projects_dir: Optional[Path] = None, obsidian_vaults: Optional[Dict[str, str]] = None, keyring_pw: Optional[str] = None) -> None:
+def initialize_render(font_dir: Path, icons_dir: Path, user_home: Optional[Path] = None, projects_dir: Optional[Path] = None, obsidian_vaults: Optional[Dict[str, str]] = None, keyring_pw: Optional[str] = None) -> None:
     """Initialize the render module with required directories and paths.
 
     This function sets up the global configuration variables needed by the render
@@ -56,8 +56,8 @@ def initialize_render(font_dir: str, icons_dir: str, user_home: Optional[Path] =
     injection to keep configuration centralized.
 
     Args:
-        font_dir (str): Path to font file for text rendering on keys
-        icons_dir (str): Directory containing icon files for StreamDeck keys
+        font_dir (Path): Path to font file for text rendering on keys
+        icons_dir (Path): Directory containing icon files for StreamDeck keys
         user_home (Path, optional): User's home directory path
         projects_dir (Path, optional): User's main projects directory
         obsidian_vaults (dict, optional): Dictionary mapping vault names to paths
@@ -123,8 +123,8 @@ def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional
 
     # Case 1: Both icon and label
     if label and icon:
-        icon_path = os.path.join(ICONS_DIR, icon)
-        if os.path.exists(icon_path):
+        icon_path = ICONS_DIR / icon
+        if icon_path.exists():
             icon_img = Image.open(icon_path)
             # Give more bottom margin for text space
             key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(10, 0, 30, 0), background=color) #use the specified background color, or black by default if not specified
@@ -205,8 +205,8 @@ def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional
 
     # Case 3: Only icon (no label)
     elif icon:
-        icon_path = os.path.join(ICONS_DIR, icon)
-        if os.path.exists(icon_path):
+        icon_path = ICONS_DIR / icon
+        if icon_path.exists():
             icon_img = Image.open(icon_path)
             # No margins needed, maximize icon space
             key_image = PILHelper.create_scaled_key_image(deck, icon_img, margins=(5, 5, 5, 5), background=color)

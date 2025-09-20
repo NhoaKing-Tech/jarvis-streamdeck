@@ -93,8 +93,8 @@ from typing import Dict, Optional, Callable, Any
 YDOTOOL_PATH: Optional[str] = None     # Will be set to system ydotool path or custom path from config
 
 # Directory paths for various asset types
-SNIPPETS_DIR: Optional[str] = None     # Directory containing code snippet text files
-BASHSCRIPTS_DIR: Optional[str] = None  # Directory containing executable bash scripts
+SNIPPETS_DIR: Optional[Path] = None     # Directory containing code snippet text files
+BASHSCRIPTS_DIR: Optional[Path] = None  # Directory containing executable bash scripts
 PROJECTS_DIR: Optional[Path] = None     # User's main projects directory (usually ~/Zenith)
 
 # Keycode mapping dictionary for ydotool input simulation
@@ -111,7 +111,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # 3. CLARITY: Dependencies are explicit rather than hidden imports
 # 4. ERROR HANDLING: Can detect and report missing configuration
 
-def initialize_actions(ydotool_path: str, snippets_dir: str, bashscripts_dir: str, projects_dir: Path, keycodes: Dict[str, int], keyring_pw: str) -> None:
+def initialize_actions(ydotool_path: str, snippets_dir: Path, bashscripts_dir: Path, projects_dir: Path, keycodes: Dict[str, int], keyring_pw: str) -> None:
     """Initialize the actions module with required configuration from the main module (run_jarvis.py).
 
     This function implements the Dependency Injection (DI) pattern where the actions
@@ -706,10 +706,10 @@ def type_snippet(snippet_name: str) -> Callable[[], None]:
             raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
 
         # Construct path to snippet file
-        snippet_path = os.path.join(SNIPPETS_DIR, snippet_name + ".txt")
+        snippet_path = SNIPPETS_DIR / (snippet_name + ".txt")
 
         # Check if snippet file exists before trying to read it
-        if not os.path.exists(snippet_path):
+        if not snippet_path.exists():
             print(f"Warning: Snippet '{snippet_name}' not found at {snippet_path}")
             return  # Exit early without typing anything
 
@@ -763,8 +763,8 @@ def open_obsidian(vault_path: str) -> Callable[[], None]:
     This prevents multiple windows for the same vault and provides seamless UX.
     """
     # Extract vault name from the full path for window matching and URI construction
-    # os.path.normpath() removes trailing slashes, os.path.basename() gets final component
-    vault_name = os.path.basename(os.path.normpath(vault_path))
+    # Path.resolve() normalizes the path and .name gets the final component
+    vault_name = Path(vault_path).resolve().name
 
     def wrapper():
         # STEP 1: Check if Obsidian is already open with this vault
@@ -831,15 +831,15 @@ def execute_bash(bash_script: str, *args: str, in_terminal: bool = False):
             raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
 
         # Execute the jarvis environment setup script
-        # os.path.join() provides cross-platform path construction
-        script_path = os.path.join(BASHSCRIPTS_DIR, bash_script)
+        # pathlib.Path provides cross-platform path construction
+        script_path = BASHSCRIPTS_DIR / bash_script
         # Check if script exists
-        if not os.path.exists(script_path):
+        if not script_path.exists():
             #print(f"Script not found: {script_path}")
             return
 
         # Auto-fix permissions if not executable.
-        if not os.access(script_path,os.X_OK):
+        if not os.access(script_path, os.X_OK):
             try:
                 # The bash script should be executable (chmod +x)
                 os.chmod(script_path,0o755)  # rwxr-xr-x permissions
@@ -928,12 +928,12 @@ def nautilus_path(target_dir: str) -> None:
 
     # I need to convert the target directory to an absolute path because:
     # 1. Relative paths like "../folder" or "./folder" can be ambiguous
-    # 2. os.path.abspath() converts these to full paths like "/home/user/folder"
+    # 2. Path.resolve() converts these to full paths like "/home/user/folder"
     # 3. This ensures I am comparing the same format when checking window titles later
     # 4. It also resolves any symbolic links to their actual paths
     #    (Symbolic links are like shortcuts - they point to another file/directory.
-    #     os.path.abspath() follows the shortcut to get the real location)
-    target_dir = os.path.abspath(target_dir)
+    #     Path.resolve() follows the shortcut to get the real location)
+    target_dir = str(Path(target_dir).resolve())
 
     # STEP 1: I need to check if Nautilus is already open with my target directory
 
@@ -974,9 +974,9 @@ def nautilus_path(target_dir: str) -> None:
             # There are different ways the directory might appear in the window title:
 
             # First, I get just the folder name (last part of the path)
-            # os.path.basename("/home/user/Documents") returns "Documents"
+            # Path(path).name returns "Documents" from "/home/user/Documents"
             # This helps me match windows that might not show the full path
-            folder_name = os.path.basename(target_dir)
+            folder_name = Path(target_dir).name
 
             # I check three conditions to see if this window matches my target:
             if (target_dir in window_title or          # Full path is in title
