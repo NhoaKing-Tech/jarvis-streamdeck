@@ -841,8 +841,8 @@ def execute_bash(bash_script: str, *args: str, in_terminal: bool = False):
         # Auto-fix permissions if not executable.
         if not os.access(script_path, os.X_OK):
             try:
-                # The bash script should be executable (chmod +x)
-                os.chmod(script_path,0o755)  # rwxr-xr-x permissions
+                # The bash script should be executable (chmod u+x)
+                os.chmod(script_path,0o744)  # rwxr--r-- permissions (user execute only)
                 #print(f"Made script executable: {script_path}")
             except Exception as e:
                 #print(f"Failed to make script executable: {e}")

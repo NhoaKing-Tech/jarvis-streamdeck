@@ -87,7 +87,7 @@ def create_config() -> None:
     # the config.env, and then refer to them with the codename after "OBISIDIAN_VAULT_" in the config.env file.
     # In the actions module you can then refer to them with the same codename to access the vault you want.
     # You can also customize the codenames to your liking, just make sure to use only letters, numbers and underscores.
-    #
+    
     # Journal vault configuration
     default_journal_vault_path = f"{projects_dir}/journal_vault"
     journal_vault_path = input(f"Obsidian vault journal path [{default_journal_vault_path}]: ")
@@ -100,18 +100,17 @@ def create_config() -> None:
 
     # Keyring password configuration
     print("\033[93mSECURITY NOTE: This note is about storing passwords in plain text file storage.\n"
-        "Jarvis handles passwords securely in memory and will not log or expose them unless you share them.\n"
-        "Storing passwords in plain text files creates security risks:\n"
-        "- File system access by other users or processes\n"
-        "- Inclusion in system backups (local or cloud)\n"
-        "- Accidental sharing or version control commits\n"
-        "Treat this file with the same care as any sensitive credential.\n"
-        "Consider using password managers or SSH keys for better security.\033[0m")
+          "Jarvis handles passwords securely in memory and will not log or expose them unless you share them.\n"
+          "Storing passwords in plain text files creates security risks:\n"
+          "- File system access by other users or processes\n"
+          "- Inclusion in system backups (local or cloud)\n"
+          "- Accidental sharing or version control commits\n"
+          "Treat this file with the same care as any sensitive credential.\n"
+          "Consider using password managers or SSH keys for better security.\033[0m")
     keyring_input = input("Optional keyring password): ")
     keyring_pw = keyring_input.strip() or "your_password_here"
 
-    # CONFIGURATION FILE GENERATION:
-    # Create properly formatted config.env file with collected values
+    # Create properly formatted config.env file with collected paths and values
     config_content = f"""# Jarvis System Configuration
     # Output environment configuration file created by executing 
     # setup_config.py in the jarvis directory with `python3 setup_config.py`
@@ -123,7 +122,6 @@ def create_config() -> None:
     KEYRING_PW={keyring_pw}
 """
 
-    # CONFIGURATION FILE WRITING:
     try:
         with open(config_path, 'w', encoding='utf-8') as f:
             f.write(config_content)
@@ -132,21 +130,21 @@ def create_config() -> None:
         print("Please check file permissions and try again.")
         return
 
-    # SUCCESS FEEDBACK AND USAGE INSTRUCTIONS:
+    # Next steps and usage instructions
     print(f"\nConfiguration saved to {config_path}")
-    print("\nTo use this configuration you have two options:")
+    print("\nTo use this configuration you have two options. I recommend option 2.")
     print("\n1. Direct execution:")
     print("   source config.env && python run_jarvis.py")
     print("\n   or")
     print("\n2. System service setup:")
-    print("   See config_example.env for systemd service configuration")
+    print("   See config_example.env for systemd service configuration, udev rules, ydotool configuration, and usage instructions.")
 
     # NEXT STEPS GUIDANCE:
     print("\nNext steps:")
-    print("1. Test the configuration: python run_jarvis.py")
-    print("2. Customize layouts in ui/render.py if needed")
+    print("1. Test the configuration: python3 run_jarvis.py")
+    print("2. Customize layouts in ui/render.py, actions in actions/actions.py")
     print("3. Add custom icons to assets/jarvisicons/")
-    print("4. Create code snippets in assets/snippets/")
+    print("4. Create code snippets in assets/snippets/. Jarvis layer already grants execution permissions for only your user so you do not need to worry about doing that manually.")
 
 if __name__ == "__main__":
     """Script entry point for interactive configuration setup.
@@ -154,28 +152,19 @@ if __name__ == "__main__":
     This ensures the configuration wizard only runs when script is executed
     directly, not when imported as a module by other Python scripts.
 
-    Execution Flow:
-        1. Script is run from command line: python setup_config.py
-        2. Interactive configuration wizard starts
-        3. User provides configuration values
-        4. config.env file is generated
-        5. Usage instructions are displayed
+    Execution:
+    1. Script is run from command line: python3 setup_config.py
+    2. Interactive configuration through terminal prompts starts
+    3. User provides configuration values
+    4. config.env file is generated
+    5. Usage instructions are displayed
 
-    Post-Execution:
-        After this script completes:
-        - config.env file exists with user configuration
-        - User can run jarvis with: source config.env && python run_jarvis.py
-        - System service can be configured using the generated config
+    Output:
+    After this script completes:
+    - config.env file exists with user configuration
+    - User can run jarvis with: source config.env && python run_jarvis.py (from jarvis-env) or set up system service
+    - System service can be configured using the generated .env file
+    
     """
     create_config()
-
-    # POST-EXECUTION:
-    # After this script completes:
-    # - config.env file exists with user configuration
-    # - User can run jarvis with: source config.env && python run_jarvis.py
-    # - System service can be configured using the generated config
-    #
-    # ALTERNATIVE EXECUTION METHODS:
-    # - python -m jarvis.setup_config (if jarvis is in PYTHONPATH)
-    # - Direct execution: ./setup_config.py (requires shebang and execute permission)
-    # - IDE execution: Run from development environment
+    # no return value as this is a script meant to be run directly and creates a file as output
