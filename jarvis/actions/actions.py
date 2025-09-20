@@ -112,7 +112,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # 4. ERROR HANDLING: Can detect and report missing configuration
 
 def initialize_actions(ydotool_path: str, snippets_dir: str, bashscripts_dir: str, projects_dir: Path, keycodes: Dict[str, int], keyring_pw: str) -> None:
-    """Initialize the actions module with required configuration from the main module.
+    """Initialize the actions module with required configuration from the main module (run_jarvis.py).
 
     This function implements the Dependency Injection (DI) pattern where the actions
     module receives its dependencies from the outside rather than creating or finding

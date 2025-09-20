@@ -1,3 +1,11 @@
+# Jarvis layer
+
+The source code of Jarvis layer is inside the jarvis directory.
+
+Detailed instructions of how to set up the stream deck XL from ElGato and configure keys and layouts are in: 
+
+#TODO: INCLUDE LINK TO QUARTZ DOCS ON JARVIS
+
 # Python Elgato Stream Deck Library
 
 ![Example Deck](ExampleDeck.jpg)

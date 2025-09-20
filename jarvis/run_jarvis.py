@@ -6,23 +6,26 @@ FINISH DATE: September 14th 2025 (Sunday)
 NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN EXECUTED FROM THE SYSTEM SERVICE.
 """
 
-# Standard library imports for system operations and process management
-import atexit      # Registers cleanup functions to run when Python interpreter exits
-import time        # Provides time-related functions like sleep() for delays
-import os          # Operating system interface for environment variables and file paths
-import signal      # Handles Unix signals like SIGINT (Ctrl+C) for graceful shutdown
-import sys         # System-specific parameters and functions, used for sys.exit()
-from typing import Dict, Any
+# Standard library imports for system interaction and typing
+import atexit # Registers functions to be called upon normal program termination
+import time # Provides time-related functions like sleep() for delays
+import os # Import os module for interacting with the operating system: file paths, env variables, etc.
+import signal # Handles asynchronous events and signals from the OS, like SIGINT (Ctrl+C)
+import sys # Provides access to system-specific parameters and functions, used for system exit to terminate the program
+from typing import Dict, Any # Type hints for dictionaries and generic types
 
 # Third-party StreamDeck library imports
 # NOTE: This imports from the original Elgato StreamDeck repository in ../src/
 # The StreamDeck library provides hardware abstraction for StreamDeck devices
-from StreamDeck.DeviceManager import DeviceManager  # Factory class to discover and enumerate StreamDeck devices
-# DeviceManager.enumerate() returns a list of connected StreamDeck objects
+# Original repository. The StreamDeck library provides hardware abstraction for StreamDeck devices.
+# Installed inside my virtual environment in developer mode (pip install -e .). This ensures latest 
+# local changes are always used. Execute "pip install -e ." inside the repo directory to install 
+# in developer mode.
+from StreamDeck.DeviceManager import DeviceManager  # Class for the original repo to discover connected StreamDeck devices
+# DeviceManager is the main entry point for discovering StreamDeck devices and enumerating them (DeviceManager.enumerate()).
 # Each StreamDeck object provides methods like: open(), close(), reset(), set_key_image(), set_key_callback()
-# StreamDeck variants supported: StreamDeck (15 keys), StreamDeckMini (6 keys), StreamDeckXL (32 keys)
+# I will be using this for my stream deck XL, and handle the configuration and logic mostly by myself, while using the StreamDeck library for low-level hardware interaction and some helper functions from the forked repo.
 
-# Python standard library for modern path handling
 from pathlib import Path  # Object-oriented filesystem paths, more robust than os.path
 
 # Local jarvis module imports - these are our custom modules
