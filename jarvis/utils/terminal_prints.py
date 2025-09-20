@@ -1,5 +1,10 @@
 """
-Terminal output functions to enhance console formatting.
+NAME: terminal_prints.py
+DESCRIPTION: Stream Deck Terminal Print Functions
+AUTHOR: nhoaking
+START DATE: September 4th 2025
+VERSION: 0.1
+This script provides functions for printing styled messages to the terminal to enhance console formatting.
 """
 
 class TerminalStyles:
