@@ -26,26 +26,28 @@ from StreamDeck.DeviceManager import DeviceManager  # Class for the original rep
 # Each StreamDeck object provides methods like: open(), close(), reset(), set_key_image(), set_key_callback()
 # I will be using this for my stream deck XL, and handle the configuration and logic mostly by myself, while using the StreamDeck library for low-level hardware interaction and some helper functions from the forked repo.
 
-from pathlib import Path  # Object-oriented filesystem paths, more robust than os.path
+from pathlib import Path  # Object-oriented filesystem paths, more robust than os.path.
+# It is also more readable. For example, Path.home() returns the user's home directory as a Path object.
+# Another example: Path(__file__).parent / "config.env" vs os.path.join(os.path.dirname(__file__), "config.env")
 
-# Local jarvis module imports - these are our custom modules
-from actions import actions                                      # Action functions triggered by key presses
-from ui.render import initialize_render, create_layouts, render_layout  # Visual rendering and layout management
-from ui.logic import initialize_logic, key_change               # Event handling and layout switching logic
-from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit       # Resource cleanup and graceful shutdown
+# Local jarvis module imports. These are my custom modules
+from actions import actions # Action functions that we can assign to keys in the layout definitions
+from ui.render import initialize_render, create_layouts, render_layout # Visual rendering of keys and layout management
+from ui.logic import initialize_logic, key_change # Event handling and layout switching logic
+from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit # Resource cleanup and graceful shutdown
+from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
+# I had to write this module to release the keys that were pressed via ydotool. When the program exits unexpectedly, 
+# it ensures all keys are released properly. This is so I do not get a weird keyboard behavior after the script crashes, 
+# which happened often during development.
 
 # IMPORT STRATEGY EXPLANATION:
-# We use relative imports (from actions import actions) instead of absolute imports
-# because jarvis is a self-contained package. This approach has several advantages:
-# 1. PORTABILITY: Code works regardless of where jarvis directory is placed
-# 2. NO PYTHON PATH ISSUES: Doesn't require adding jarvis to sys.path or PYTHONPATH
-# 3. CLEAR DEPENDENCIES: Makes it obvious which modules belong to jarvis vs external libraries
-# 4. PACKAGE ISOLATION: Prevents naming conflicts with system-wide Python packages
-#
-# Alternative import strategies we could use but don't:
-# - Absolute imports (import jarvis.actions.actions): Requires jarvis to be in PYTHONPATH
-# - Star imports (from actions import *): Makes namespace pollution and unclear dependencies
-# - Direct file imports (exec(open('actions.py').read())): Fragile and bypasses Python's import system
+# I import my local jarvis modules using relative imports (from actions import actions)
+# instead of absolute imports (import jarvis.actions.actions) because that is how I am used to do it.
+# It makes it easier to move the jarvis directory around without worrying about the absolute path.
+# I do not like using * for imports (from actions import *) because what is being used is unclear. However, 
+# I do not want to import each function individually either (from actions import func1, func2, func3) because that is tedious and hard to maintain.
+# If I add a new function to actions.py, I would have to remember to update the import statement here as well, and for now this seems unnecessary.
+# If once the project grows larger, I might consider switching to explicit imports for clarity.
 
 def load_config() -> None:
     """Load environment variables from config.env file into os.environ.
@@ -92,6 +94,10 @@ def load_config() -> None:
                     # Strip whitespace from key and value, then add to environment
                     # os.environ is a dict-like object that interfaces with system environment
                     os.environ[key.strip()] = value.strip()
+    else:
+        # Config file doesn't exist - prompt user to run setup and exit
+        print_information_type("error", "config.env file not found!\nPlease run 'python setup_config.py' to create your configuration file.\nExiting...")
+        sys.exit(1)
 
 # Load configuration immediately when module is imported
 # This ensures all configuration is available before any other code runs
