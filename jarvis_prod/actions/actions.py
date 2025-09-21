@@ -77,18 +77,8 @@ from typing import Dict, Optional, Callable, Any
 # This was: actions -> ui.render -> core.logic -> actions
 # Now render_keys is imported only when needed, breaking the cycle
 
-# PROD: Required placeholders for dynamic initialization system
-# DEV: These global variable declarations are MANDATORY for the init_module() pattern to work.
-# DEV: The config.initialization.init_module() function uses hasattr() to check if each variable
-# DEV: exists in this module's namespace before attempting to set its value with setattr().
-# DEV: Without these declarations, hasattr() returns False and initialization silently fails.
+# Required placeholders for dynamic initialization system
 #
-# ARCH: Initialization flow:
-# ARCH: 1. These variables are declared as None (creates the module attributes)
-# ARCH: 2. core.application calls init_jarvis() which internally calls init_module(actions, ...)
-# ARCH: 3. init_module() uses hasattr(actions, 'YDOTOOL_PATH') to verify attribute exists
-# ARCH: 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
-# ARCH: 5. Action functions check if variables are still None to detect initialization failures
 
 # Path to ydotool executable for keyboard/mouse input simulation
 YDOTOOL_PATH: Optional[str] = None     # Set by init_module() to system ydotool path or custom config path
@@ -104,24 +94,8 @@ KEYCODES: Optional[Dict[str, int]] = None  # Set by init_module() to dictionary 
 # User credentials (handled securely via environment variables)
 KEYRING_PW: Optional[str] = None       # Set by init_module() to password for keyring/password manager access
 
-# EDU: =====================================================================================
-# EDU: COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
-# EDU: =====================================================================================
 #
-# EDU: WHAT WE'RE ACTUALLY USING: Global Configuration with Dynamic Initialization
-# EDU: ===========================================================================
-# EDU: Our pattern stores configuration in module-level global variables that are set at runtime.
-# EDU: This approach provides:
-# EDU: 1. TESTABILITY: Easy to mock configuration by setting globals for unit tests
-# EDU: 2. FLEXIBILITY: Can be configured differently for different environments
-# EDU: 3. PERFORMANCE: Configuration accessed directly without repeated file reads or imports
-# EDU: 4. ERROR HANDLING: Can detect and report missing configuration with None checks
 #
-# EDU: HOW OUR PATTERN WORKS:
-# EDU: 1. Declare global variables as None (creates module attributes)
-# EDU: 2. At startup, init_module() uses setattr() to set real values
-# EDU: 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
-# EDU: 4. Configuration is "injected" into the module, not into individual functions
 #
 # WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
 # ================================================================
