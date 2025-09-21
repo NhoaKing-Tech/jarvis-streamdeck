@@ -2,6 +2,20 @@ __pycache__
 .idea/
 *.egg-info/
 doc/build
+
+# Jarvis-specific ignores
 jarvis_experimental/
-jarvis/config.env
+jarvis/config/config.env
+
+# Local development files
+.claude/
+.vscode/
+
+# Documentation generation (personal tools)
+generate_quartz_docs.py
+pydoc-markdown.yml
+content/
+docs/
+
+# Obsidian vaults
 jarvis/docs_jarvis/.obsidian
