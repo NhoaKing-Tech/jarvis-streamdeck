@@ -44,9 +44,10 @@ jarvis/config/config.env   # Personal environment variables
 *.swo
 *~
 
-# Documentation generation cache
-jarvis/docs/content/*.html
-jarvis/docs/.cache/
+# Documentation - track utils but not generated content
+jarvis/docs/content/        # Generated markdown files (from quartz_markdown.py)
+jarvis/docs/.cache/         # Cache files
+# NOTE: jarvis/docs_utils/ IS tracked (documentation scripts and guides)
 
 # Personal development files
 jarvis_experimental/
