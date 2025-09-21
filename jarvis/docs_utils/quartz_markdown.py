@@ -306,9 +306,9 @@ def generate_quartz_markdown(module_info, output_path):
 def main():
     """Generate Quartz documentation for all jarvis modules."""
 
-    # Create output directory
-    output_dir = Path("content")
-    output_dir.mkdir(exist_ok=True)
+    # Create output directory (relative to docs_utils, output to ../docs/content/)
+    output_dir = Path("../docs/content")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Python files to process (relative to jarvis/docs directory)
     python_files = [
