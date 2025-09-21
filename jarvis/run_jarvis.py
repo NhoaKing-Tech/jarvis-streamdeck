@@ -51,7 +51,7 @@ from pathlib import Path  # Object-oriented filesystem paths, more robust than o
 # Local jarvis module imports. These are my custom modules
 from actions import actions # Action functions that we can assign to keys in the layout definitions
 from ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
-from ui.logic import initialize_logic, key_change # Event handling and layout switching logic
+from ui.logic import key_change # Event handling and layout switching logic
 from ui.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
 from config.initialization import init_jarvis # Centralized initialization for all modules
 from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
@@ -326,13 +326,24 @@ def main() -> None:
     # Some layout functions need access to the deck object (e.g., for toggle_mic)
     layouts = create_layouts(deck)  # Returns dictionary of layout_name -> layout_config
 
-    # Initialize UI logic module with deck and layout state
+    # Initialize UI logic module with deck and layout state using centralized initialization
     # This sets up the global state needed for key event handling
-    initialize_logic(deck, layouts, "main")  # "main" is the initial layout to display
+    init_jarvis(
+        # Core system paths (already set, but required parameters)
+        ydotool_path=YDOTOOL_PATH,
+        projects_dir=PROJECTS_DIR,
+        snippets_dir=SNIPPETS_DIR,
+        bashscripts_dir=BASHSCRIPTS_DIR,
+
+        # StreamDeck state for logic module
+        deck=deck,
+        layouts=layouts,
+        current_layout="main"
+    )
 
     # Render the initial layout to the StreamDeck
     # This displays icons and sets up the visual state of all 32 keys
-    render_layout(deck, layouts[current_layout])  # current_layout is "main" at startup
+    render_layout(deck, layouts["main"])  # "main" is the initial layout
 
     # Event Handler Registration
     # Register our key_change function to be called whenever any key is pressed or released

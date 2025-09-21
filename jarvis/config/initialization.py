@@ -38,6 +38,7 @@ from typing import Dict, Optional, Any
 # Import the modules that need initialization
 from actions import actions
 import ui.render as render_module
+import ui.logic as logic_module
 import ui.lifecycle as lifecycle_module
 
 # Linux input event keycode mapping for ydotool
@@ -151,7 +152,12 @@ def init_jarvis(
 
     # User data
     obsidian_vaults: Optional[Dict[str, str]] = None,
-    keyring_pw: Optional[str] = None
+    keyring_pw: Optional[str] = None,
+
+    # StreamDeck state (for logic module)
+    deck: Optional[Any] = None,
+    layouts: Optional[Dict[str, Dict[int, Dict[str, Any]]]] = None,
+    current_layout: Optional[str] = None
 ) -> None:
     """Initialize all jarvis modules with consolidated configuration.
 
@@ -169,6 +175,9 @@ def init_jarvis(
         icons_dir (Path, optional): Directory containing icon files
         obsidian_vaults (dict, optional): Dictionary mapping vault names to paths
         keyring_pw (str, optional): Password for keyring/password manager access
+        deck (Any, optional): StreamDeck device object for UI logic
+        layouts (dict, optional): Layout definitions for UI logic
+        current_layout (str, optional): Initial layout name for UI logic
 
     Design Benefits:
         - **Single source of truth**: All configuration in one place
@@ -205,7 +214,7 @@ def init_jarvis(
     keyring_pw = keyring_pw or ""
 
     # Initialize each module using the general init_module function
-    # Order matters: actions first (core functionality), then render (UI), then lifecycle (cleanup)
+    # Order matters: actions first (core functionality), then render/logic (UI), then lifecycle (cleanup)
 
     # 1. Initialize actions module - provides core functionality for key press handlers
     init_module(
@@ -231,7 +240,17 @@ def init_jarvis(
             KEYRING_PW=keyring_pw
         )
 
-    # 3. Initialize lifecycle module - handles cleanup and resource management
+    # 3. Initialize logic module - handles UI state management and event handling
+    # Only initialize if deck and layouts are provided
+    if deck and layouts:
+        init_module(
+            logic_module,
+            deck=deck,
+            layouts=layouts,
+            current_layout=current_layout or "main"
+        )
+
+    # 4. Initialize lifecycle module - handles cleanup and resource management
     init_module(
         lifecycle_module,
         YDOTOOL_PATH=ydotool_path,

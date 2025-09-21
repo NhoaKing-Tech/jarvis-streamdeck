@@ -40,26 +40,35 @@ from typing import Optional, Dict, Any, Callable
 # 1. Move switch_layout to separate module (utils.py)
 # 2. Use late imports (import inside functions)
 # 3. Restructure modules to eliminate circular dependency
-# 4. Use dependency injection for render_layout function
+# 4. Pass layout data as parameters to render_layout function
 #
 # Current structure is acceptable because:
 # - Imports are clean and obvious
 # - No runtime issues or import errors
 # - Functions are cohesive within their modules
 
-# ==================== GLOBAL UI STATE MANAGEMENT ====================
-# These variables maintain the current state of the StreamDeck interface
-# They are set by initialize_logic() and used by event handlers
+# Global configuration variables - set by config.initialization.init_module()
+# These are initialized to None and set during application startup via centralized initialization
 
 # Current active layout name (e.g., "main", "python_layout", "git_layout")
 current_layout: Optional[str] = None  # String identifier for the currently displayed layout
 
 # Dictionary containing all layout definitions
 # Structure: {layout_name: {key_number: {"icon": "file.png", "action": function, ...}}}
-layouts: Optional[Dict[str, Dict[int, Dict[str, Any]]]] = None  # Will be populated with layout configurations from render module
+layouts: Optional[Dict[str, Dict[int, Dict[str, Any]]]] = None  # Will be populated with layout configurations
 
 # Reference to the StreamDeck hardware device object
 deck: Optional[Any] = None  # Will hold the StreamDeck instance for key updates and rendering
+
+# DESIGN PATTERN: Module-level Configuration with General Initialization
+# =======================================================================
+# This module now uses the general init_module() function from config.initialization
+# instead of having its own initialization function. This reduces code duplication
+# and provides a consistent initialization pattern across all jarvis modules.
+#
+# INITIALIZATION:
+# The config.initialization.init_module() function sets the global variables
+# (deck, layouts, current_layout) by calling setattr(module, key, value) for each configuration parameter.
 
 # GLOBAL STATE JUSTIFICATION:
 # StreamDeck library uses callback functions with fixed signatures:
@@ -77,62 +86,6 @@ deck: Optional[Any] = None  # Will hold the StreamDeck instance for key updates 
 # - Layout switching is atomic (single assignment)
 # - No complex shared state manipulation
 # So thread safety is not a concern for this application
-
-def initialize_logic(deck_instance: Any, layouts_dict: Dict[str, Dict[int, Dict[str, Any]]], initial_layout: str = "main") -> None:
-    """Initialize the UI logic module with required state from main application.
-
-    This function implements dependency injection pattern - all UI state needed
-    by the logic module is passed in explicitly rather than being imported or
-    created internally. It sets up the global state used by event handlers.
-
-    Args:
-        deck_instance: StreamDeck device object for hardware interaction
-        layouts_dict (dict): Complete layout definitions mapping layout names to key configs
-        initial_layout (str): Name of the layout to display initially. Defaults to "main"
-
-    Initialization Sequence:
-        This function is called during application startup after:
-
-        1. StreamDeck hardware is discovered and opened
-        2. Layout definitions are created (in render.create_layouts())
-        3. Before key event callbacks are registered
-
-    State Management:
-        Sets up the global state that will be used by:
-
-        - key_change() event handler
-        - switch_layout() layout transition function
-        - Any other UI logic functions
-
-    Error Handling:
-        No explicit error handling because this is called once during controlled
-        startup sequence. Invalid parameters would be caught immediately during
-        testing. Failure here should crash the application (fail-fast principle).
-    """
-    # Initialize global state variables for UI management
-    # Using global keyword to modify module-level variables
-    global deck, layouts, current_layout
-
-    deck = deck_instance        # Store StreamDeck hardware reference
-    layouts = layouts_dict      # Store all layout configurations
-    current_layout = initial_layout  # Set starting layout
-
-    # VALIDATION CONSIDERATIONS:
-    # Could add validation here:
-    # - Verify deck is open and responsive
-    # - Validate layouts_dict structure
-    # - Check initial_layout exists in layouts_dict
-    # But for a controlled application startup, simple assignment is adequate
-
-    # ALTERNATIVE PATTERNS:
-    # Class-based: UILogic(deck, layouts).initialize(initial_layout)
-    # Context object: set_ui_context(UIContext(deck, layouts, initial_layout))
-    # Singleton: UIState.instance().initialize(deck, layouts, initial_layout)
-    #
-    # Module-level functions with global state chosen for:
-    # - Simplicity and directness
-    # - Compatibility with StreamDeck callback requirements
-    # - Ease of testing and debugging
 
 def switch_layout(layout_name: str) -> Callable[[], None]:
     """Create a function that switches to the specified StreamDeck layout.

@@ -1,10 +1,28 @@
-# Jarvis layer
+# Jarvis StreamDeck Automation System
 
-The source code of Jarvis layer is inside the jarvis directory.
+*Extended from [python-elgato-streamdeck](https://github.com/abcminiuser/python-elgato-streamdeck)*
 
-Detailed instructions of how to set up the stream deck XL from ElGato and configure keys and layouts are in: 
+A personal automation system that transforms your Elgato StreamDeck XL into a powerful Linux productivity control center. This fork extends the base StreamDeck library with custom workflow automation capabilities.
 
-#TODO: INCLUDE LINK TO QUARTZ DOCS ON JARVIS
+## Jarvis Personal Assistant
+
+**Quick Start**: The automation system is located in the `jarvis/` directory with complete documentation in `jarvis/README.md`.
+
+**Key Features:**
+- Custom action system for Linux workflow automation
+- Multi-layout support for different contexts (development, media, system control)
+- Deep Linux integration via ydotool, wmctrl, and system tools
+- Visual customization with dynamic button rendering
+- Systemd service integration for startup automation
+
+**Getting Started:**
+```bash
+cd jarvis/
+python setup_config.py  # Interactive configuration
+python run_jarvis.py    # Launch Jarvis
+```
+
+---
 
 # Python Elgato Stream Deck Library
 

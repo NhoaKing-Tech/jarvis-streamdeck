@@ -15,16 +15,16 @@ How environment variables in config.env reach this module:
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
 
-This is called Dependency Injection (DI) pattern with centralized initialization.
+This uses a Global Configuration with Dynamic Initialization pattern.
 
-WHY NOT READ ENVIRONMENT VARIABLES DIRECTLY HERE?
+Why not read environment variables directly in this module?
 We could have each action function call os.getenv() directly, but I chose
-dependency injection instead because:
+centralized global configuration instead because:
 - Keeps configuration loading centralized in run_jarvis.py, so it is easier to maintain
 - Makes dependencies explicit (you can see what each module needs)
 - Better separation of concerns (run_jarvis.py handles config, this module handles actions)
 
-The .env file provides the configuration, not the logic itself.
+The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and run_jarvis.py
 Configuration flows: config.env -> systemd -> run_jarvis.sh -> run_jarvis.py -> config.initialization -> actions.py
 
 This module handles so far the following topics. Function names are listed for each.
@@ -59,9 +59,7 @@ hidden .vscode folder inside the project directory and the file settings.json
 - Example of advanced usage with git_commit_workflow.sh
 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window. 
 This was the trigger to change to X11 from Wayland, as Wayland does not support window management in a straightforward way as X11 does, and it was giving me too many headaches. I do not discard in the future to TRY to implement jarvis in wayland.
-"""
 
-"""
 -- TO DO --
 - Generalize nautilus_path function to work with other applications too (for obsidian is already done)
 - Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized... >_<
@@ -79,31 +77,231 @@ from typing import Dict, Optional, Callable, Any
 # This was: actions -> ui.render -> ui.logic -> actions
 # Now render_keys is imported only when needed, breaking the cycle
 
-# Module-level configuration variables (initialized via dependency injection)
-# These variables are set by initialize_actions() called from run_jarvis.py
-# Using None as default allows us to detect uninitialized state and provide helpful errors
+# REQUIRED PLACEHOLDERS FOR DYNAMIC INITIALIZATION SYSTEM
+# These global variable declarations are MANDATORY for the init_module() pattern to work.
+# The config.initialization.init_module() function uses hasattr() to check if each variable
+# exists in this module's namespace before attempting to set its value with setattr().
+# Without these declarations, hasattr() returns False and initialization silently fails.
+#
+# Initialization flow:
+# 1. These variables are declared as None (creates the module attributes)
+# 2. run_jarvis.py calls init_jarvis() which internally calls init_module(actions, ...)
+# 3. init_module() uses hasattr(actions, 'YDOTOOL_PATH') to verify attribute exists
+# 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
+# 5. Action functions check if variables are still None to detect initialization failures
 
 # Path to ydotool executable for keyboard/mouse input simulation
-YDOTOOL_PATH: Optional[str] = None     # Will be set to system ydotool path or custom path from config
+YDOTOOL_PATH: Optional[str] = None     # Set by init_module() to system ydotool path or custom config path
 
 # Directory paths for various asset types
-SNIPPETS_DIR: Optional[Path] = None     # Directory containing code snippet text files
-BASHSCRIPTS_DIR: Optional[Path] = None  # Directory containing executable bash scripts
-PROJECTS_DIR: Optional[Path] = None     # User's main projects directory (usually ~/Zenith)
+SNIPPETS_DIR: Optional[Path] = None     # Set by init_module() to directory containing code snippet text files
+BASHSCRIPTS_DIR: Optional[Path] = None  # Set by init_module() to directory containing executable bash scripts
+PROJECTS_DIR: Optional[Path] = None     # Set by init_module() to user's main projects directory (usually ~/Zenith)
 
 # Keycode mapping dictionary for ydotool input simulation
-KEYCODES: Optional[Dict[str, int]] = None         # Dictionary mapping key names to Linux input event codes
+KEYCODES: Optional[Dict[str, int]] = None  # Set by init_module() to dictionary mapping key names to Linux input event codes
 
 # User credentials (handled securely via environment variables)
-KEYRING_PW: Optional[str] = None       # Password for keyring/password manager access
+KEYRING_PW: Optional[str] = None       # Set by init_module() to password for keyring/password manager access
 
-# DESIGN PATTERN: Dependency Injection
-# Rather than importing these values or reading config files directly,
-# we receive them as parameters. This approach provides:
-# 1. TESTABILITY: Easy to mock configuration for unit tests
+# =====================================================================================
+# COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
+# =====================================================================================
+#
+# WHAT WE'RE ACTUALLY USING: Global Configuration with Dynamic Initialization
+# ===========================================================================
+# Our pattern stores configuration in module-level global variables that are set at runtime.
+# This approach provides:
+# 1. TESTABILITY: Easy to mock configuration by setting globals for unit tests
 # 2. FLEXIBILITY: Can be configured differently for different environments
-# 3. CLARITY: Dependencies are explicit rather than hidden imports
-# 4. ERROR HANDLING: Can detect and report missing configuration
+# 3. PERFORMANCE: Configuration accessed directly without repeated file reads or imports
+# 4. ERROR HANDLING: Can detect and report missing configuration with None checks
+#
+# HOW OUR PATTERN WORKS:
+# 1. Declare global variables as None (creates module attributes)
+# 2. At startup, init_module() uses setattr() to set real values
+# 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
+# 4. Configuration is "injected" into the module, not into individual functions
+#
+# WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
+# ================================================================
+# Dependency Injection (DI) is a design pattern where an object's dependencies
+# are provided (injected) to it from external sources rather than the object
+# creating or finding them itself.
+#
+# KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
+# - Dependencies are PASSED IN as parameters to functions/constructors
+# - The function/object doesn't know HOW to create its dependencies
+# - An external "injector" provides the dependencies
+#
+# TRUE DEPENDENCY INJECTION EXAMPLE:
+# def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
+#     """Dependencies are INJECTED as parameters - this is true DI"""
+#     sequence = []
+#     for key in keys:
+#         if key not in keycodes:  # Uses injected dependency
+#             raise ValueError(f"Unknown key: {key}")
+#         sequence.append(f"{keycodes[key]}:1")
+#     subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
+#
+# HOW YOU WOULD CALL IT:
+# hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # Dependencies passed in
+#
+# OUR CURRENT APPROACH (Global Configuration):
+# def hot_keys(*keys: str) -> None:
+#     """Dependencies accessed from global state - NOT dependency injection"""
+#     if KEYCODES is None or YDOTOOL_PATH is None:  # Accesses global variables
+#         raise RuntimeError("Module not initialized")
+#     sequence = []
+#     for key in keys:
+#         if key not in KEYCODES:  # Uses global variable
+#             raise ValueError(f"Unknown key: {key}")
+#         sequence.append(f"{KEYCODES[key]}:1")
+#     subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # Uses global variable
+#
+# HOW YOU CALL IT:
+# hot_keys("CTRL", "C")  # No dependencies passed - function finds them globally
+#
+# KEY DIFFERENCES EXPLAINED:
+# ==========================
+#
+# 1. WHERE DEPENDENCIES COME FROM:
+#    - TRUE DI: Dependencies passed as function parameters
+#    - OUR APPROACH: Dependencies accessed from module-level globals
+#
+# 2. FUNCTION SIGNATURES:
+#    - TRUE DI: Functions declare what they need as parameters
+#    - OUR APPROACH: Functions have simpler signatures, find dependencies internally
+#
+# 3. CALLER RESPONSIBILITY:
+#    - TRUE DI: Caller must provide all dependencies when calling function
+#    - OUR APPROACH: Caller just calls function, dependencies already available globally
+#
+# 4. COUPLING:
+#    - TRUE DI: Functions are decoupled from specific dependency sources
+#    - OUR APPROACH: Functions are coupled to specific global variable names
+#
+# 5. TESTING:
+#    - TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
+#    - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
+#
+# WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
+# ==============================================================
+# 1. STREAMDECK CONSTRAINT: StreamDeck library calls our functions with fixed signatures
+#    - StreamDeck expects: key_pressed(deck, key_number)
+#    - Can't change to: key_pressed(deck, key_number, ydotool_path, keycodes, ...)
+#
+# 2. SIMPLICITY: Fewer parameters to pass around in every function call
+#    - Our way: hot_keys("CTRL", "C")
+#    - DI way: hot_keys(ydotool_path, keycodes, "CTRL", "C")
+#
+# 3. PERFORMANCE: No need to pass the same config objects repeatedly
+#    - Configuration set once at startup, accessed directly when needed
+#
+# 4. STREAMDECK INTEGRATION: Hardware callbacks can't receive arbitrary parameters
+#    - Hardware events trigger callbacks with predetermined signatures
+#    - Global state allows callbacks to access needed configuration
+#
+# ALTERNATIVE PATTERNS WE COULD HAVE USED:
+# ========================================
+# 1. SERVICE LOCATOR: Functions call a service to get dependencies
+#    config = ConfigService.get_config(); config.ydotool_path
+#
+# 2. SINGLETON: Global configuration object
+#    Config.instance().ydotool_path
+#
+# 3. CLOSURE WITH DEPENDENCY INJECTION: Factory functions that capture dependencies
+#    def create_hotkey_function(ydotool_path, keycodes):
+#        def hot_keys(*keys): # Uses captured dependencies
+#        return hot_keys
+#
+# OUR CHOICE: Global Configuration with Dynamic Initialization
+# - Simple and straightforward for this hardware integration use case
+# - Balances testability with StreamDeck API constraints
+# - Provides clear error handling and initialization validation
+
+# =====================================================================================
+# WRAPPER FUNCTION PATTERNS: return wrapper vs return wrapper()
+# =====================================================================================
+#
+# This module uses two different wrapper patterns depending on how functions are called
+# from the layouts.py file. Understanding this pattern is crucial for maintaining the
+# StreamDeck key action system.
+#
+# PATTERN 1: Functions with Arguments → return wrapper
+# ====================================================
+# Functions that need arguments use the Factory Pattern:
+#
+# Definition in actions.py:
+#   def toggle_mic(deck, key):
+#       def wrapper():
+#           # ... do the actual work ...
+#       return wrapper  # Return function reference, don't call it
+#
+# Usage in layouts.py:
+#   "action": actions.toggle_mic(deck, 31)  # Called WITH parentheses
+#
+# What happens:
+#   1. Layout creation: toggle_mic(deck, 31) is called → returns wrapper function
+#   2. Key press: StreamDeck calls the stored wrapper function → actual work happens
+#
+# Examples: toggle_mic(deck, key), type_text(text), open_obsidian(vault_path)
+#
+# PATTERN 2: Functions without Arguments → return wrapper()
+# =========================================================
+# Functions that need no arguments use Direct Execution Pattern:
+#
+# Definition in actions.py:
+#   def terminal_env_jarvis():
+#       def wrapper():
+#           # ... do the actual work ...
+#       return wrapper()  # Call function immediately and return result
+#
+# Usage in layouts.py:
+#   "action": actions.terminal_env_jarvis  # Referenced WITHOUT parentheses
+#
+# What happens:
+#   1. Layout creation: terminal_env_jarvis is stored as function reference
+#   2. Key press: StreamDeck calls terminal_env_jarvis() → wrapper() executes immediately
+#
+# Examples: terminal_env_jarvis, terminal_env_busybee, defaultbranch_commit
+#
+# WHY TWO DIFFERENT PATTERNS?
+# ============================
+# The pattern depends on whether the function needs arguments:
+#
+# 1. Functions WITH arguments:
+#    - Must be called during layout creation to pass arguments
+#    - Return wrapper function for later execution
+#    - Use: "action": actions.function_name(arg1, arg2)
+#
+# 2. Functions WITHOUT arguments:
+#    - Can be referenced directly in layout
+#    - Execute immediately when called by StreamDeck
+#    - Use: "action": actions.function_name
+#
+# COMMON MISTAKE:
+# ===============
+# Using return wrapper() for functions with arguments will cause them to execute
+# during layout creation instead of when the key is pressed, breaking the intended
+# behavior and causing the layout to store None instead of a callable function.
+#
+# EXAMPLE COMPARISON:
+# ===================
+# CORRECT (with arguments):
+#   def toggle_mic(deck, key):
+#       def wrapper():
+#           render_keys(deck, key, ...)
+#       return wrapper  # ✓ Correct: returns function for later execution
+#
+# INCORRECT (with arguments):
+#   def toggle_mic(deck, key):
+#       def wrapper():
+#           render_keys(deck, key, ...)
+#       return wrapper()  # ✗ Wrong: executes immediately, returns None
+#
+# This documentation explains the wrapper pattern inconsistencies that were
+# causing the microphone toggle functionality to fail.
 
 # DESIGN PATTERN: Module-level Configuration with General Initialization
 # =======================================================================
@@ -321,7 +519,7 @@ def is_mic_muted() -> bool:
     )
     return "[off]" in result.stdout
 
-def toggle_mic(deck: Any, key: int) -> None:
+def toggle_mic(deck: Any, key: int):
     """Create a function that toggles microphone mute and updates the StreamDeck icon.
 
     This function implements a factory pattern that returns a callable which,
@@ -352,7 +550,7 @@ def toggle_mic(deck: Any, key: int) -> None:
                    label="OFF" if muted else "ON",
                    icon="mic-off.png" if muted else "mic-on.png")
 
-    return wrapper()
+    return wrapper
 
 # 4. Hotkeys
 def hot_keys(*keys: str) -> None:
@@ -454,8 +652,7 @@ def hk_copy() -> None:
     copy-to-clipboard keyboard shortcut.
 
     Note:
-        This is a basic example of hotkey usage. The selected text in the
-        currently focused application will be copied to the system clipboard.
+    This is a basic example of hotkey usage.
     """
     hot_keys("CTRL", "C")
 
@@ -464,7 +661,8 @@ def open_vscode(project_path: str) -> Callable[[], None]:
     """Create a function that opens Visual Studio Code with a specific project.
 
     This function returns a callable that opens VSCode, waits for initialization,
-    then automatically opens the integrated terminal for immediate development use.
+    then automatically opens the integrated terminal. You can deactivate the terminal toggle
+    shortcut if you do not want it.
 
     Args:
         project_path (str): Absolute path to the project directory to open
@@ -551,7 +749,7 @@ def type_text(text: str) -> Callable[[], None]:
     Raises:
         RuntimeError: If actions module not initialized
     """
-    def execute():
+    def wrapper():
         # Verify module has been properly initialized
         if YDOTOOL_PATH is None:
             raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
@@ -565,12 +763,12 @@ def type_text(text: str) -> Callable[[], None]:
         subprocess.Popen([YDOTOOL_PATH, "type", "--", text])
 
         # ALTERNATIVE TOOLS CONSIDERED:
-        # - xdotool: More mature but X11-only, doesn't work on Wayland
-        # - PyAutoGUI: Cross-platform but has dependency issues and less precise timing
-        # - Direct X11/Wayland APIs: More complex and platform-specific
-        # - Clipboard + Ctrl+V: Faster for large text but modifies clipboard state
+        # - xdotool: More mature but X11-only, doesn't work on Wayland, and since this project was started
+        # on Wayland, ydotool was the better choice. When shifting to X11, I kept ydotool as it seems to work
+        # fine on X11 too. No need to change it for now, unless I face limitations or issues in the future.
+        # - PyAutoGUI: Not tested yet, but I keep it in mind for future exploration.
 
-    return execute  # Return the inner function for later execution
+    return wrapper  # Return the inner function for later execution
 
 def type_keyring() -> Callable[[], None]:
     """Type the configured password followed by Enter key.
@@ -623,7 +821,7 @@ def type_snippet(snippet_name: str) -> Callable[[], None]:
     However, snippets are typically small and accessed infrequently,
     so the current simple approach is adequate.
     """
-    def execute():
+    def wrapper():
         # Verify required configuration is available
         if SNIPPETS_DIR is None or YDOTOOL_PATH is None:
             raise RuntimeError("Actions module not initialized. Call initialize_actions() from main first.")
@@ -656,7 +854,7 @@ def type_snippet(snippet_name: str) -> Callable[[], None]:
         # 3. PORTABILITY: No database setup required
         # 4. TRANSPARENCY: Users can see exactly what will be typed
 
-    return execute  # Return the execution function
+    return wrapper  # Return the execution function
 
 # 7. Open obsidian with a given vault path
 def open_obsidian(vault_path: str) -> Callable[[], None]:
@@ -831,13 +1029,16 @@ def terminal_env_busybee() -> None:
 def defaultbranch_commit() -> None:
     """
     Executes a git commit workflow using a bash script with interactivity.
-    That is why in_terminal=True.
+    in_terminal=False, because the script handles its own terminal.
     Takes 'PROJECTS_DIR' as an argument
     Prompts user for project name, then navigates to PROJECTS_DIR/PROJECT_NAME
     and runs git status, git add ., and git commit with user prompts between each step.
-    User can exit at any point using CTRL+C.
+    User can exit at any point using CTRL+C. To continue the workflow, user can simply click ENTER in the terminal
+    to proceed to the next step,  or to close the terminal when done. I have the git config to open the
+    commit message in vscode, as I prefer that over nano or vim. I have the lines showing me where the
+    commit title and description can extend to, so this is nice.
     """
-    execute_bash("git_commit_workflow.sh", str(PROJECTS_DIR), in_terminal=True)
+    execute_bash("git_commit_workflow.sh", str(PROJECTS_DIR), in_terminal=False)
 
 # 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window
 def nautilus_path(target_dir: str) -> None:
