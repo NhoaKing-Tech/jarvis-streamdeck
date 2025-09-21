@@ -13,6 +13,13 @@ Key responsibilities:
 
 This module is critical for system stability because ydotool key events
 can leave the system in an unusable state if not properly cleaned up.
+
+CONFIGURATION FLOW:
+1. run_jarvis.py calls config.initialization.initialize_jarvis_modules()
+2. initialize_jarvis_modules() uses initialize_module() to set global variables in this module
+3. Global variables (YDOTOOL_PATH, KEYCODES) are used by cleanup functions
+
+This module uses the centralized initialization pattern for consistent configuration management.
 """
 
 # Standard library imports for system interaction and process control
@@ -21,59 +28,44 @@ import sys         # System exit functions for controlled shutdown
 from typing import Optional, Dict, Any
 
 # ==================== MODULE CONFIGURATION ====================
-# These variables are set via dependency injection from the main module
-# They provide access to system tools needed for cleanup operations
+# Global configuration variables - set by config.initialization.initialize_module()
+# These are initialized to None and set during application startup via centralized initialization
 
 # Path to ydotool executable for keyboard input simulation
-YDOTOOL_PATH: Optional[str] = None  # Will be set to system ydotool path from main configuration
+YDOTOOL_PATH: Optional[str] = None  # Path to ydotool for key release operations
 
 # Dictionary mapping key names to Linux input event codes
-KEYCODES: Optional[Dict[str, int]] = None      # Will be set to the same keycode mapping used throughout jarvis
+KEYCODES: Optional[Dict[str, int]] = None  # Keycode mapping for release_all_keys() function
 
-# DEPENDENCY INJECTION PATTERN:
+# CENTRALIZED INITIALIZATION PATTERN:
 # Rather than importing these values or reading config directly,
-# they are passed in via initialize_lifecycle(). This provides:
-# 1. CONSISTENCY: Uses same configuration as rest of application
+# they are set via config.initialization.initialize_module(). This provides:
+# 1. CONSISTENCY: Uses same configuration pattern as all jarvis modules
 # 2. TESTABILITY: Easy to mock for unit tests
 # 3. FLEXIBILITY: Can be configured differently for different environments
 # 4. EXPLICIT DEPENDENCIES: Clear what this module needs to function
+# 5. REDUCED DUPLICATION: No need for module-specific initialization functions
 
-def initialize_lifecycle(ydotool_path: str, keycodes: Dict[str, int]) -> None:
-    """Initialize the lifecycle module with required configuration.
-
-    This function sets up the module with the configuration needed for
-    cleanup operations. It's called once during application startup to
-    ensure cleanup tools are available for shutdown scenarios.
-
-    Args:
-        ydotool_path (str): Path to ydotool executable for key operations
-        keycodes (dict): Mapping of key names to Linux input event codes
-
-    Initialization Timing:
-        Called early in the startup sequence, after configuration is loaded
-        but before StreamDeck operations begin. This ensures cleanup tools
-        are available if needed during startup or shutdown.
-
-    Error Handling:
-        No validation is performed here because this is called during
-        controlled startup with validated config. Invalid configuration
-        would be caught during actual cleanup attempts.
-    """
-    # Set module-level configuration variables
-    global YDOTOOL_PATH, KEYCODES
-
-    YDOTOOL_PATH = ydotool_path  # Store path to ydotool for key release operations
-    KEYCODES = keycodes          # Store keycode mapping for release_all_keys()
-
-    # ALTERNATIVE APPROACHES:
-    # 1. Class-based: LifecycleManager(ydotool_path, keycodes)
-    # 2. Context manager: with lifecycle_context(ydotool_path, keycodes):
-    # 3. Singleton pattern: LifecycleManager.instance().configure(...)
-    #
-    # Module-level functions chosen for:
-    # - Simplicity and directness
-    # - Compatibility with atexit.register() usage
-    # - Consistent with other jarvis modules
+# DESIGN PATTERN: Module-level Configuration with General Initialization
+# =======================================================================
+# This module now uses the general initialize_module() function from config.initialization
+# instead of having its own initialization function. This reduces code duplication
+# and provides a consistent initialization pattern across all jarvis modules.
+#
+# INITIALIZATION:
+# The config.initialization.initialize_module() function sets the global variables
+# (YDOTOOL_PATH, KEYCODES) by calling setattr(module, key, value) for each
+# configuration parameter.
+#
+# ALTERNATIVE APPROACHES CONSIDERED:
+# 1. Class-based: LifecycleManager(ydotool_path, keycodes)
+# 2. Context manager: with lifecycle_context(ydotool_path, keycodes):
+# 3. Singleton pattern: LifecycleManager.instance().configure(...)
+#
+# Module-level functions chosen for:
+# - Simplicity and directness
+# - Compatibility with atexit.register() usage
+# - Consistent with other jarvis modules
 
 def release_all_keys() -> None:
     """Release all keyboard keys to prevent "sticky key" problems.
@@ -113,7 +105,7 @@ def release_all_keys() -> None:
     """
     # Verify module has been properly initialized
     if YDOTOOL_PATH is None or KEYCODES is None:
-        raise RuntimeError("Lifecycle module not initialized. Call initialize_lifecycle() first.")
+        raise RuntimeError("Lifecycle module not initialized. Call config.initialization.initialize_jarvis_modules() first.")
 
     # Build list of key release events for all known keys
     # Format: "keycode:0" where 0 means "release" (1 would mean "press")

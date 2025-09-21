@@ -50,7 +50,7 @@ def generate_quartz_markdown(module_info, output_path):
     content.append("  - jarvis")
     content.append("  - python")
     content.append("  - documentation")
-    content.append("date: 2025-09-18")
+    content.append("date: 2025-09-21")
     content.append("---")
     content.append("")
 

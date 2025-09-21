@@ -2,7 +2,6 @@
 NAME: reset_jarvis.py
 DESCRIPTION: Stream Deck Reset Script
 AUTHOR: NhoaKing (pseudonym for privacy)
-START DATE: September 4th 2025
 VERSION: 1.0
 This script resets the deck to a clean state.
 With this script I can reset the deck if jarvis crashes or becomes unresponsive.

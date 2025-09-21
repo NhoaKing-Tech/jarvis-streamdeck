@@ -1,6 +1,13 @@
 """
 Rendering functions for StreamDeck keys.
 This module handles the visual appearance of StreamDeck buttons and layout management.
+
+CONFIGURATION FLOW:
+1. run_jarvis.py calls config.initialization.initialize_jarvis_modules()
+2. initialize_jarvis_modules() uses initialize_module() to set global variables in this module
+3. Global variables (FONT_DIR, ICONS_DIR, etc.) are used by rendering functions
+
+This module uses the centralized initialization pattern for consistent configuration management.
 """
 
 """
@@ -38,42 +45,29 @@ from actions import actions
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-# Directories for assets - will be set by importing modules
-FONT_DIR: Optional[Path] = None
-ICONS_DIR: Optional[Path] = None
+# Global configuration variables - set by config.initialization.initialize_module()
+# These are initialized to None and set during application startup via centralized initialization
 
-# Configuration paths - will be set by importing modules
-USER_HOME: Optional[Path] = None
-PROJECTS_DIR: Optional[Path] = None
-OBSIDIAN_VAULTS: Optional[Dict[str, str]] = None
-KEYRING_PW: Optional[str] = None
+# Directories for UI assets
+FONT_DIR: Optional[Path] = None      # Path to font file for text rendering on keys
+ICONS_DIR: Optional[Path] = None     # Directory containing icon files for StreamDeck keys
 
-def initialize_render(font_dir: Path, icons_dir: Path, user_home: Optional[Path] = None, projects_dir: Optional[Path] = None, obsidian_vaults: Optional[Dict[str, str]] = None, keyring_pw: Optional[str] = None) -> None:
-    """Initialize the render module with required directories and paths.
+# Configuration paths and user data
+USER_HOME: Optional[Path] = None     # User's home directory path
+PROJECTS_DIR: Optional[Path] = None  # User's main projects directory
+OBSIDIAN_VAULTS: Optional[Dict[str, str]] = None  # Dictionary mapping vault names to paths
+KEYRING_PW: Optional[str] = None     # Password for keyring/password manager access
 
-    This function sets up the global configuration variables needed by the render
-    module to create layouts and render StreamDeck keys. It implements dependency
-    injection to keep configuration centralized.
-
-    Args:
-        font_dir (Path): Path to font file for text rendering on keys
-        icons_dir (Path): Directory containing icon files for StreamDeck keys
-        user_home (Path, optional): User's home directory path
-        projects_dir (Path, optional): User's main projects directory
-        obsidian_vaults (dict, optional): Dictionary mapping vault names to paths
-        keyring_pw (str, optional): Password for keyring access
-
-    Note:
-        This function must be called before any render functions are used,
-        typically during application startup.
-    """
-    global FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS
-    FONT_DIR = font_dir
-    ICONS_DIR = icons_dir
-    USER_HOME = user_home
-    PROJECTS_DIR = projects_dir
-    OBSIDIAN_VAULTS = obsidian_vaults or {}
-    KEYRING_PW = keyring_pw
+# DESIGN PATTERN: Module-level Configuration with General Initialization
+# =======================================================================
+# This module now uses the general initialize_module() function from config.initialization
+# instead of having its own initialization function. This reduces code duplication
+# and provides a consistent initialization pattern across all jarvis modules.
+#
+# INITIALIZATION:
+# The config.initialization.initialize_module() function sets the global variables
+# (FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS, KEYRING_PW)
+# by calling setattr(module, key, value) for each configuration parameter.
 
 def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional[str] = None, color: str = "black", labelcolor: str = "white") -> None:
     """Render the visual appearance of a StreamDeck key with icon and/or text.
@@ -112,7 +106,7 @@ def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional
     """
 
     if FONT_DIR is None or ICONS_DIR is None:
-        raise RuntimeError("Render module not initialized. Call initialize_render() first.")
+        raise RuntimeError("Render module not initialized. Call config.initialization.initialize_jarvis_modules() first.")
 
     # I load my custom font, with fallback to system default if it fails
     try:

@@ -43,7 +43,6 @@
 AUTHOR: NhoaKing (pseudonym for privacy)
 NAME: actions.py
 DESCRIPTION: Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
-FINISH DATE: September 18th 2025 (Thursday)
 
 <a id="actions.actions.YDOTOOL_PATH"></a>
 

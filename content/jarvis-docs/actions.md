@@ -13,7 +13,6 @@ date: 2025-09-18
 AUTHOR: NhoaKing (pseudonym for privacy)
 NAME: actions.py
 DESCRIPTION: Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
-FINISH DATE: September 18th 2025 (Thursday)
 
 ## Functions
 

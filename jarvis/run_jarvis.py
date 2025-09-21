@@ -2,8 +2,18 @@
 NAME: run_jarvis.py
 DESCRIPTION: Python script to run my stream deck XL with custom icons and actions.
 AUTHOR: NhoaKing (pseudonym for privacy)
-START DATE: September 13th 2025 (Saturday)
 NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN EXECUTED FROM THE SYSTEM SERVICE.
+
+ARCHITECTURE OVERVIEW:
+This is the main entry point for the jarvis StreamDeck application. It:
+1. Loads configuration from config.env
+2. Uses config.initialization.initialize_jarvis_modules() for centralized module initialization
+3. Discovers and connects to StreamDeck hardware
+4. Sets up UI layouts and event handling
+5. Manages application lifecycle and cleanup
+
+The centralized initialization pattern ensures all modules (actions, render, lifecycle)
+are configured consistently through a single function call.
 """
 
 # Standard library imports for system interaction and typing
@@ -32,9 +42,10 @@ from pathlib import Path  # Object-oriented filesystem paths, more robust than o
 
 # Local jarvis module imports. These are my custom modules
 from actions import actions # Action functions that we can assign to keys in the layout definitions
-from ui.render import initialize_render, create_layouts, render_layout # Visual rendering of keys and layout management
+from ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
 from ui.logic import initialize_logic, key_change # Event handling and layout switching logic
-from ui.lifecycle import initialize_lifecycle, cleanup, safe_exit # Resource cleanup and graceful shutdown
+from ui.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
+from config.initialization import initialize_jarvis_modules # Centralized initialization for all modules
 from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
 # I had to write this module to release the keys that were pressed via ydotool. When the program exits unexpectedly, 
 # it ensures all keys are released properly. This is so I do not get a weird keyboard behavior after the script crashes, 
@@ -185,66 +196,8 @@ current_layout: str = "main"  # Start with the main layout as default
 # state around because StreamDeck key callbacks need access to this information
 # and the callback signature is fixed by the StreamDeck library
 
-# Linux input event keycode mapping for ydotool
-# These are the raw Linux input event keycodes that ydotool uses to simulate key presses
-# They correspond to the scancodes defined in /usr/include/linux/input-event-codes.h
-#
-# TECHNICAL EXPLANATION:
-# - ydotool sends input events directly to the Linux kernel's input subsystem
-# - These are NOT ASCII codes or virtual key codes - they're hardware scancodes
-# - The mapping is consistent across all Linux systems regardless of keyboard layout
-# - Each key press sends two events: keycode:1 (press) and keycode:0 (release)
-#
-# PERFORMANCE OPTIMIZATION: We define this as a constant dictionary rather than
-# computing keycodes dynamically because:
-# 1. Lookup is O(1) constant time
-# 2. No repeated computation during hotkey operations
-# 3. Makes the mapping explicit and debuggable
-KEYCODES: Dict[str, int] = {
-    # Letter keys (QWERTY layout positions, not alphabetical)
-    "A": 30, "B": 48, "C": 46, "D": 32, "E": 18,
-    "F": 33, "G": 34, "H": 35, "I": 23, "J": 36,
-    "K": 37, "L": 38, "M": 50, "N": 49, "O": 24,
-    "P": 25, "Q": 16, "R": 19, "S": 31, "T": 20,
-    "U": 22, "V": 47, "W": 17, "X": 45, "Y": 21,
-    "Z": 44,
-
-    # Number row keys (1-9, 0)
-    "1": 2, "2": 3, "3": 4, "4": 5, "5": 6,
-    "6": 7, "7": 8, "8": 9, "9": 10, "0": 11,
-
-    # Function keys (F1-F12)
-    "F1": 59, "F2": 60, "F3": 61, "F4": 62,
-    "F5": 63, "F6": 64, "F7": 65, "F8": 66,
-    "F9": 67, "F10": 68, "F11": 87, "F12": 88,
-
-    # Modifier keys (both left and right variants)
-    "CTRL": 29, "SHIFT": 42, "ALT": 56,           # Left-side modifiers
-    "RIGHTCTRL": 97, "RIGHTSHIFT": 54, "RIGHTALT": 100,  # Right-side modifiers
-    "SUPER": 125,  # Super/Windows/Cmd key
-
-    # Special keys
-    "ESC": 1, "TAB": 15, "CAPSLOCK": 58,
-    "SPACE": 57, "ENTER": 28, "BACKSPACE": 14,
-
-    # Navigation keys (arrow keys and related)
-    "UP": 103, "DOWN": 108, "LEFT": 105, "RIGHT": 106,
-    "HOME": 102, "END": 107, "PAGEUP": 104, "PAGEDOWN": 109,
-    "INSERT": 110, "DELETE": 111,
-
-    # Symbol/punctuation keys
-    "MINUS": 12, "EQUAL": 13,                    # - and = keys
-    "LEFTBRACE": 26, "RIGHTBRACE": 27,          # [ and ] keys
-    "BACKSLASH": 43, "SEMICOLON": 39,           # \ and ; keys
-    "APOSTROPHE": 40, "GRAVE": 41,              # ' and ` keys
-    "COMMA": 51, "DOT": 52, "SLASH": 53,        # , . and / keys
-}
-#
-# WHY NOT USE ALTERNATIVES:
-# - xdotool: Only works on X11, doesn't work on Wayland
-# - PyAutoGUI: Higher level but less precise, may have timing issues
-# - Direct X11/Wayland libraries: More complex and display-server specific
-# - ydotool: Works on both X11 and Wayland, precise low-level control
+# Note: KEYCODES dictionary has been moved to config/initialization.py
+# for centralized configuration management
 
 def main() -> None:
     """Main entry point for the jarvis StreamDeck application.
@@ -276,22 +229,29 @@ def main() -> None:
     # Using globals here is necessary because StreamDeck callbacks need access to these
     global deck, current_layout, layouts
 
-    # Initialize all jarvis modules with configuration data
-    # This dependency injection pattern allows modules to be tested independently
-    # and keeps configuration centralized in this main module
+    # Initialize all jarvis modules using centralized initialization
+    # This single call to initialize_jarvis_modules() replaces the previous approach of
+    # calling separate initialization functions for each module (actions, render, lifecycle).
+    # The centralized approach uses the general initialize_module() function internally
+    # to set global variables in each module, providing consistent configuration management.
+    initialize_jarvis_modules(
+        # Core system paths
+        ydotool_path=YDOTOOL_PATH,
 
-    # Initialize actions module with tool paths and directories
-    # This provides actions.py with access to ydotool, snippet files, etc.
-    actions.initialize_actions(YDOTOOL_PATH,
-           SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW)
+        # Project and user paths
+        projects_dir=PROJECTS_DIR,
+        snippets_dir=SNIPPETS_DIR,
+        bashscripts_dir=BASHSCRIPTS_DIR,
+        user_home=USER_HOME,
 
-    # Initialize rendering module with fonts, icons, and user-specific paths
-    # This provides ui/render.py with access to visual assets and configuration
-    initialize_render(FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS, KEYRING_PW)
+        # UI assets
+        font_dir=FONT_DIR,
+        icons_dir=ICONS_DIR,
 
-    # Initialize lifecycle management with cleanup tools
-    # This provides ui/lifecycle.py with access to ydotool for key release
-    initialize_lifecycle(YDOTOOL_PATH, KEYCODES)
+        # User data
+        obsidian_vaults=OBSIDIAN_VAULTS,
+        keyring_pw=KEYRING_PW
+    )
 
     # StreamDeck Discovery and Connection with Retry Logic
     # This section implements a robust connection strategy to handle:
