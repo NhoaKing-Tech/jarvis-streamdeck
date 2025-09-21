@@ -3,36 +3,30 @@
 AUTHOR: NhoaKing (pseudonym for privacy)
 NAME: actions.py
 DESCRIPTION: Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
-FINISH DATE: September 18th 2025 (Thursday)
-"""
-
-"""
+FINISH DATE: September 21st 2025 (Sunday)
 -- BRIEF DESCRIPTION --
 This module bridges key events (key presses) with system operations.
 
-CONFIGURATION FLOW (How Dependencies Get Here):
-===============================================
+CONFIGURATION FLOW (How environment variables get here):
 1. systemd service loads config.env via 'EnvironmentFile' directive
 2. run_jarvis.py reads those environment variables using os.getenv()
-3. run_jarvis.py passes the loaded values to this module via initialize_actions()
+3. run_jarvis.py passes the loaded values to this module via actions.initialize_actions(YDOTOOL_PATH, SNIPPETS_DIR, BASHSCRIPTS_DIR, PROJECTS_DIR, KEYCODES, KEYRING_PW)
 4. This module stores them in global variables for use by action functions
 
 This is called the Dependency Injection (DI) pattern.
 
 WHY NOT READ ENVIRONMENT VARIABLES DIRECTLY HERE?
-=================================================
-We could have each action function call os.getenv() directly, but we chose
+We could have each action function call os.getenv() directly, but I chose
 dependency injection instead because:
-- Keeps configuration loading centralized in run_jarvis.py
+- Keeps configuration loading centralized in run_jarvis.py, so it is easier to maintain
 - Makes dependencies explicit (you can see what each module needs)
-- Easier to test (can pass mock values instead of real environment variables)
-- Better separation of concerns (run_jarvis.py handles config, this handles actions)
+- Better separation of concerns (run_jarvis.py handles config, this module handles actions)
 
 The .env file provides the configuration, not the logic itself.
-Configuration flows: config.env → systemd → run_jarvis.py → actions.py
+Configuration flows: config.env -> systemd -> run_jarvis.sh -> run_jarvis.py -> actions.py
 
-It handles so far the following topics. Function names are listed for each.
-1. Opening of URLs in default browser. In my case, Goggle Chrome. Functions here are:
+This module handles so far the following topics. Function names are listed for each.
+1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
 - url_freecodecamp
 - url_youtube
 - url_github
@@ -54,23 +48,21 @@ hidden .vscode folder inside the project directory and the file settings.json
 6. Type text and text blocks or snippets
 - type_text
 - type_snippet
-- type_keyring (Type and enter passwords without exposing them in your codebase. 
-The password can be stored in config.env)
-7. Open obsidian with a given vault path. It supports the possibility to open multiple vaults at a time.
+- type_keyring: Type and enter passwords without exposing them in your codebase. The password can be stored in config.env
+7. Open obsidian with a given vault path. It supports the possibility to open multiple vaults, so you can reuse the function in different keys for different vaults.
 - open_obsidian
 8. Execute bash scripts
 - execute_bash
 - Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
-- Example of 
-9. Open nautilus windows with a target path. If that path is already open in another window, 
-simply raise it, to avoid multiple nautilus windows with the same path..... 
-which happens often if this check is not in place before opening the window
+- Example of advanced usage with git_commit_workflow.sh
+9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window. 
+This was the trigger to change to X11 from Wayland, as Wayland does not support window management in a straightforward way as X11 does, and it was giving me too many headaches. I do not discard in the future to TRY to implement jarvis in wayland.
 """
 
 """
 -- TO DO --
 - Generalize nautilus_path function to work with other applications too (for obsidian is already done)
-- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized...
+- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized... >_<
 """
 
 # Standard library imports for system interaction
@@ -445,10 +437,8 @@ def hot_keys(*keys: str) -> None:
         - Each key event is formatted as "keycode:state" (1=press, 0=release)
         - All events are sent in a single ydotool command for atomic execution
 
-    Examples:
-        - hot_keys("CTRL", "C") → Press Ctrl, press C, release C, release Ctrl
-        - hot_keys("CTRL", "SHIFT", "T") → Press Ctrl+Shift+T properly
-        - hot_keys("ALT", "TAB") → Alt+Tab window switching
+    Example:
+        - hot_keys("CTRL", "C") -> Press Ctrl, press C, release C, release Ctrl
 
     Raises:
         RuntimeError: If actions module not initialized

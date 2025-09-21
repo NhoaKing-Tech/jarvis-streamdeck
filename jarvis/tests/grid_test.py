@@ -1,7 +1,7 @@
 """
 NAME: grid_test.py
 DESCRIPTION: Stream Deck Grid Test Script
-AUTHOR: nhoaking
+AUTHOR: NhoaKing (pseudonym for privacy)
 START DATE: September 4th 2025
 VERSION: 1.0
 This script tests all keys on a Stream Deck by lighting them up with different colors.

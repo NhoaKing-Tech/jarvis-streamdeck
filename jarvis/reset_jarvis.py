@@ -1,7 +1,7 @@
 """
 NAME: reset_jarvis.py
 DESCRIPTION: Stream Deck Reset Script
-AUTHOR: nhoaking
+AUTHOR: NhoaKing (pseudonym for privacy)
 START DATE: September 4th 2025
 VERSION: 1.0
 This script resets the deck to a clean state.
