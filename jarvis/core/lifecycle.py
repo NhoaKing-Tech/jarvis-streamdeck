@@ -20,7 +20,7 @@ This module is critical for system stability because ydotool key events
 can leave the system in an unusable state if not properly cleaned up.
 
 CONFIGURATION FLOW:
-1. run_jarvis.py calls config.initialization.init_jarvis()
+1. core.application calls config.initialization.init_jarvis()
 2. init_jarvis() uses init_module() to set global variables in this module
 3. Global variables (YDOTOOL_PATH, KEYCODES) are used by cleanup functions
 

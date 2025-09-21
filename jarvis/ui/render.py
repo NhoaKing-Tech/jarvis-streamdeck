@@ -8,7 +8,7 @@ Rendering functions for StreamDeck keys.
 This module handles the visual appearance of StreamDeck buttons and layout management.
 
 How environment variables in config.env reach this module:
-1. run_jarvis.py calls config.initialization.init_jarvis()
+1. core.application calls config.initialization.init_jarvis()
 2. init_jarvis() uses init_module() to set global variables in this module
 3. Global variables (FONT_DIR, ICONS_DIR, etc.) are used by rendering functions
 

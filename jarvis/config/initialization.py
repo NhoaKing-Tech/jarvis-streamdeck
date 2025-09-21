@@ -38,8 +38,8 @@ from typing import Dict, Optional, Any
 # Import the modules that need initialization
 from actions import actions
 import ui.render as render_module
-import ui.logic as logic_module
-import ui.lifecycle as lifecycle_module
+import core.logic as logic_module
+import core.lifecycle as lifecycle_module
 
 # Linux input event keycode mapping for ydotool
 # These are the raw Linux input event keycodes that ydotool uses to simulate key presses
@@ -196,7 +196,7 @@ def init_jarvis(
 
     Note:
         This function must be called before any other jarvis modules are used,
-        typically during application startup in run_jarvis.py.
+        typically during application startup in core.application.
     """
 
     # Validate required parameters

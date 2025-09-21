@@ -2,7 +2,7 @@
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing (pseudonym for privacy)
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
-NAME: run_jarvis.py
+NAME: application.py
 -- DESCRIPTION -- 
 Python script to run my stream deck XL with custom icons and actions.
 
@@ -49,10 +49,14 @@ from pathlib import Path  # Object-oriented filesystem paths, more robust than o
 # Another example: Path(__file__).parent / "config.env" vs os.path.join(os.path.dirname(__file__), "config.env")
 
 # Local jarvis module imports. These are my custom modules
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from actions import actions # Action functions that we can assign to keys in the layout definitions
 from ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
-from ui.logic import key_change # Event handling and layout switching logic
-from ui.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
+from core.logic import key_change # Event handling and layout switching logic
+from core.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
 from config.initialization import init_jarvis # Centralized initialization for all modules
 from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
 # I had to write this module to release the keys that were pressed via ydotool. When the program exits unexpectedly, 
@@ -88,11 +92,11 @@ def load_config() -> None:
         caching would add complexity without meaningful benefit.
 
     Note:
-        The config.env file should be located in the same directory as this script.
+        The config.env file should be located in the config directory.
         Each line should follow the format: KEY=VALUE
     """
     # Use pathlib for robust path handling - __file__ is the absolute path to this script
-    config_path = Path(__file__).parent / "config.env"  # Looks for config.env in same directory as this script
+    config_path = Path(__file__).parent.parent / "config" / "config.env"  # Looks for config.env in config directory
 
     # Check if config file exists before trying to read it
     # This prevents FileNotFoundError and allows jarvis to run with default values
@@ -115,7 +119,7 @@ def load_config() -> None:
                     os.environ[key.strip()] = value.strip()
     else:
         # Config file doesn't exist - prompt user to run setup and exit
-        print_information_type("error", "config.env file not found!\nPlease run 'python setup_config.py' to create your configuration file.\nExiting...")
+        print_information_type("error", "config.env file not found!\nPlease run 'python config/setup_config.py' to create your configuration file.\nExiting...")
         sys.exit(1)
 
 # Load configuration immediately when module is imported
@@ -170,19 +174,19 @@ KEYRING_PW: str = os.getenv('KEYRING_PW', '')  # Defaults to empty string if not
 
 # Font file path for StreamDeck key text rendering
 # We use Roboto-Regular.ttf for clean, readable text on small StreamDeck keys
-FONT_DIR: Path = Path(__file__).parent / "assets" / "font" / "Roboto-Regular.ttf"
+FONT_DIR: Path = Path(__file__).parent.parent / "assets" / "font" / "Roboto-Regular.ttf"
 
 # Directory containing custom icons for StreamDeck keys
 # Icons should be PNG format, ideally 96x96 pixels for StreamDeck XL
-ICONS_DIR: Path = Path(__file__).parent / "assets" / "jarvisicons"
+ICONS_DIR: Path = Path(__file__).parent.parent / "assets" / "jarvisicons"
 
 # Directory containing code snippets that can be inserted via StreamDeck
 # Snippets are stored as .txt files and can contain boilerplate code, templates, etc.
-SNIPPETS_DIR: Path = Path(__file__).parent / "assets" / "snippets"
+SNIPPETS_DIR: Path = Path(__file__).parent.parent / "assets" / "snippets"
 
 # Directory containing bash scripts that can be executed via StreamDeck
 # These scripts handle complex workflows like git operations, environment setup, etc.
-BASHSCRIPTS_DIR: Path = Path(__file__).parent / "assets" / "bash_scripts"
+BASHSCRIPTS_DIR: Path = Path(__file__).parent.parent / "assets" / "bash_scripts"
 
 # DESIGN DECISION: We use relative paths from the script location rather than
 # absolute paths or environment variables. This keeps the assets bundled with
@@ -197,7 +201,7 @@ BASHSCRIPTS_DIR: Path = Path(__file__).parent / "assets" / "bash_scripts"
 layouts: Dict[str, Dict[int, Dict[str, Any]]] = {}  # Will be populated by create_layouts() after deck initialization
 
 # Track which layout is currently displayed on the StreamDeck
-# This variable is modified by the switch_layout() function in ui.logic
+# This variable is modified by the switch_layout() function in core.logic
 current_layout: str = "main"  # Start with the main layout as default
 
 # PERFORMANCE CONSIDERATION: We use a global variable instead of passing layout
@@ -348,7 +352,7 @@ def main() -> None:
     # Event Handler Registration
     # Register our key_change function to be called whenever any key is pressed or released
     # The StreamDeck library will call key_change(deck, key_number, is_pressed) for each event
-    deck.set_key_callback(key_change)  # key_change is imported from ui.logic module
+    deck.set_key_callback(key_change)  # key_change is imported from core.logic module
 
     # Signal Handler Registration for Graceful Shutdown
     # Set up handlers to clean up resources when the program is interrupted or terminated
@@ -360,7 +364,7 @@ def main() -> None:
 
     # Register cleanup function to run automatically when Python interpreter exits
     # This handles cases where the program exits normally or due to exceptions
-    atexit.register(cleanup, deck)  # cleanup function is imported from ui.lifecycle
+    atexit.register(cleanup, deck)  # cleanup function is imported from core.lifecycle
 
     # Enter Main Event Loop
     # Print status message to let user know the application is running
@@ -386,7 +390,7 @@ if __name__ == "__main__":
 # DESIGN PATTERN EXPLANATION:
 # The if __name__ == "__main__" pattern is a Python idiom that allows a script
 # to be both executable and importable:
-# 1. When run directly (python run_jarvis.py), __name__ equals "__main__"
-# 2. When imported (import run_jarvis), __name__ equals "run_jarvis"
+# 1. When run directly (python main.py), __name__ equals "__main__"
+# 2. When imported (import application), __name__ equals "application"
 # This allows other modules to import functions from this file without
 # automatically starting the StreamDeck application.

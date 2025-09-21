@@ -25,7 +25,7 @@ application and can recover from most error states, including situations
 where the main application has crashed or become unresponsive.
 
 When to Use:
-- Keys appear "stuck" after jarvis crash (though this should not happen as this is handled in run_jarvis.py)
+- Keys appear "stuck" after jarvis crash (though this should not happen as this is handled in core.application)
 - StreamDeck shows incorrect/frozen display (this happens when the jarvis.service is stopped through the terminal)
 - System becomes unresponsive
 - Before troubleshooting jarvis problems
@@ -88,7 +88,7 @@ def load_config() -> None:
     Uses the same configuration loading logic as the main application
     to maintain consistency in tool paths and settings.
     """
-    config_path = Path(__file__).parent / "config.env"
+    config_path = Path(__file__).parent.parent / "config" / "config.env"
     if config_path.exists():
         with open(config_path) as f:
             for line in f:

@@ -67,7 +67,11 @@ def create_layouts(
         - User-specific directories and tools
     """
     # Import here to avoid circular imports - layouts depend on logic for switch_layout
-    from .logic import switch_layout
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+    from core.logic import switch_layout
 
     # =====================================================================================
     # STREAMDECK KEY LAYOUT GRID (32 keys total)

@@ -22,7 +22,11 @@ have fixed signatures and cannot receive additional parameters. This is a
 common pattern in event-driven GUI programming.
 """
 
-from .render import render_layout
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from ui.render import render_layout
 from typing import Optional, Dict, Any, Callable
 
 # CIRCULAR IMPORT ANALYSIS:

@@ -141,14 +141,14 @@ def create_config() -> None:
     print(f"\nConfiguration saved to {config_path}")
     print("\nTo use this configuration you have two options. I recommend option 2.")
     print("\n1. Direct execution:")
-    print("   source config.env && python run_jarvis.py")
+    print("   source config/config.env && python main.py")
     print("\n   or")
     print("\n2. System service setup:")
     print("   See config_example.env for systemd service configuration, udev rules, ydotool configuration, and usage instructions.")
 
     # NEXT STEPS GUIDANCE:
     print("\nNext steps:")
-    print("1. Test the configuration: python3 run_jarvis.py")
+    print("1. Test the configuration: python3 main.py")
     print("2. Customize layouts in ui/render.py, actions in actions/actions.py")
     print("3. Add custom icons to assets/jarvisicons/")
     print("4. Create code snippets in assets/snippets/. Jarvis layer already grants execution permissions for only your user so you do not need to worry about doing that manually.")
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     Output:
     After this script completes:
     - config.env file exists with user configuration
-    - User can run jarvis with: source config.env && python run_jarvis.py (from jarvis-env) or set up system service
+    - User can run jarvis with: source config/config.env && python main.py (from jarvis-env) or set up system service
     - System service can be configured using the generated .env file
     
     """

@@ -9,9 +9,9 @@ This module bridges key events (key presses) with system operations.
 
 How environment variables in config.env reach this module:
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
-2. jarvis.service starts run_jarvis.sh: this script activates the venv and runs run_jarvis.py
-3. run_jarvis.py reads those environment variables using os.getenv()
-4. run_jarvis.py calls config.initialization.init_jarvis() with all configuration
+2. jarvis.service starts main.sh: this script activates the venv and runs main.py
+3. main.py delegates to core.application which reads environment variables using os.getenv()
+4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
 
@@ -20,12 +20,12 @@ This uses a Global Configuration with Dynamic Initialization pattern.
 Why not read environment variables directly in this module?
 We could have each action function call os.getenv() directly, but I chose
 centralized global configuration instead because:
-- Keeps configuration loading centralized in run_jarvis.py, so it is easier to maintain
+- Keeps configuration loading centralized in core.application, so it is easier to maintain
 - Makes dependencies explicit (you can see what each module needs)
-- Better separation of concerns (run_jarvis.py handles config, this module handles actions)
+- Better separation of concerns (core.application handles config, this module handles actions)
 
-The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and run_jarvis.py
-Configuration flows: config.env -> systemd -> run_jarvis.sh -> run_jarvis.py -> config.initialization -> actions.py
+The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
+Configuration flows: config.env -> systemd -> main.sh -> main.py -> core.application -> config.initialization -> actions.py
 
 This module handles so far the following topics. Function names are listed for each.
 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
@@ -74,7 +74,7 @@ from typing import Dict, Optional, Callable, Any
 
 # Import from our UI module for dynamic key rendering
 # Note: render_keys import moved inside toggle_mic function to avoid circular import
-# This was: actions -> ui.render -> ui.logic -> actions
+# This was: actions -> ui.render -> core.logic -> actions
 # Now render_keys is imported only when needed, breaking the cycle
 
 # REQUIRED PLACEHOLDERS FOR DYNAMIC INITIALIZATION SYSTEM
@@ -85,7 +85,7 @@ from typing import Dict, Optional, Callable, Any
 #
 # Initialization flow:
 # 1. These variables are declared as None (creates the module attributes)
-# 2. run_jarvis.py calls init_jarvis() which internally calls init_module(actions, ...)
+# 2. core.application calls init_jarvis() which internally calls init_module(actions, ...)
 # 3. init_module() uses hasattr(actions, 'YDOTOOL_PATH') to verify attribute exists
 # 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
 # 5. Action functions check if variables are still None to detect initialization failures
