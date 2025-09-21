@@ -1,13 +1,10 @@
 #!/usr/bin/python3 
-# This above is the 'shebang' line. It is a label that tells the system which interpreter to use to run the script.
-# In this case, it specifies to use the system default python 3 interpreter. This is important for scripts that are intended 
-# to be run directly from the command line.
-#
-# In this way, it ensures that the script will use python 3 default installation.
-# New users probably do not have any virtual environment set up yet, so in this way we avoid using specific environment names.
-# The purpose of this script is simply to create a config.env file, so no dependencies are needed as only standard modules are used.
-
 """
+-- GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: setup_config.py
+-- DESCRIPTION --
 Setup script to create personalized configuration for Jarvis StreamDeck.
 
 This script provides interactive configuration through prompts in terminal that helps users
@@ -26,6 +23,16 @@ Open a default terminal (CTRL+ALT+T) and run:
 
 Output:
 - Creates config.env file in the jarvis directory with user-specific configuration
+
+This first line of the script (#!/usr/bin/python3) is the 'shebang' line. 
+It is a label that tells the system which interpreter to use to run the script.
+In this case, it specifies to use the system default python 3 interpreter. 
+This is important for scripts that are intended to be run directly from the command line.
+
+In this way, it ensures that the script will use python 3 default installation.
+New users probably do not have any virtual environment set up yet, so in this way 
+we avoid using specific environment names. The purpose of this script is simply to create a config.env file, 
+so no dependencies are needed as only standard modules are used.
 """
 
 from pathlib import Path  # Modern path handling, more robust than os.path

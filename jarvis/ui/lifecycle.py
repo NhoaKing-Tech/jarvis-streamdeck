@@ -1,4 +1,9 @@
 """
+-- GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: lifecycle.py
+-- DESCRIPTION -- 
 UI lifecycle management for StreamDeck.
 
 This module handles resource cleanup and graceful shutdown for the jarvis application.
@@ -15,8 +20,8 @@ This module is critical for system stability because ydotool key events
 can leave the system in an unusable state if not properly cleaned up.
 
 CONFIGURATION FLOW:
-1. run_jarvis.py calls config.initialization.initialize_jarvis_modules()
-2. initialize_jarvis_modules() uses initialize_module() to set global variables in this module
+1. run_jarvis.py calls config.initialization.init_jarvis()
+2. init_jarvis() uses init_module() to set global variables in this module
 3. Global variables (YDOTOOL_PATH, KEYCODES) are used by cleanup functions
 
 This module uses the centralized initialization pattern for consistent configuration management.
@@ -28,7 +33,7 @@ import sys         # System exit functions for controlled shutdown
 from typing import Optional, Dict, Any
 
 # ==================== MODULE CONFIGURATION ====================
-# Global configuration variables - set by config.initialization.initialize_module()
+# Global configuration variables - set by config.initialization.init_module()
 # These are initialized to None and set during application startup via centralized initialization
 
 # Path to ydotool executable for keyboard input simulation
@@ -39,7 +44,7 @@ KEYCODES: Optional[Dict[str, int]] = None  # Keycode mapping for release_all_key
 
 # CENTRALIZED INITIALIZATION PATTERN:
 # Rather than importing these values or reading config directly,
-# they are set via config.initialization.initialize_module(). This provides:
+# they are set via config.initialization.init_module(). This provides:
 # 1. CONSISTENCY: Uses same configuration pattern as all jarvis modules
 # 2. TESTABILITY: Easy to mock for unit tests
 # 3. FLEXIBILITY: Can be configured differently for different environments
@@ -48,12 +53,12 @@ KEYCODES: Optional[Dict[str, int]] = None  # Keycode mapping for release_all_key
 
 # DESIGN PATTERN: Module-level Configuration with General Initialization
 # =======================================================================
-# This module now uses the general initialize_module() function from config.initialization
+# This module now uses the general init_module() function from config.initialization
 # instead of having its own initialization function. This reduces code duplication
 # and provides a consistent initialization pattern across all jarvis modules.
 #
 # INITIALIZATION:
-# The config.initialization.initialize_module() function sets the global variables
+# The config.initialization.init_module() function sets the global variables
 # (YDOTOOL_PATH, KEYCODES) by calling setattr(module, key, value) for each
 # configuration parameter.
 #
@@ -105,7 +110,7 @@ def release_all_keys() -> None:
     """
     # Verify module has been properly initialized
     if YDOTOOL_PATH is None or KEYCODES is None:
-        raise RuntimeError("Lifecycle module not initialized. Call config.initialization.initialize_jarvis_modules() first.")
+        raise RuntimeError("Lifecycle module not initialized. Call config.initialization.init_jarvis() first.")
 
     # Build list of key release events for all known keys
     # Format: "keycode:0" where 0 means "release" (1 would mean "press")

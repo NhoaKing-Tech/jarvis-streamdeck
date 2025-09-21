@@ -1,4 +1,9 @@
 """
+-- GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: initialization.py
+-- DESCRIPTION --
 Centralized initialization module for jarvis StreamDeck application.
 
 This module consolidates the initialization of all jarvis modules (actions, render, lifecycle)
@@ -9,17 +14,17 @@ and contains shared configuration data like keycodes. This design provides:
 3. Easier maintenance - add new config parameters in one location
 4. Better error handling - centralized validation and error reporting
 5. Reduced duplication - shared parameters and initialization logic defined once
-6. General initialization pattern - all modules use the same initialize_module() approach
+6. General initialization pattern - all modules use the same init_module() approach
 
 ARCHITECTURE:
-- initialize_module(): General function that sets global variables in any module
-- initialize_jarvis_modules(): High-level function that initializes all modules
+- init_module(): General function that sets global variables in any module
+- init_jarvis(): High-level function that initializes all modules
 - KEYCODES: Centralized keycode mapping used by multiple modules
 - get_keycodes(): Public API for accessing keycode mapping
 
 USAGE:
-from config.initialization import initialize_jarvis_modules
-initialize_jarvis_modules(ydotool_path=..., projects_dir=..., ...)
+from config.initialization import init_jarvis
+init_jarvis(ydotool_path=..., projects_dir=..., ...)
 
 This replaces the previous pattern of calling separate initialization functions
 for each module (actions.initialize_actions, render.initialize_render, etc.).
@@ -90,7 +95,7 @@ KEYCODES: Dict[str, int] = {
     "COMMA": 51, "DOT": 52, "SLASH": 53,        # , . and / keys
 }
 
-def initialize_module(module: Any, **config) -> None:
+def init_module(module: Any, **config) -> None:
     """General-purpose module initialization function.
 
     This function provides a standardized way to initialize any jarvis module
@@ -114,9 +119,9 @@ def initialize_module(module: Any, **config) -> None:
         Only sets attributes that already exist in the target module (defined as globals).
 
     Usage Examples:
-        initialize_module(actions, YDOTOOL_PATH=path, KEYCODES=codes, ...)
-        initialize_module(render_module, FONT_DIR=font, ICONS_DIR=icons, ...)
-        initialize_module(lifecycle_module, YDOTOOL_PATH=path, KEYCODES=codes, ...)
+        init_module(actions, YDOTOOL_PATH=path, KEYCODES=codes, ...)
+        init_module(render_module, FONT_DIR=font, ICONS_DIR=icons, ...)
+        init_module(lifecycle_module, YDOTOOL_PATH=path, KEYCODES=codes, ...)
 
     Note:
         Modules must define their global variables (initialized to None) before
@@ -130,7 +135,7 @@ def initialize_module(module: Any, **config) -> None:
             # Optional: warn about unrecognized config keys
             pass
 
-def initialize_jarvis_modules(
+def init_jarvis(
     # Core system paths
     ydotool_path: str,
 
@@ -151,7 +156,7 @@ def initialize_jarvis_modules(
     """Initialize all jarvis modules with consolidated configuration.
 
     This function centralizes the initialization of all jarvis modules, providing
-    a single point of configuration and setup. It uses the general initialize_module
+    a single point of configuration and setup. It uses the general init_module
     function to reduce code duplication.
 
     Args:
@@ -168,7 +173,7 @@ def initialize_jarvis_modules(
     Design Benefits:
         - **Single source of truth**: All configuration in one place
         - **Simplified calling**: One function call instead of multiple module-specific calls
-        - **General initialization**: Uses the same initialize_module() pattern for all modules
+        - **General initialization**: Uses the same init_module() pattern for all modules
         - **Better error handling**: Centralized validation and error reporting
         - **Reduced duplication**: Shared parameters and initialization logic
         - **Consistent pattern**: All modules follow the same initialization approach
@@ -177,7 +182,7 @@ def initialize_jarvis_modules(
     Initialization Flow:
         1. Validates required parameters
         2. Sets defaults for optional parameters
-        3. Calls initialize_module() for each jarvis module with appropriate config
+        3. Calls init_module() for each jarvis module with appropriate config
         4. Each module's global variables are set via setattr()
 
     Note:
@@ -199,11 +204,11 @@ def initialize_jarvis_modules(
     obsidian_vaults = obsidian_vaults or {}
     keyring_pw = keyring_pw or ""
 
-    # Initialize each module using the general initialize_module function
+    # Initialize each module using the general init_module function
     # Order matters: actions first (core functionality), then render (UI), then lifecycle (cleanup)
 
     # 1. Initialize actions module - provides core functionality for key press handlers
-    initialize_module(
+    init_module(
         actions,
         YDOTOOL_PATH=ydotool_path,
         SNIPPETS_DIR=snippets_dir,
@@ -216,7 +221,7 @@ def initialize_jarvis_modules(
     # 2. Initialize render module - handles UI rendering and layout management
     # Only initialize if font_dir and icons_dir are provided
     if font_dir and icons_dir:
-        initialize_module(
+        init_module(
             render_module,
             FONT_DIR=font_dir,
             ICONS_DIR=icons_dir,
@@ -227,7 +232,7 @@ def initialize_jarvis_modules(
         )
 
     # 3. Initialize lifecycle module - handles cleanup and resource management
-    initialize_module(
+    init_module(
         lifecycle_module,
         YDOTOOL_PATH=ydotool_path,
         KEYCODES=KEYCODES

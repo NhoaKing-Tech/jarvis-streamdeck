@@ -1,16 +1,19 @@
 """
+-- GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: render.py
+-- DESCRIPTION --
 Rendering functions for StreamDeck keys.
 This module handles the visual appearance of StreamDeck buttons and layout management.
 
-CONFIGURATION FLOW:
-1. run_jarvis.py calls config.initialization.initialize_jarvis_modules()
-2. initialize_jarvis_modules() uses initialize_module() to set global variables in this module
+How environment variables in config.env reach this module:
+1. run_jarvis.py calls config.initialization.init_jarvis()
+2. init_jarvis() uses init_module() to set global variables in this module
 3. Global variables (FONT_DIR, ICONS_DIR, etc.) are used by rendering functions
 
 This module uses the centralized initialization pattern for consistent configuration management.
-"""
 
-"""
 Icon Attributions
 HTML: <a href="https://www.flaticon.com/free-icons/html" title="html icons">Html icons created by Pixel perfect - Flaticon</a>
 CSS: <a href="https://www.flaticon.com/free-icons/css" title="css icons">Css icons created by Pixel perfect - Flaticon</a>
@@ -45,7 +48,7 @@ from actions import actions
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-# Global configuration variables - set by config.initialization.initialize_module()
+# Global configuration variables - set by config.initialization.init_module()
 # These are initialized to None and set during application startup via centralized initialization
 
 # Directories for UI assets
@@ -60,12 +63,12 @@ KEYRING_PW: Optional[str] = None     # Password for keyring/password manager acc
 
 # DESIGN PATTERN: Module-level Configuration with General Initialization
 # =======================================================================
-# This module now uses the general initialize_module() function from config.initialization
+# This module now uses the general init_module() function from config.initialization
 # instead of having its own initialization function. This reduces code duplication
 # and provides a consistent initialization pattern across all jarvis modules.
 #
 # INITIALIZATION:
-# The config.initialization.initialize_module() function sets the global variables
+# The config.initialization.init_module() function sets the global variables
 # (FONT_DIR, ICONS_DIR, USER_HOME, PROJECTS_DIR, OBSIDIAN_VAULTS, KEYRING_PW)
 # by calling setattr(module, key, value) for each configuration parameter.
 
@@ -106,7 +109,7 @@ def render_keys(deck: Any, key: int, label: Optional[str] = None, icon: Optional
     """
 
     if FONT_DIR is None or ICONS_DIR is None:
-        raise RuntimeError("Render module not initialized. Call config.initialization.initialize_jarvis_modules() first.")
+        raise RuntimeError("Render module not initialized. Call config.initialization.init_jarvis() first.")
 
     # I load my custom font, with fallback to system default if it fails
     try:

@@ -1,8 +1,9 @@
 """
-NAME: terminal_prints.py
-DESCRIPTION: Stream Deck Terminal Print Functions
+-- GENERAL INFORMATION --
 AUTHOR: NhoaKing (pseudonym for privacy)
-VERSION: 0.1
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: terminal_prints.py
+-- DESCRIPTION --
 This script provides functions for printing styled messages to the terminal to enhance console formatting.
 """
 

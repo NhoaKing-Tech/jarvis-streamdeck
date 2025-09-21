@@ -1,8 +1,9 @@
 """
-NAME: reset_jarvis.py
-DESCRIPTION: Stream Deck Reset Script
+-- GENERAL INFORMATION --
 AUTHOR: NhoaKing (pseudonym for privacy)
-VERSION: 1.0
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: reset_jarvis.py
+-- DESCRIPTION --
 This script resets the deck to a clean state.
 With this script I can reset the deck if jarvis crashes or becomes unresponsive.
 It also works when jarvis.service is stopped with the terminal.

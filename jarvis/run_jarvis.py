@@ -1,13 +1,21 @@
 """
-NAME: run_jarvis.py
-DESCRIPTION: Python script to run my stream deck XL with custom icons and actions.
+-- GENERAL INFORMATION --
 AUTHOR: NhoaKing (pseudonym for privacy)
-NOTE: IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN EXECUTED FROM THE SYSTEM SERVICE.
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: run_jarvis.py
+-- DESCRIPTION -- 
+Python script to run my stream deck XL with custom icons and actions.
+
+-- NOTE -- 
+IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, 
+AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. 
+IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN 
+EXECUTED FROM THE SYSTEM SERVICE.
 
 ARCHITECTURE OVERVIEW:
 This is the main entry point for the jarvis StreamDeck application. It:
 1. Loads configuration from config.env
-2. Uses config.initialization.initialize_jarvis_modules() for centralized module initialization
+2. Uses config.initialization.init_jarvis() for centralized module initialization
 3. Discovers and connects to StreamDeck hardware
 4. Sets up UI layouts and event handling
 5. Manages application lifecycle and cleanup
@@ -45,7 +53,7 @@ from actions import actions # Action functions that we can assign to keys in the
 from ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
 from ui.logic import initialize_logic, key_change # Event handling and layout switching logic
 from ui.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
-from config.initialization import initialize_jarvis_modules # Centralized initialization for all modules
+from config.initialization import init_jarvis # Centralized initialization for all modules
 from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
 # I had to write this module to release the keys that were pressed via ydotool. When the program exits unexpectedly, 
 # it ensures all keys are released properly. This is so I do not get a weird keyboard behavior after the script crashes, 
@@ -230,11 +238,11 @@ def main() -> None:
     global deck, current_layout, layouts
 
     # Initialize all jarvis modules using centralized initialization
-    # This single call to initialize_jarvis_modules() replaces the previous approach of
+    # This single call to init_jarvis() replaces the previous approach of
     # calling separate initialization functions for each module (actions, render, lifecycle).
-    # The centralized approach uses the general initialize_module() function internally
+    # The centralized approach uses the general init_module() function internally
     # to set global variables in each module, providing consistent configuration management.
-    initialize_jarvis_modules(
+    init_jarvis(
         # Core system paths
         ydotool_path=YDOTOOL_PATH,
 

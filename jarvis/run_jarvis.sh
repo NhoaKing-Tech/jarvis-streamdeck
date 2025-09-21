@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wrapper to activate conda env and run Stream Deck script
+# Bash script to activate conda env and run jarvis script
 
 # Load environment variables from config.env
 source "$(dirname "$0")/config.env"

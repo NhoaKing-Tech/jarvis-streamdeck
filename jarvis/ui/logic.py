@@ -1,4 +1,9 @@
 """
+-- GENERAL INFORMATION --
+AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+NAME: logic.py
+-- DESCRIPTION -- 
 UI logic for StreamDeck event handling and layout management.
 
 This module serves as the "controller" layer in the Model-View-Controller pattern:

@@ -1,19 +1,21 @@
 """
---GENERAL INFORMATION --
+-- GENERAL INFORMATION --
 AUTHOR: NhoaKing (pseudonym for privacy)
+PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: actions.py
-DESCRIPTION: Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
--- BRIEF DESCRIPTION --
+-- DESCRIPTION -- 
+Python module containing all the actions triggered by key press events on the stream deck XL from ElGato
 This module bridges key events (key presses) with system operations.
 
-CONFIGURATION FLOW (How environment variables get here):
-1. systemd service loads config.env via 'EnvironmentFile' directive
-2. run_jarvis.py reads those environment variables using os.getenv()
-3. run_jarvis.py calls config.initialization.initialize_jarvis_modules() with all configuration
-4. initialize_jarvis_modules() uses the general initialize_module() function to set global variables in this module
-5. This module stores them in global variables for use by action functions
+How environment variables in config.env reach this module:
+1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
+2. jarvis.service starts run_jarvis.sh: this script activates the venv and runs run_jarvis.py
+3. run_jarvis.py reads those environment variables using os.getenv()
+4. run_jarvis.py calls config.initialization.init_jarvis() with all configuration
+5. init_jarvis() uses the general init_module() function to set global variables in this module
+6. This module stores them in global variables for use by action functions
 
-This is called the Dependency Injection (DI) pattern with centralized initialization.
+This is called Dependency Injection (DI) pattern with centralized initialization.
 
 WHY NOT READ ENVIRONMENT VARIABLES DIRECTLY HERE?
 We could have each action function call os.getenv() directly, but I chose
@@ -105,7 +107,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 
 # DESIGN PATTERN: Module-level Configuration with General Initialization
 # =======================================================================
-# This module now uses the general initialize_module() function from config.initialization
+# This module now uses the general init_module() function from config.initialization
 # instead of having its own initialization function. This reduces code duplication
 # and provides a consistent initialization pattern across all jarvis modules.
 #
@@ -125,7 +127,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # let us store these values once and access them from any function.
 #
 # INITIALIZATION:
-# The config.initialization.initialize_module() function sets these global variables
+# The config.initialization.init_module() function sets these global variables
 # by calling setattr(module, key, value) for each configuration parameter.
 
 # 1. URLs:
