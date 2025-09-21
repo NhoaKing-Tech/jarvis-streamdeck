@@ -1,21 +1,94 @@
-__pycache__
-.idea/
+# .gitignore for DEV BRANCH (private development)
+# This branch contains full development code with annotations
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
 *.egg-info/
-doc/build
+.installed.cfg
+*.egg
+MANIFEST
 
-# Jarvis-specific ignores
+# Production build (generated, don't commit to dev branch)
+jarvis_prod/               # Generated staging directory, for main branch only
+
+# NOTE: jarvis/ directory IS tracked on dev branch
+# It contains your development code with full annotations (DEV/ARCH/EDU/PROD)
+
+# Configuration and secrets
+jarvis/config/config.env   # Personal environment variables
+*.key                      # Key files
+*.pem                      # Certificate files
+.env                       # Environment files
+
+# IDE and development tools
+.idea/
+.vscode/settings.json      # Personal settings
+*.swp
+*.swo
+*~
+
+# Documentation generation cache
+jarvis/docs/content/*.html
+jarvis/docs/.cache/
+
+# Personal development files
 jarvis_experimental/
-jarvis/config/config.env
+test_personal/
+debug_personal/
 
-# Local development files
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+temp/
+
+# StreamDeck specific
+*.streamDeckProfile
+deck_configs/personal/
+
+# Obsidian vaults (personal knowledge)
+jarvis/docs_jarvis/.obsidian/
+*.obsidian/
+
+# Claude Code workspace
 .claude/
-.vscode/
 
-# Documentation generation (personal tools)
-generate_quartz_docs.py
-pydoc-markdown.yml
-content/
-docs/
+# Personal notes and drafts
+NOTES.md
+TODO_PERSONAL.md
+*.draft
+*_draft.*
 
-# Obsidian vaults
-jarvis/docs_jarvis/.obsidian
+# Local experiments
+experiments/
+sandbox/
