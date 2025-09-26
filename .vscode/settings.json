@@ -14,6 +14,9 @@
       "statusBar.background": "#1013b1",        // bottom status bar
       "sideBar.background": "#03084660",
     }
+  },
+  "files.exclude": {
+    "**/.git": false
   }
 }
 

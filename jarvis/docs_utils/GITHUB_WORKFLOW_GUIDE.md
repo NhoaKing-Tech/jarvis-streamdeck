@@ -13,38 +13,47 @@
 
 ### **Directory Structure**
 
-```
-LOCAL REPOSITORY:
-├── jarvis/                    # 🔒 PRIVATE (dev branch only)
-│   ├── actions/              # Full source with DEV/ARCH/EDU comments
-│   ├── core/
-│   ├── docs/                 # 📁 Documentation output
-│   │   ├── content/          # 🚫 IGNORED: Generated markdown files
-│   │   └── .cache/           # 🚫 IGNORED: Cache files
-│   ├── docs_utils/           # 📚 TRACKED: Documentation scripts & guides
-│   │   ├── *.py              # Documentation generation tools
-│   │   └── *.md              # Workflow guides (this file!)
-│   └── ...
-├── jarvis_prod/               # 🏭 GENERATED (not committed to dev)
-│   ├── actions/              # Clean production code
-│   ├── core/
-│   └── ...
-└── .gitignore                # Branch-specific ignore rules
+```bash
+# Code block set to bash only to have some syntax highlight so it reads easier.
 
-GITHUB REPOSITORY (main branch):
-├── jarvis_prod/               # 🌐 PUBLIC (clean production code)
-│   ├── actions/
-│   ├── core/
-│   ├── config/
-│   ├── ui/
-│   ├── utils/
-│   └── main.py
-├── setup.py
-├── README.md                  # Auto-generated professional README
-└── requirements.txt
+'LOCAL REPOSITORY:' # -> TRACKED IN DEV BRANCH, NOT MAIN
+|  -- src_dev/ # PRIVATE (dev branch only, local)
+│  ----- main.py
+│  ----- assets/ folder # TRACKED
+│  ----- src/ folders  #TRACKED (code with comments and annotations). src folders classified by concern
+│  ----- auto_docs/ # IGNORED: Documentation output from my automated workflow
+│  --------- content/ # IGNORED: Generated markdown for Quartz content folder
+│  ----- doc/ # TRACKED: Documentation manually created
+│  --------- *.md # If needed, I have support documents manually created
+│  ----- docs_utils/ # TRACKED: Documentation scripts & workflow guides
+│  --------- *.py # Tools to create my docs in markdown automatically
+│  --------- *.md # Workflow guides
+│  ----- test/ # Test scripts
+│  ----- other files
+|  -- Other files like .gitignore, README.md, etc.
+|  -- forked_folders/ # Other folders if the origin of the repo was forked
+|  -- forked_files/ # Other files if the origin of the repo was forked
 
-# NOTE: jarvis/ development directory is IGNORED on main branch
-# Only jarvis_prod/ (clean production code) is visible on GitHub
+# The next folder is created from hooks and doc_utils, but this folder is ignored in the dev branch. Includes only clean production code and minimal comments.
+|  -- src_prod/ # Codebase stripped of long comments and annotations
+│  ----- main.py
+│  ----- assets/ folder
+│  ----- src/ folders # src folders classified by concern
+│  ----- test/
+
+'GITHUB REPOSITORY'
+|  -- src_prod/ # Codebase stripped of long comments and annotations
+│  ----- main.py
+│  ----- assets/ folder
+│  ----- src/ folders
+│  ----- test/ # Test scripts
+│  ----- other files
+|  -- Other files like .gitignore, README.md, etc.
+|  -- forked_folders/ # Other folders if the origin of the repo was forked
+|  -- forked_files/ # Other files if the origin of the repo was forked
+
+# NOTE: src_dev/ directory is IGNORED on main branch
+# Only src_prod/ (clean production code) is visible on GitHub. The docs of the repository are not shared directly in the repo, they will be shared via GitHub pages.
 ```
 
 ---
