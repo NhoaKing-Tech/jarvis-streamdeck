@@ -1,0 +1,5 @@
+def function(arg1, arg2):
+    """Describe function here, incluing arguments and return"""
+    return
+
+        

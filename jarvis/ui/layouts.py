@@ -162,8 +162,6 @@ def create_layouts(
         15: {"icon": "terminal_default.png", "action": actions.hk_terminal},      # Direct reference: no arguments needed
         16: {"icon": "terminal_jarvisbusybee.png", "action": actions.terminal_env_jarvis},  # Direct reference: no arguments needed
         17: {"icon": "terminal_busybee.png", "action": actions.terminal_env_busybee},       # Direct reference: no arguments needed
-        18: {"icon": "terminal_pandora.png", "action": actions.terminal_env_jarvis},        # Direct reference: no arguments needed
-        19: {"icon": "terminal_website.png", "action": actions.terminal_env_jarvis},        # Direct reference: no arguments needed
         20: {"icon": "freecodecamp.png", "action": actions.url_freecodecamp},     # Direct reference: no arguments needed
         21: {"icon": "claude.png", "action": actions.url_claude},                 # Direct reference: no arguments needed
         22: {"icon": "chatgpt.png", "action": actions.url_chatgpt},               # Direct reference: no arguments needed
@@ -193,44 +191,27 @@ def create_layouts(
 
     layouts["git_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     layouts["busybee_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     layouts["python_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
+        1: {"label": "Simple Snippet", "color": "#31377e", "action": actions.type_snippet("function_class")},
     }
 
     layouts["html_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     layouts["css_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     layouts["javascript_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     # =====================================================================================
@@ -267,76 +248,6 @@ def create_layouts(
 
     layouts["terminal_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"icon": "spotify.png", "action": actions.spotify},
-        2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-        3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
     }
 
     return layouts
-
-""" EXAMPLE
-# Main layout
-layouts["main"] = {
-    0: {"icon": "spotify.png", "action": actions.spotify},
-    1: {"icon": "obsidian.png", "action": actions.open_obsidian(OBSIDIAN_VAULT)},
-    ,
-    2: {"icon": "jarviscode.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},
-    3: {"icon": "busybeecode.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},
-    10: {"icon": "python.png", "action": switch_layout("python")},
-    18: {"icon": "github.png", "color": "#2f3036", "action": actions.url_github},
-    19: {"icon": "git_layout.png", "color": "#2f3036", "action": switch_layout("git")},
-    4: {"icon": "terminal.png", "action": actions.hk_terminal},
-    5: {"icon": "terminalenv.png", "action": actions.open_terminal_env},
-    12: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},
-    14: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))},
-
-    13: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},
-    6: {"icon": "busybee.png", "action": switch_layout("busybee")}, #icon <a href="https://www.flaticon.com/free-icons/bee" title="bee icons">Bee icons created by Indielogy - Flaticon</a>
-    7: {"icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))}, # <a href="https://www.flaticon.com/free-icons/files-and-folders" title="files and folders icons">Files and folders icons created by juicy_fish - Flaticon</a>
-    #9: {"label": "Text", "color": "pink", "action": type_message},
-    #10: {"label": "Copy", "color": "blue", "action": copy},
-    #11: {"label": "Paste", "color": "pink", "action": paste},
-    #12: {"label": "Hola", "color": "blue", "action": type_hola},
-    #13: {"label": "More", "color": "purple", "action": lambda: switch_layout("terminal")},
-    31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},
-}
-# Terminal layout
-layouts["terminal"] = {
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
-}
-layouts["busybee"] = {
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
-}
-layouts["python"] = {
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
-}
-layouts["git"] = {
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-    2: {"label": "Simple Snippet", "color": "cyan", "action": actions.type_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
-}
-layouts["terminal_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/icon-hubs" title="Icon Hubs"> Icon Hubs </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-    1: {"label": "Run LS", "color": "pink", "action": actions.type_text("ls\n")},
-    2: {"label": "Simple Snippet", "color": "blue", "action": actions.type_snippet("hello")},
-    3: {"label": "Python Boilerplate", "color": "orange", "action": actions.type_snippet("python_boilerplate")},
-}
-layouts["conda_layout"] = { #<div> Icons made by <a href="https://www.flaticon.com/authors/muhammad-ali" title="Muhammad Ali"> Muhammad Ali </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-    0: {"icon": "back.png", "color": "white", "action": switch_layout("main")},
-    1: {"label": "List environments", "labelcolor": "#ff008c", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},
-    2: {"label": "List installed packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},
-    3: {"label": "List package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},
-    4: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},
-    5: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},
-}
-"""

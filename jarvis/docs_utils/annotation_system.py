@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Comment Annotation System for Jarvis Documentation
+Comment Annotation System
 
 This module provides tools to manage different types of comments:
 - DEV: Detailed development explanations for documentation
