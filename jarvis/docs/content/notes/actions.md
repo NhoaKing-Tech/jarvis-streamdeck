@@ -16,6 +16,7 @@ date: 2025-10-03
 <a id="general-1"></a>
 
 render_keys import moved inside toggle_mic function to avoid circular import
+
 This breaks the cycle: actions -> ui.render -> core.logic -> actions
 
 *[Source: actions.py:75]*
@@ -25,8 +26,11 @@ This breaks the cycle: actions -> ui.render -> core.logic -> actions
 <a id="general-2"></a>
 
 Global Configuration with Dynamic Initialization chosen for:
+
 - Simple and straightforward for this hardware integration use case
+
 - Balances testability with StreamDeck API constraints
+
 - Provides clear error handling and initialization validation
 
 *[Source: actions.py:207]*
@@ -48,7 +52,9 @@ VSCode needs time to initialize
 <a id="function:-hk_terminal-1"></a>
 
 This is preferred over direct terminal commands because it uses the
+
 desktop environment's configured default rather than hardcoding a
+
 specific terminal emulator.
 
 *[Source: actions.py:601]*
@@ -70,6 +76,7 @@ Press keys in forward order
 <a id="function:-spotify-1"></a>
 
 No lambda wrapper needed - this function doesn't take parameters and executes immediately,
+
 so it doesn't need the factory pattern used by parameterized functions.
 
 *[Source: actions.py:424]*

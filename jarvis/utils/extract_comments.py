@@ -233,7 +233,7 @@ class CommentBlock:
 
     def get_text(self) -> str:
         """Get comment text without tag prefixes."""
-        return '\n'.join(self.lines)
+        return '\n\n'.join(self.lines)
 
 
 @dataclass

@@ -16,6 +16,7 @@ date: 2025-10-03
 <a id="general-1"></a>
 
 Generalize nautilus_path function to work with other applications too (for obsidian is already done)
+
 Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized.
 
 *[Source: actions.py:65]*

@@ -16,7 +16,9 @@ date: 2025-10-03
 <a id="general-1"></a>
 
 Cache Spotify running state to avoid repeated pgrep calls
+
 Use D-Bus to communicate directly with Spotify (more efficient)
+
 Implement timeout for Spotify launch detection
 
 *[Source: actions.py:458]*
@@ -26,6 +28,7 @@ Implement timeout for Spotify launch detection
 <a id="general-2"></a>
 
 Hotkey simulation is faster than process discovery and launching
+
 The desktop environment handles terminal selection and configuration
 
 *[Source: actions.py:609]*
@@ -37,6 +40,7 @@ The desktop environment handles terminal selection and configuration
 <a id="function:-open_obsidian-1"></a>
 
 wmctrl window search typically <10ms
+
 Could cache window list to avoid repeated wmctrl calls
 
 *[Source: actions.py:842]*
