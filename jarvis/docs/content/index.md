@@ -1,50 +1,34 @@
 ---
-title: Jarvis StreamDeck Documentation
-tags:
-  - jarvis
-  - index
-date: 2025-09-18
+title: "Jarvis Documentation"
+tags: [index, home]
+description: "Auto-generated documentation from code comments"
+date: 2025-10-02
 ---
 
-# 🤖 Jarvis StreamDeck Documentation
+# Jarvis Documentation
 
-Welcome to the comprehensive documentation for the Jarvis StreamDeck automation system.
+This documentation is automatically generated from code comments.
 
-## 📋 Core Modules
+**Last Updated**: 2025-10-02 19:57:16
 
-- [[main]] - Main application entry point
-- [[application]] - Core application logic
-- [[actions]] - StreamDeck key actions and functions
-- [[logic]] - Event handling and core logic
-- [[lifecycle]] - Resource cleanup and safety
+---
 
-## 🎨 UI Modules
+## Documentation Categories
 
-- [[render]] - Visual rendering system
-- [[layouts]] - Layout management and definitions
+### [DEBUG](./debug/)
 
-## ⚙️ Configuration
+DEBUG comments
 
-- [[setup_config]] - Interactive configuration wizard
-- [[initialization]] - Environment initialization
+**3 document(s)**
 
-## 🔧 Utility Modules
+### [Educational Content](./educational/)
 
-- [[terminal_prints]] - Terminal output utilities
-- [[reset_jarvis]] - Emergency reset and recovery
+Computer science concepts, design patterns, and learning material
 
-## 🧪 Testing
+**3 document(s)**
 
-- [[grid_test]] - Grid layout testing utilities
+### [Implementation Notes](./notes/)
 
-## 📦 Setup
+Important implementation details and gotchas
 
-- [[setup]] - Package setup and installation
-
-## 🚀 Getting Started
-
-1. Start with [[setup_config]] to configure your environment
-2. Review [[main]] to understand the main application flow
-3. Explore [[actions]] for available StreamDeck functions
-4. Customize layouts in [[render]] and [[layouts]]
-5. Keep [[reset_jarvis]] handy for troubleshooting
+**3 document(s)**

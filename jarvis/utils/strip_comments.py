@@ -33,19 +33,19 @@ import shutil
 # Default tags to strip from production code
 DEFAULT_STRIP_TAGS = [
     'EDU',      # Educational content - too verbose for production
-    'NOTE',     # Implementation notes - internal use only
     'TOCLEAN',  # Temporary notes - definitely remove
-    'FIXME',    # Issues should be fixed before production
-    'TODO',     # Remove TODO markers from production
-    'HACK',     # Don't advertise workarounds
     'DEBUG',    # Debug comments should not be in production
     'REVIEW',   # Review comments are for development
 ]
 
 # Tags to keep in production (if any)
 KEEP_TAGS = [
+    'NOTE',       # Implementation notes - helpful for developers
     'IMPORTANT',  # Critical information should stay
     'OPTIMIZE',   # Performance notes are useful
+    'TODO',       # Future work - track in code
+    'FIXME',      # Known issues - transparent about problems
+    'HACK',       # Workarounds - document technical debt
 ]
 
 

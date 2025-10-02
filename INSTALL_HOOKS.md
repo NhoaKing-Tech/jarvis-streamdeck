@@ -134,7 +134,6 @@ cd quartz-preview && npx quartz build --serve
 
 ```bash
 # 1. Edit code
-vim jarvis/actions/actions.py
 
 # 2. Commit (hooks do everything automatically!)
 git commit -m "Add feature"

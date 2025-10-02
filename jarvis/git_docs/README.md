@@ -16,7 +16,8 @@
 | [07_TROUBLESHOOTING.md](./07_TROUBLESHOOTING.md) | Common issues and solutions | Problem solving |
 | [08_TECHNICAL_REFERENCE.md](./08_TECHNICAL_REFERENCE.md) | API and script details | Developers |
 | [09_QUARTZ_PREVIEW.md](./09_QUARTZ_PREVIEW.md) | Local Quartz setup and how it works | Preview setup |
-| [10_GIT_HOOKS.md](./10_GIT_HOOKS.md) | **NEW!** Pre-commit & post-commit hooks explained | Automation |
+| [10_GIT_HOOKS.md](./10_GIT_HOOKS.md) | Pre-commit & post-commit hooks explained | Automation |
+| [11_TAG_USAGE_GUIDE.md](./11_TAG_USAGE_GUIDE.md) | **NEW!** Which tags to keep vs. strip | Tag usage |
 
 ---
 
@@ -165,6 +166,7 @@ Demonstrates professional practices for technical writing roles.
 | 08 | [TECHNICAL_REFERENCE.md](./08_TECHNICAL_REFERENCE.md) | Script API docs |
 | 09 | [QUARTZ_PREVIEW.md](./09_QUARTZ_PREVIEW.md) | Local preview setup |
 | 10 | [GIT_HOOKS.md](./10_GIT_HOOKS.md) | Git hooks automation |
+| 11 | [TAG_USAGE_GUIDE.md](./11_TAG_USAGE_GUIDE.md) | Tag usage best practices |
 
 ---
 

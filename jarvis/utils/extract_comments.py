@@ -31,11 +31,32 @@ from dataclasses import dataclass, asdict
 from collections import defaultdict
 
 
+#EDU Comments vs Docstrings - How this tool extracts tags
+#EDU
+#EDU This tool ONLY extracts from COMMENT LINES (lines starting with #)
+#EDU It does NOT extract from DOCSTRINGS (text in triple quotes """)
+#EDU
+#EDU This WORKS (will be extracted):
+#EDU   #EDU Python Classes - Blueprints for creating objects
+#EDU   #EDU Classes are used to bundle data together.
+#EDU
+#EDU This does NOT WORK (will be IGNORED by the extractor):
+#EDU   """
+#EDU   #EDU Python Classes - Blueprints for creating objects
+#EDU   #EDU Classes are used to bundle data together.
+#EDU   """
+#EDU
+#EDU Why? Docstrings (""") are strings that Python keeps as documentation, not comments.
+#EDU The tool searches for lines starting with '#' (see line 250: if not stripped.startswith('#'))
+#EDU Tags inside docstrings will NOT be found during extraction.
+#EDU
+#EDU Summary: Always use # for tagged comments if you want them extracted, never """ around tags
+
 # Supported tag types for comment extraction
 SUPPORTED_TAGS = [
     'EDU',      # Educational content - design patterns, CS concepts
     'NOTE',     # Implementation notes and important details
-    'TOCLEAN',  # Temporary notes to clean up
+    'TOCLEAN',  # Temporary notes to clean up. Needs polishing.
     'FIXME',    # Known issues that need fixing
     'TODO',     # Future improvements
     'HACK',     # Workarounds and temporary solutions
@@ -46,13 +67,164 @@ SUPPORTED_TAGS = [
 ]
 
 
+#EDU Python Classes - Blueprints for creating objects
+#EDU
+#EDU Classes are used to bundle data (attributes) and functionality (methods) together.
+#EDU They let you create multiple objects (instances) with the same structure but different values.
+#EDU
+#EDU Naming convention: Classes use PascalCase (CommentBlock, ExtractionResult, MyClass)
+#EDU This distinguishes them from functions/variables which use snake_case.
+#EDU
+#EDU Special methods (also called "dunder methods" - double underscore):
+#EDU   __init__(self, ...):   Constructor - initializes a new instance with given values
+#EDU                          Example: person = Person("Alice", 30)
+#EDU
+#EDU   __repr__(self):        String representation for debugging/logging
+#EDU                          Example: print(person)  # Person(name='Alice', age=30)
+#EDU
+#EDU   __eq__(self, other):   Equality comparison - defines how instances are compared
+#EDU                          Example: person1 == person2  # Compares their attributes
+#EDU
+#EDU @dataclass decorator - Automatic boilerplate generation for Python classes
+#EDU
+#EDU Without @dataclass:
+#EDU   class Person:
+#EDU       def __init__(self, name, age):
+#EDU           self.name = name
+#EDU           self.age = age
+#EDU       def __repr__(self):
+#EDU           return f"Person(name={self.name}, age={self.age})"
+#EDU       def __eq__(self, other):
+#EDU           return self.name == other.name and self.age == other.age
+#EDU
+#EDU With @dataclass:
+#EDU   @dataclass
+#EDU   class Person:
+#EDU       name: str
+#EDU       age: int
+#EDU
+#EDU The @dataclass decorator automatically generates __init__, __repr__, and __eq__ methods
+#EDU based on the class attributes with type annotations. It eliminates ~15 lines of boilerplate.
+#EDU
+#EDU Dunder methods vs Instance methods - When are they called?
+#EDU
+#EDU Dunder methods (magic methods):
+#EDU   - Called AUTOMATICALLY by Python when you perform specific operations
+#EDU   - You don't call them directly in your code
+#EDU   - Examples:
+#EDU       comment = CommentBlock(...)     # Triggers __init__() automatically
+#EDU       print(comment)                  # Triggers __repr__() automatically
+#EDU       comment1 == comment2            # Triggers __eq__() automatically
+#EDU
+#EDU Instance methods (regular methods):
+#EDU   - Called EXPLICITLY by you in your code
+#EDU   - You must write the method call yourself
+#EDU   - Examples:
+#EDU       comment.to_dict()               # You explicitly call this method
+#EDU       comment.get_text()              # You explicitly call this method
+#EDU
+#EDU Summary: Dunder methods = implicit/automatic, Instance methods = explicit/manual
+#EDU
+#EDU Do classes have return statements?
+#EDU
+#EDU Class definition - NO return, it's just a blueprint:
+#EDU   class Person:
+#EDU       name: str
+#EDU       age: int
+#EDU
+#EDU __init__ method - NO return (implicitly returns None):
+#EDU   def __init__(self, name, age):
+#EDU       self.name = name
+#EDU       self.age = age
+#EDU       # No return statement needed
+#EDU
+#EDU Regular instance methods - CAN have return statements:
+#EDU   def get_text(self) -> str:
+#EDU       return '\n'.join(self.lines)    # Returns a string
+#EDU
+#EDU   def to_dict(self) -> Dict:
+#EDU       return asdict(self)             # Returns a dictionary
+#EDU
+#EDU Summary: Class definition and __init__ don't return values, but regular methods can return
+#EDU anything like normal functions.
+
 @dataclass
 class CommentBlock:
     """Represents a block of tagged comments."""
-    tag: str
-    lines: List[str]
-    line_number: int
-    file_path: str
+    #EDU Example: Given this code with comments:
+    #EDU     #EDU Python Classes - Blueprints for creating objects
+    #EDU     #EDU
+    #EDU     #EDU Classes are used to bundle data and functionality together.
+    #EDU     @dataclass
+    #EDU     class CommentBlock:
+    #EDU What gets stored in ONE CommentBlock object:
+    #EDU     CommentBlock(
+    #EDU         tag="EDU",
+    #EDU         lines=[
+    #EDU             "Python Classes - Blueprints for creating objects",
+    #EDU             "",
+    #EDU             "Classes are used to bundle data and functionality together."
+    #EDU         ],
+    #EDU         line_number=49,
+    #EDU         file_path="/path/to/extract_comments.py",
+    #EDU         context=None (as it's outside any function/class)
+    #EDU     )
+    #EDU What to_dict() returns (for JSON serialization):
+    #EDU     {
+    #EDU         'tag': 'EDU',
+    #EDU         'lines': [
+    #EDU             'Python Classes - Blueprints for creating objects',
+    #EDU             '',
+    #EDU             'Classes are used to bundle data and functionality together.'
+    #EDU         ],
+    #EDU         'line_number': 49,
+    #EDU         'file_path': '/path/to/extract_comments.py',
+    #EDU         'context': None
+    #EDU     }
+    #EDU What get_text() returns (just the comment text joined with newlines):
+    #EDU     "Python Classes - Blueprints for creating objects\\n\\nClasses are used to bundle data and functionality together."
+    #EDU
+    #EDU How many lines are in a CommentBlock?
+    #EDU
+    #EDU A CommentBlock is a CONTINUOUS GROUP of tagged comment lines.
+    #EDU It can be 1 line or 1000 lines - there's no fixed size.
+    #EDU
+    #EDU The block ENDS when one of these happens:
+    #EDU   1. Non-comment line appears (code, blank line without #)
+    #EDU   2. Different tag starts (switching from #EDU to #NOTE)
+    #EDU   3. File ends
+    #EDU
+    #EDU Examples of CommentBlock boundaries:
+    #EDU
+    #EDU   Single block (3 lines):
+    #EDU     #EDU Line 1
+    #EDU     #EDU Line 2
+    #EDU     #EDU Line 3
+    #EDU
+    #EDU   Two blocks separated by code:
+    #EDU     #EDU Block 1 line 1
+    #EDU     #EDU Block 1 line 2
+    #EDU     def foo():          # ← Code ends block 1
+    #EDU         #EDU Block 2 line 1  # ← New block starts
+    #EDU
+    #EDU   Two blocks with different tags:
+    #EDU     #EDU Block 1
+    #EDU     #NOTE Block 2       # ← Different tag = new block
+    #EDU
+    #EDU   One block with continuation lines:
+    #EDU     #EDU This starts the block
+    #EDU     # This continues (no tag, but still a comment in the block)
+    #EDU
+    #EDU The logic that determines block boundaries is in the CommentExtractor class:
+    #EDU   - extract_from_file() method (lines 269-364)
+    #EDU   - Lines 299-310: Detects non-comment lines and ends the current block
+    #EDU   - Lines 315-334: Detects tag changes and starts new blocks
+    #EDU   - Lines 336-350: Handles continuation lines within the same block
+
+    tag: str # Tag type (EDU, NOTE, TODO, etc.)
+    lines: List[str] # Lines of comment text
+    line_number: int # Starting line number in source file
+    file_path: str # Source file path
     context: Optional[str] = None  # Function/class context
 
     def to_dict(self) -> Dict:
@@ -85,6 +257,27 @@ class ExtractionResult:
         }
 
 
+#EDU When to use @dataclass vs regular class?
+#EDU
+#EDU @dataclass - Use for classes that primarily STORE DATA:
+#EDU   - Main purpose is to bundle related fields together
+#EDU   - Minimal logic, mostly just holding values
+#EDU   - Examples: CommentBlock, ExtractionResult, Person, Config
+#EDU   - Think of it as a simple data container
+#EDU
+#EDU Regular class - Use for classes that primarily contain BEHAVIOR/LOGIC:
+#EDU   - Main purpose is to perform operations and processing
+#EDU   - Has complex methods and algorithms
+#EDU   - Examples: CommentExtractor, Parser, DatabaseConnection, APIClient
+#EDU   - Like traditional OOP classes with business logic
+#EDU
+#EDU In this file:
+#EDU   CommentBlock (dataclass)      → Data container: stores tag, lines, line_number
+#EDU   ExtractionResult (dataclass)  → Data container: stores file_path, total_comments
+#EDU   CommentExtractor (regular)    → Processing engine: extracts, parses, builds maps
+#EDU
+#EDU Summary: @dataclass = data storage, Regular class = behavior/logic
+
 class CommentExtractor:
     """Extract and categorize tagged comments from Python source files."""
 
@@ -96,6 +289,32 @@ class CommentExtractor:
             tag_list: List of tags to extract. If None, uses SUPPORTED_TAGS.
         """
         self.tags = tag_list or SUPPORTED_TAGS
+
+        #EDU Regex pattern for tag matching - How tags are detected
+        #EDU
+        #EDU Pattern: rf'^\s*#\s*({tag_pattern})[\s:]*(.*)$'
+        #EDU
+        #EDU Breaking down the regex:
+        #EDU   ^\s*        - Start of line, optional leading whitespace
+        #EDU   #           - The hash/pound symbol
+        #EDU   \s*         - Optional whitespace after #
+        #EDU   ({tag_pattern})  - Captures THE FIRST TAG (EDU, NOTE, TODO, etc.)
+        #EDU   [\s:]*      - Optional whitespace or colons after tag
+        #EDU   (.*)$       - Captures everything else as content (until end of line)
+        #EDU
+        #EDU This pattern matches:
+        #EDU   #EDU content          → tag: "EDU", content: "content"
+        #EDU   # EDU content         → tag: "EDU", content: "content"
+        #EDU   #EDU: content         → tag: "EDU", content: "content"
+        #EDU   #  EDU  :  content    → tag: "EDU", content: "content"
+        #EDU
+        #EDU IMPORTANT: Only the FIRST tag on a line is recognized!
+        #EDU If you write:  #EDU #NOTE some text
+        #EDU It becomes:    tag: "EDU", content: "#NOTE some text"
+        #EDU The "#NOTE" is treated as regular text, NOT a second tag.
+        #EDU
+        #EDU Always use ONE tag per line to avoid confusion.
+
         # Create regex pattern to match any of the tags
         # Matches: # TAG: content or #TAG content or # TAG content
         tag_pattern = '|'.join(self.tags)
@@ -169,7 +388,7 @@ class CommentExtractor:
                     total_count += 1
                 else:
                     # Continue current block
-                    if content:
+                    if content and current_block is not None:
                         current_block.lines.append(content)
 
             elif current_block:
