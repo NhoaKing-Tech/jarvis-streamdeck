@@ -17,7 +17,7 @@ date: 2025-10-03
 
 ## Configuration Flow Architecture
 How environment variables in config.env reach this module:
-config.env is generated with setup_config.py script (to be executed in the jarvis directory)
+config.env is generated with setup_config.py script (to be executed in the jarvis directory).
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
 3. __main__.py delegates to core.application which reads environment variables using os.getenv()

@@ -8,25 +8,25 @@ Configuration initialized via config.initialization.init_module().
 # EDU: 
 # EDU: How environment variables in config.env reach this module:
 # EDU: 
-# EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory)
+# EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory).
 # EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 # EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
 # EDU: 3. __main__.py delegates to core.application which reads environment variables using os.getenv()
 # EDU: 4. core.application calls config.initialization.init_jarvis() with all configuration
 # EDU: 5. init_jarvis() uses the general init_module() function to set global variables in this module
 # EDU: 6. This module stores them in global variables for use by action functions
-# EDU:
+# EDU: 
 # EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
-# EDU:
+# EDU: 
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.
-# EDU:
+# EDU: 
 # EDU: ### Why not read environment variables directly in this module?
 # EDU: 
 # EDU: We could have each action function call os.getenv() directly, but I chose centralized global configuration instead because:
 # EDU: - Keeps configuration loading centralized in core.application, so it is easier to maintain
 # EDU: - Makes dependencies explicit (you can see what each module needs)
 # EDU: - Better separation of concerns (core.application handles config, this module handles actions)
-# EDU:
+# EDU: 
 # EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
 # EDU: Module Functionality Overview
