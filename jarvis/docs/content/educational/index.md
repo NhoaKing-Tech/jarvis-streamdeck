@@ -15,4 +15,3 @@ Computer science concepts, design patterns, and learning material
 
 - [Actions](./actions.md)
 - [Extract Comments](./extract_comments.md)
-- [Quartz Markdown](./quartz_markdown.md)

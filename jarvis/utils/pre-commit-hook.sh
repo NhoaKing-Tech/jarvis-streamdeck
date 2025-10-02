@@ -102,48 +102,70 @@ if [[ "$CURRENT_BRANCH" == "dev" ]]; then
     fi
 
 elif [[ "$CURRENT_BRANCH" == "main" ]]; then
-    echo -e "${GREEN}🏭 MAIN BRANCH WORKFLOW: Production verification${NC}"
+    echo -e "${GREEN}🏭 MAIN BRANCH WORKFLOW: Auto-strip production tags${NC}"
 
-    # Get list of Python files being committed
-    PYTHON_FILES=$(git diff --cached --name-only | grep -E '\.py$' || true)
+    # Get list of Python files in jarvis/ being committed
+    PYTHON_FILES=$(git diff --cached --name-only | grep -E '^jarvis/.*\.py$' || true)
 
     if [ -n "$PYTHON_FILES" ]; then
-        echo -e "${BLUE}🔍 Checking for tagged comments in staged files...${NC}"
+        echo -e "${BLUE}🧹 Auto-stripping EDU and REVIEW tags from Python files...${NC}"
 
-        # Check if any files contain tagged comments that should be stripped
-        FOUND_TAGS=0
+        # Check if strip_comments.py exists
+        if [ ! -f "jarvis/utils/strip_comments.py" ]; then
+            echo -e "${RED}❌ Error: jarvis/utils/strip_comments.py not found${NC}"
+            echo -e "${YELLOW}💡 Commit with --no-verify to skip, or add the script${NC}"
+            exit 1
+        fi
+
+        # Create a temporary directory for processing
+        TEMP_DIR=$(mktemp -d)
+        trap "rm -rf $TEMP_DIR" EXIT
+
+        STRIPPED_COUNT=0
+        TOTAL_LINES_REMOVED=0
 
         for file in $PYTHON_FILES; do
             if [ -f "$file" ]; then
-                # Check for common tags that should not be in production
-                if grep -E '^\s*#\s*(EDU|TOCLEAN|FIXME|TODO|HACK|DEBUG|REVIEW)[\s:]' "$file" > /dev/null; then
-                    echo -e "${RED}❌ Found tagged comments in: $file${NC}"
-                    FOUND_TAGS=1
+                # Check if file contains tags that should be stripped (EDU or REVIEW only)
+                if grep -E '^\s*#\s*(EDU|REVIEW)[\s:]' "$file" > /dev/null; then
+                    echo -e "${BLUE}   📝 Stripping tags from: $file${NC}"
+
+                    # Copy file to temp location
+                    TEMP_FILE="$TEMP_DIR/$(basename $file)"
+                    cp "$file" "$TEMP_FILE"
+
+                    # Strip comments (only EDU and REVIEW tags by default)
+                    if $PYTHON_CMD jarvis/utils/strip_comments.py "$file" --output "$TEMP_FILE" 2>/dev/null; then
+                        # Count lines removed
+                        ORIGINAL_LINES=$(wc -l < "$file")
+                        NEW_LINES=$(wc -l < "$TEMP_FILE")
+                        LINES_REMOVED=$((ORIGINAL_LINES - NEW_LINES))
+
+                        if [ $LINES_REMOVED -gt 0 ]; then
+                            # Replace the file with stripped version
+                            cp "$TEMP_FILE" "$file"
+
+                            # Re-stage the modified file
+                            git add "$file"
+
+                            STRIPPED_COUNT=$((STRIPPED_COUNT + 1))
+                            TOTAL_LINES_REMOVED=$((TOTAL_LINES_REMOVED + LINES_REMOVED))
+
+                            echo -e "${GREEN}      ✓ Removed $LINES_REMOVED lines${NC}"
+                        fi
+                    else
+                        echo -e "${RED}      ✗ Failed to strip comments from $file${NC}"
+                        exit 1
+                    fi
                 fi
             fi
         done
 
-        if [ $FOUND_TAGS -eq 1 ]; then
-            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-            echo -e "${RED}ERROR: Tagged comments found in main branch commit${NC}"
-            echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-            echo -e "${YELLOW}Main branch should only contain clean production code.${NC}"
-            echo -e "${YELLOW}${NC}"
-            echo -e "${YELLOW}Options:${NC}"
-            echo -e "${YELLOW}1. Strip comments from files:${NC}"
-            echo -e "${YELLOW}   python jarvis/utils/strip_comments.py <file> --output <file>${NC}"
-            echo -e "${YELLOW}${NC}"
-            echo -e "${YELLOW}2. Use squash merge from dev (recommended):${NC}"
-            echo -e "${YELLOW}   git checkout dev${NC}"
-            echo -e "${YELLOW}   git checkout main${NC}"
-            echo -e "${YELLOW}   git merge --squash dev${NC}"
-            echo -e "${YELLOW}${NC}"
-            echo -e "${YELLOW}3. Skip this check (not recommended):${NC}"
-            echo -e "${YELLOW}   git commit --no-verify${NC}"
-            echo ""
-            exit 1
+        if [ $STRIPPED_COUNT -gt 0 ]; then
+            echo -e "${GREEN}✅ Stripped tags from $STRIPPED_COUNT file(s), removed $TOTAL_LINES_REMOVED lines${NC}"
+            echo -e "${BLUE}   Kept tags: NOTE, IMPORTANT, OPTIMIZE, TODO, DEBUG, FIXME, HACK${NC}"
         else
-            echo -e "${GREEN}✅ No tagged comments found - code is clean${NC}"
+            echo -e "${GREEN}✅ No EDU/REVIEW tags found - code is already clean${NC}"
         fi
     fi
 

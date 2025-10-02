@@ -9,7 +9,7 @@ date: 2025-10-02
 
 This documentation is automatically generated from code comments.
 
-**Last Updated**: 2025-10-02 19:57:16
+**Last Updated**: 2025-10-02 22:39:28
 
 ---
 
@@ -25,7 +25,7 @@ DEBUG comments
 
 Computer science concepts, design patterns, and learning material
 
-**3 document(s)**
+**2 document(s)**
 
 ### [Implementation Notes](./notes/)
 

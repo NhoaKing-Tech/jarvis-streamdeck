@@ -56,6 +56,16 @@ jobs:
             cp -r jarvis/docs/assets quartz/content/
           fi
 
+          # Copy custom styles from local preview
+          if [ -f "quartz-preview/quartz/styles/custom.scss" ]; then
+            cp quartz-preview/quartz/styles/custom.scss quartz/quartz/styles/custom.scss
+          fi
+
+          # Copy layout configuration from local preview
+          if [ -f "quartz-preview/quartz.layout.ts" ]; then
+            cp quartz-preview/quartz.layout.ts quartz/quartz.layout.ts
+          fi
+
       - name: Configure Quartz
         run: |
           cd quartz
@@ -83,14 +93,15 @@ jobs:
                 },
                 colors: {
                   lightMode: {
-                    light: "#faf8f8",
-                    lightgray: "#e5e5e5",
-                    gray: "#b8b8b8",
-                    darkgray: "#4e4e4e",
-                    dark: "#2b2b2b",
-                    secondary: "#284b63",
-                    tertiary: "#84a59d",
+                    light: "#161618",
+                    lightgray: "#393639",
+                    gray: "#646464",
+                    darkgray: "#d4d4d4",
+                    dark: "#ebebec",
+                    secondary: "#6fa8dc",
+                    tertiary: "#93c47d",
                     highlight: "rgba(143, 159, 169, 0.15)",
+                    textHighlight: "#ff69b488",
                   },
                   darkMode: {
                     light: "#161618",
@@ -98,9 +109,10 @@ jobs:
                     gray: "#646464",
                     darkgray: "#d4d4d4",
                     dark: "#ebebec",
-                    secondary: "#7b97aa",
-                    tertiary: "#84a59d",
+                    secondary: "#6fa8dc",
+                    tertiary: "#93c47d",
                     highlight: "rgba(143, 159, 169, 0.15)",
+                    textHighlight: "#ff69b488",
                   },
                 },
               },

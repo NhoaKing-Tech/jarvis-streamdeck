@@ -25,7 +25,7 @@ I wanted a physical control panel for my development workflow - launching projec
 - 📖 **Step-by-Step Guides** - Installation, configuration, and troubleshooting written for actual humans
 - 🏗️ **Architecture Documentation** - I explain my design decisions and the trade-offs I considered
 - 🤖 **Automated Doc Generation** - Git hooks + Python scripts keep docs synced with code automatically
-- 👥 **Multi-Audience Strategy** - Custom comment system (PROD/DEV/ARCH/EDU) for different readers
+- 👥 **Tagged Comment System** - Organized comments (#EDU, #NOTE, #FIXME, etc.) for documentation extraction
 - ✅ **Production-Ready** - Runs as a systemd service with proper lifecycle management
 
 ### Technical Features
@@ -57,7 +57,13 @@ I wanted a physical control panel for my development workflow - launching projec
 - Other custom actions based on my workflow needs
 - Enhanced testing coverage
 - Better error handling
-- Publish the docs of this project as part of my portfolio GitHub pages with Quartz.
+
+**Documentation Deployment:**
+- 📖 Documentation is automatically deployed to GitHub Pages using Quartz
+- 🔗 **View Live Documentation:** [https://nhoaking-tech.github.io/jarvis-streamdeck](https://nhoaking-tech.github.io/jarvis-streamdeck)
+- 🎨 Custom dark-mode-only theme with color-coded text (bold=blue, italic=green, links=pink)
+- 🤖 Fully automated via GitHub Actions on push to main
+- 🔄 Local preview available with `quartz-preview/` setup
 
 ---
 
@@ -65,9 +71,10 @@ I wanted a physical control panel for my development workflow - launching projec
 
 | For Users | For Contributors | For Technical Writers |
 |-----------|-----------------|---------------------|
-| [Quick Start](#quick-start) | [Project Structure](#project-structure) | [Writing Samples](docs/WRITING_SAMPLES.md) |
-| [Full Setup](#detailed-installation) | [Architecture](DOCUMENTATION.md) | [Documentation System](#documentation-philosophy) |
-| [Troubleshooting](#troubleshooting) | [Contributing](CONTRIBUTING.md) | [API Reference](docs/API_REFERENCE.md) |
+| [Quick Start](#quick-start) | [Project Structure](#project-structure) | [Documentation System](#documentation-philosophy) |
+| [Full Setup](#detailed-installation) | [Complete Workflow](#complete-workflow-summary) | [Git Hooks Setup](#git-hooks-setup) |
+| [Troubleshooting](#troubleshooting) | [Git Workflow Guides](jarvis/git_docs/) | [Quartz Preview](#quartz-documentation-preview) |
+| [Customization](#customization) | [Install Hooks](INSTALL_HOOKS.md) | [GitHub Pages Deploy](#github-pages-deployment) |
 
 ---
 
@@ -195,12 +202,11 @@ jarvis-streamdeck/
 |   |   |-- __init__.py
 |   |   |-- reset_jarvis.py         # Deck reset utility (use if layout gets stuck)
 |   |   |-- terminal_prints.py      # Formatted console output
-|   |-- docs_utils/                 # ⭐ Documentation automation system
-|   |   |-- annotation_system.py    # Multi-audience comment classification
-|   |   |-- quartz_markdown.py      # Auto-generate docs from docstrings
-|   |   |-- branch_manager.py       # Dev/production workflow management
-|   |   |-- create_production_build.py  # Production build script
-|   |   |-- deploy_to_github.py     # GitHub deployment automation
+|   |   |-- extract_comments.py     # ⭐ Extract tagged comments from code
+|   |   |-- generate_docs.py        # ⭐ Generate markdown from extracted comments
+|   |   |-- strip_comments.py       # ⭐ Strip tagged comments for production
+|   |   |-- pre-commit-hook.sh      # ⭐ Pre-commit git hook script
+|   |   |-- post-commit-hook.sh     # ⭐ Post-commit git hook script
 |   |-- assets/                     # Icons, fonts, scripts, snippets
 |   |   |-- jarvisicons/            # Custom StreamDeck button icons
 |   |   |-- bash_scripts/           # Executable bash scripts
@@ -210,6 +216,9 @@ jarvis-streamdeck/
 |   |   |-- grid_test.py            # StreamDeck connection test
 |   |-- docs/                       # Auto-generated documentation
 |   |   |-- content/                # Markdown documentation files
+|   |-- git_docs/                   # Documentation workflow guides
+|   |   |-- README.md               # Documentation system overview
+|   |   |-- 00-11_*.md              # Detailed workflow guides
 |   |-- __init__.py                 # Package initialization
 |   |-- __main__.py                 # Module entry point (enables python -m jarvis)
 |   |-- main.sh                     # Shell entry point (for systemd service)
@@ -1012,58 +1021,147 @@ I built this utility because when you stop the jarvis service, the StreamDeck ha
 
 ## Documentation Philosophy
 
-### Multi-Audience Comment System
+### Tagged Comment System
 
-One of the things I'm most proud of in this project is the documentation system. I created a custom comment annotation system that lets me write documentation for four different audiences in the same codebase:
+One of the things I'm most proud of in this project is the documentation system. I created a tagged comment system that lets me organize documentation in the same codebase while keeping production code clean:
 
 ```python
-# PROD: Essential production comment
+# EDU: Educational content - design patterns, CS concepts
+# Explains the "why" and "how" for learners
 
-# DEV: Detailed development explanation
-# For developers working on the code
+# NOTE: Implementation notes and important details
+# Critical information for developers
 
-# ARCH: Architecture decision rationale
-# Design choices and trade-offs explained
+# TODO: Future improvements
+# Planned enhancements
 
-# EDU: Educational content
-# Teaching CS concepts for learners
+# FIXME: Known issues that need fixing
+# Bugs to address
+
+# And more: TOCLEAN, HACK, DEBUG, IMPORTANT, REVIEW, OPTIMIZE
 ```
 
 **Why I built this:**
-I was frustrated with documentation always drifting out of sync with code. Separate documentation files get stale, but too many code comments make the code hard to read, and I documented for myself while I learn programming concepts, but I also want to share knowledge with others. Someone new to programming can read the EDU comments, a developer can read the DEV comments, and teams can focus on PROD comments. I wanted a system that scales with the audience.
-
-I wanted a system where:
-1. Documentation lives with the code (never out of sync). I can update code and docs together, and be as much detailed as I want without cluttering the code, because I can filter by audience. I still get locally a full codebase with all the full comments and educational content, without actually having to separate this into different files, which is a nightmare to maintain (I speak from experience).
-2. Different readers get different levels of detail.
-3. It's easy for other contributors to follow the pattern.
-4. I can automatically generate docs for different audiences.
+I was frustrated with documentation always drifting out of sync with code. Separate documentation files get stale, but too many code comments make the code hard to read. I wanted a system where:
+1. Documentation lives with the code (never out of sync)
+2. I can be as detailed as I want without cluttering production code
+3. Documentation automatically updates when code changes
+4. I can generate beautiful docs from these comments
 
 **How it works:**
-I have a docs_utils module that processes the codebase and extracts comments by their prefix. It generates markdown documentation files for each audience. Then the markdown files are stored in `jarvis/docs/content/` and can be viewed with any markdown viewer. I use Obsidian for this, but you can use any markdown viewer. Then to publish the docs, I use Quartz, which is a static site generator for markdown files. I will set up a GitHub Pages site for this later, as I am joining the documentation for this project with the documentation for my transition into tech writing, which I am building with Quartz and Obsidian. Since the GitHub pages site is not ready yet, I will update this README later with the link to the docs site, which will include the documentation for this project, plus all the educational content I am building for myself while I learn programming concepts. The scripts in the docs_utils module are:
-- `annotation_system.py` classifies comments by prefix
-- `quartz_markdown.py` generates markdown docs from docstrings
-- Git pre-commit hooks automatically update docs
-- `branch_manager.py` manages dev vs production documentation. I call production documentation to what I push now to GitHub, and dev documentation is what I keep locally with all the educational content, and the bible of knowledge I am building for myself while I learn programming concepts.
+The documentation pipeline has three main components:
 
-For more details, see [DOCUMENTATION.md](DOCUMENTATION.md).
+1. **`extract_comments.py`** - Parses Python files and extracts tagged comments into structured data
+2. **`generate_docs.py`** - Converts extracted comments into beautiful markdown documentation
+3. **Git hooks** - Automatically run extraction before every commit
+
+```bash
+# Pre-commit hook workflow:
+1. You commit code with tagged comments
+2. Hook detects changed Python files
+3. Extracts comments → generates markdown
+4. Stages markdown files
+5. Commit completes with docs included
+```
+
+Documentation is stored in `jarvis/docs/content/` and deployed to GitHub Pages via Quartz (a static site generator). The workflow is fully automated - I write code with comments, commit, and the docs update automatically.
+
+For complete details on the documentation workflow, see **[jarvis/git_docs/](jarvis/git_docs/)** which contains comprehensive guides:
+- Tag usage and best practices
+- Git hooks setup and automation
+- Quartz preview configuration
+- GitHub Pages deployment
+- Troubleshooting guides
 
 ### Automated Documentation Generation
 
-My git hooks automatically generate documentation before every commit. I discovered recently git hooks and I am hooked (pun intended). This is a game-changer for keeping documentation in sync with code. I know developers already know this, but I never used git hooks before this project, and I am amazed at how powerful they are.
+My git hooks automatically generate documentation before every commit. This is a game-changer for keeping documentation in sync with code.
 
 ```bash
-# .git/hooks/pre-commit
+# .git/hooks/pre-commit (simplified view)
 #!/usr/bin/env bash
-python3 jarvis/docs_utils/quartz_markdown.py
+python jarvis/utils/generate_docs.py jarvis/ --output jarvis/docs/content/
 git add jarvis/docs/content/
 ```
 
 **What this means:**
-- Documentation is always up-to-date
-- I never have to manually copy docstrings
-- Changes to codebase automatically update docs
-- No more "forgot to update the docs" commits or writing the docs weeks later, when you don't remember the details anymore, which is what always happened to me before.
-- It is important to assume that you have amnesia when writing code and documentation, because you will forget the details later, especially if you are learning new concepts and you are not an expert.
+- Documentation is always up-to-date with code
+- No manual documentation generation steps
+- Changes to code automatically update docs
+- No more "forgot to update the docs" commits
+- Deployed automatically to GitHub Pages via GitHub Actions
+
+### Git Hooks Setup
+
+The repository includes pre-commit and post-commit hooks that automate the entire documentation workflow:
+
+**Pre-Commit Hook** (`jarvis/utils/pre-commit-hook.sh`):
+- Runs on `dev` branch when you commit changes
+- Detects modified Python files in `jarvis/`
+- Automatically generates markdown documentation
+- Stages documentation files for inclusion in commit
+- On `main` branch: blocks commits with tagged comments (keeps production clean)
+
+**Post-Commit Hook** (`jarvis/utils/post-commit-hook.sh`):
+- Runs after successful commit on `dev` branch
+- Updates local Quartz preview automatically
+- Copies generated docs to `quartz-preview/content/`
+- Ready for local preview with `npx quartz build --serve`
+
+**Installation:**
+```bash
+# Quick install (from repository root)
+cp jarvis/utils/pre-commit-hook.sh .git/hooks/pre-commit
+cp jarvis/utils/post-commit-hook.sh .git/hooks/post-commit
+chmod +x .git/hooks/pre-commit .git/hooks/post-commit
+```
+
+For detailed setup instructions, see **[INSTALL_HOOKS.md](INSTALL_HOOKS.md)**.
+
+### Quartz Documentation Preview
+
+The repository includes a local Quartz setup for previewing documentation before deployment:
+
+**Location**: `quartz-preview/` directory
+
+**Features**:
+- Dark mode only (no light theme toggle)
+- Custom color scheme:
+  - Bold text: Blue (`#6fa8dc`)
+  - Italic text: Green (`#93c47d`)
+  - Links: Pink (`#ff69b4`)
+  - Highlights: Pinkish (`#ff69b488`)
+- Automatically updated by post-commit hook
+
+**Usage**:
+```bash
+cd quartz-preview
+npx quartz build --serve
+# Opens preview at http://localhost:8080
+```
+
+For setup and configuration details, see **[jarvis/git_docs/09_QUARTZ_PREVIEW.md](jarvis/git_docs/09_QUARTZ_PREVIEW.md)**.
+
+### GitHub Pages Deployment
+
+Documentation is automatically deployed to GitHub Pages when you push to `main`:
+
+**Workflow**: `.github/workflows/deploy-docs.yml`
+
+**What happens automatically**:
+1. GitHub Actions detects push to `main` with changes in `jarvis/docs/`
+2. Clones fresh Quartz installation
+3. Copies documentation from `jarvis/docs/content/`
+4. Copies custom theme and layout from `quartz-preview/`
+5. Builds static site
+6. Deploys to GitHub Pages
+
+**Deployment URL**: `https://<username>.github.io/jarvis-streamdeck/`
+
+**Configuration**:
+- Page title: "Jarvis StreamDeck Documentation"
+- Same custom theme as local preview
+- Fully automated - no manual deployment steps
 
 ---
 
@@ -1088,6 +1186,92 @@ git add jarvis/docs/content/
 | nautilus | nautilus | File manager integration |
 | gnome-terminal | gnome-terminal | Opening terminals with scripts |
 | xdg-utils | xdg-utils | Opening URLs and files (via xdg-open) |
+
+---
+
+## Complete Workflow Summary
+
+Here's the entire development and documentation workflow in action:
+
+### Daily Development Workflow
+
+```bash
+# 1. Work on dev branch (with all tagged comments)
+git checkout dev
+
+# 2. Make changes to code with tagged comments
+# Edit jarvis/actions/actions.py, add #EDU, #NOTE comments, etc.
+
+# 3. Commit changes
+git add .
+git commit -m "Add new feature with documentation"
+
+# ↓ Pre-commit hook runs automatically:
+#   - Extracts tagged comments
+#   - Generates markdown files in jarvis/docs/content/
+#   - Stages documentation files
+
+# ↓ Post-commit hook runs automatically:
+#   - Updates quartz-preview/content/
+#   - Ready for local preview
+
+# 4. Preview documentation locally (optional)
+cd quartz-preview && npx quartz build --serve
+
+# 5. When ready for production, merge to main
+git checkout main
+git merge --squash dev
+git commit -m "Release: Add new feature"
+
+# 6. Push to GitHub
+git push origin main
+
+# ↓ GitHub Actions runs automatically:
+#   - Builds Quartz site from jarvis/docs/content/
+#   - Applies custom theme from quartz-preview/
+#   - Deploys to GitHub Pages
+
+# 7. Documentation is live!
+# Visit: https://<username>.github.io/jarvis-streamdeck/
+```
+
+### Branch Strategy
+
+- **`dev`** (local only):
+  - Full code with ALL tagged comments (#EDU, #NOTE, etc.)
+  - Messy commit history - all your experiments
+  - Never pushed to GitHub
+
+- **`main`** (pushed to GitHub):
+  - Clean production code (tagged comments stripped)
+  - Generated documentation files included
+  - Clean commit history (squash merged from dev)
+  - Auto-deployed to GitHub Pages
+
+### Key Files and Locations
+
+```
+jarvis-streamdeck/
+├── jarvis/
+│   ├── utils/
+│   │   ├── extract_comments.py      # Comment extraction
+│   │   ├── generate_docs.py         # Markdown generation
+│   │   ├── strip_comments.py        # Clean code for production
+│   │   ├── pre-commit-hook.sh       # Pre-commit automation
+│   │   └── post-commit-hook.sh      # Post-commit automation
+│   ├── docs/
+│   │   └── content/                 # Generated markdown docs
+│   └── git_docs/                    # Workflow documentation
+├── quartz-preview/                  # Local Quartz installation
+│   ├── quartz.config.ts             # Quartz configuration
+│   ├── quartz.layout.ts             # Layout (no dark mode toggle)
+│   └── quartz/styles/custom.scss    # Custom theme colors
+├── .git/hooks/
+│   ├── pre-commit                   # Installed hook
+│   └── post-commit                  # Installed hook
+└── .github/workflows/
+    └── deploy-docs.yml              # GitHub Pages deployment
+```
 
 ---
 

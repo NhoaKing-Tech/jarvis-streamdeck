@@ -1,111 +1,17 @@
-# .gitignore for DEV BRANCH (private development)
-# This branch contains full development code with annotations
-
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
+*.pyc
+*.pyo
 *.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Production build (generated, don't commit to dev branch)
-jarvis_prod/               # Generated staging directory, for main branch only
-
-# NOTE: jarvis/ directory IS tracked on dev branch
-# It contains your development code with full annotations (DEV/ARCH/EDU/PROD)
+build/
+dist/
 
 # Configuration and secrets
-jarvis/config/config.env   # Personal environment variables
-*.key                      # Key files
-*.pem                      # Certificate files
-.env                       # Environment files
+jarvis/config/config.env
+*.key
+*.pem
+.env
 
-# IDE and development tools
-.idea/
-.vscode/settings.json      # Personal settings
-*.swp
-*.swo
-*~
-
-# Documentation - track utils but not generated content
-jarvis/docs/content/        # Generated markdown files (from quartz_markdown.py)
-jarvis/docs/.cache/         # Cache files
-# NOTE: jarvis/docs_utils/ IS tracked (documentation scripts and guides)
-
-# Personal development files
-jarvis_experimental/
-test_personal/
-debug_personal/
-
-# OS files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.bak
-*.backup
-temp/
-
-# StreamDeck specific
-*.streamDeckProfile
-deck_configs/personal/
-
-# Obsidian vaults (personal knowledge)
-jarvis/docs_jarvis/.obsidian/
-*.obsidian/
-
-# Claude Code workspace
-.claude/
-
-# Personal notes and drafts
-NOTES.md
-TODO_PERSONAL.md
-*.draft
-*_draft.*
-
-# Local experiments
-experiments/
-sandbox/
-# ============================================
-# Quartz Local Preview (not tracked by git)
-# ============================================
-# We use Quartz locally to preview docs, but don't commit it
-# because GitHub Actions downloads it fresh for deployment
-
-quartz-preview/
-quartz/
-
-# Quartz build outputs
-**/public/
-**/.quartz-cache/
-
-# Node.js dependencies
-node_modules/
+# Documentation build artifacts
+jarvis/docs/.cache/
 
