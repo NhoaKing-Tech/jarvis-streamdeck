@@ -93,3 +93,19 @@ TODO_PERSONAL.md
 # Local experiments
 experiments/
 sandbox/
+# ============================================
+# Quartz Local Preview (not tracked by git)
+# ============================================
+# We use Quartz locally to preview docs, but don't commit it
+# because GitHub Actions downloads it fresh for deployment
+
+quartz-preview/
+quartz/
+
+# Quartz build outputs
+**/public/
+**/.quartz-cache/
+
+# Node.js dependencies
+node_modules/
+

@@ -1,0 +1,171 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'jarvis/docs/**'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:  # Allow manual triggering
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for better navigation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Quartz
+        run: |
+          git clone https://github.com/jackyzha0/quartz.git
+          cd quartz
+          npm install
+
+      - name: Copy documentation to Quartz
+        run: |
+          # Copy generated markdown files to Quartz content directory
+          mkdir -p quartz/content
+          cp -r jarvis/docs/content/* quartz/content/
+
+          # Copy any assets if they exist
+          if [ -d "jarvis/docs/assets" ]; then
+            cp -r jarvis/docs/assets quartz/content/
+          fi
+
+      - name: Configure Quartz
+        run: |
+          cd quartz
+
+          # Create quartz.config.ts if it doesn't exist
+          if [ ! -f "quartz.config.ts" ]; then
+            cat > quartz.config.ts << 'EOF'
+          import { QuartzConfig } from "./quartz/cfg"
+          import * as Plugin from "./quartz/plugins"
+
+          const config: QuartzConfig = {
+            configuration: {
+              pageTitle: "Jarvis StreamDeck Documentation",
+              enableSPA: true,
+              enablePopovers: true,
+              analytics: null,
+              baseUrl: "${{ github.repository_owner }}.github.io/jarvis-streamdeck",
+              ignorePatterns: ["private", "templates", ".obsidian"],
+              defaultDateType: "created",
+              theme: {
+                typography: {
+                  header: "Schibsted Grotesk",
+                  body: "Source Sans Pro",
+                  code: "IBM Plex Mono",
+                },
+                colors: {
+                  lightMode: {
+                    light: "#faf8f8",
+                    lightgray: "#e5e5e5",
+                    gray: "#b8b8b8",
+                    darkgray: "#4e4e4e",
+                    dark: "#2b2b2b",
+                    secondary: "#284b63",
+                    tertiary: "#84a59d",
+                    highlight: "rgba(143, 159, 169, 0.15)",
+                  },
+                  darkMode: {
+                    light: "#161618",
+                    lightgray: "#393639",
+                    gray: "#646464",
+                    darkgray: "#d4d4d4",
+                    dark: "#ebebec",
+                    secondary: "#7b97aa",
+                    tertiary: "#84a59d",
+                    highlight: "rgba(143, 159, 169, 0.15)",
+                  },
+                },
+              },
+            },
+            plugins: {
+              transformers: [
+                Plugin.FrontMatter(),
+                Plugin.TableOfContents(),
+                Plugin.CreatedModifiedDate({
+                  priority: ["frontmatter", "filesystem"],
+                }),
+                Plugin.SyntaxHighlighting(),
+                Plugin.ObsidianFlavoredMarkdown({ enableInHtmlEmbed: false }),
+                Plugin.GitHubFlavoredMarkdown(),
+                Plugin.CrawlLinks({ markdownLinkResolution: "shortest" }),
+                Plugin.Latex({ renderEngine: "katex" }),
+                Plugin.Description(),
+              ],
+              filters: [Plugin.RemoveDrafts()],
+              emitters: [
+                Plugin.AliasRedirects(),
+                Plugin.ComponentResources({ fontOrigin: "googleFonts" }),
+                Plugin.ContentPage(),
+                Plugin.FolderPage(),
+                Plugin.TagPage(),
+                Plugin.ContentIndex({
+                  enableSiteMap: true,
+                  enableRSS: true,
+                }),
+                Plugin.Assets(),
+                Plugin.Static(),
+                Plugin.NotFoundPage(),
+              ],
+            },
+          }
+
+          export default config
+          EOF
+          fi
+
+      - name: Build Quartz site
+        run: |
+          cd quartz
+          npx quartz build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './quartz/public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Summary
+        run: |
+          echo "## Documentation Deployed! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your documentation is now live at:" >> $GITHUB_STEP_SUMMARY
+          echo "https://${{ github.repository_owner }}.github.io/jarvis-streamdeck/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

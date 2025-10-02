@@ -6,6 +6,8 @@ This repository gives me a python interface to interact with the streamdeck devi
 
 This repo had the master branch name as it came from the upstream repo. I did not like that, so I changed its name to main.
 
+The README.md in the parent directory has been updated to reflect my contributions to the upstream repo. For now, do not read it.
+
 You have to create a detailed to do list, and create a folder inside jarvis called git_docs where you will write markdown files explaining your complete thought process on how to implement both workflows and the steps that I need to follow to implement these two workflows and achieve the desired results. You will write these markdown files in a way that I can understand them, as I am not very familiar with git. You will also provide me with the exact commands that I need to run in the terminal to achieve these two workflows. They need to be able to complement each other seamlessly.
 
 # Workflow 1: Squash merge dev into main. Show only clean codebase in main branch, and keep extensive commented codebase in dev branch. Keep commit history in dev branch, but show only one clean commit in main branch.
