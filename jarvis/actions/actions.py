@@ -18,7 +18,8 @@ Configuration initialized via config.initialization.init_module().
 # EDU: 
 # EDU: ### Configuration Flow
 # EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
-# EDU: ###
+# EDU: 
+# EDU: 
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.
 # EDU: 
 # EDU: ### Why not read environment variables directly in this module?
@@ -28,7 +29,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: - Makes dependencies explicit (you can see what each module needs)
 # EDU: - Better separation of concerns (core.application handles config, this module handles actions)
 # EDU: 
-# EDU: ###
+# EDU: 
 # EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
 # EDU: Module Functionality Overview

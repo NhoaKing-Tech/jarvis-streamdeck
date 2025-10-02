@@ -19,6 +19,6 @@ date: 2025-10-03
 
 Wake up ydotool daemon from idle with harmless CTRL press
 
-*[Source: actions.py:565]*
+*[Source: actions.py:566]*
 
 ---
