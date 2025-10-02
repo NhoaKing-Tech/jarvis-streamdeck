@@ -5,7 +5,7 @@ Configuration initialized via config.initialization.init_module().
 """
 
 # EDU: Configuration Flow Architecture
-# EDU: =====================================
+# EDU: ===============================
 # EDU: How environment variables in config.env reach this module:
 # EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 # EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
@@ -84,9 +84,9 @@ PROJECTS_DIR: Optional[Path] = None     # User's main projects directory (usuall
 KEYCODES: Optional[Dict[str, int]] = None  # Mapping of key names to Linux input event codes
 KEYRING_PW: Optional[str] = None       # Password for keyring/password manager access (from config.env)
 
-# EDU: =====================================================================================
-# EDU: COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
-# EDU: =====================================================================================
+# EDU: 
+# EDU: ## COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
+# EDU: 
 #
 # EDU: WHAT WE'RE ACTUALLY USING: Global Configuration with Dynamic Initialization
 # EDU: ===========================================================================

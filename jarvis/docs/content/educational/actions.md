@@ -16,7 +16,7 @@ date: 2025-10-03
 <a id="general-1"></a>
 
 Configuration Flow Architecture
-=====================================
+===============================
 How environment variables in config.env reach this module:
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
@@ -87,9 +87,7 @@ Initialization flow:
 
 <a id="general-4"></a>
 
-=====================================================================================
-COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
-=====================================================================================
+## COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
 WHAT WE'RE ACTUALLY USING: Global Configuration with Dynamic Initialization
 ===========================================================================
 Our pattern stores configuration in module-level global variables that are set at runtime.
