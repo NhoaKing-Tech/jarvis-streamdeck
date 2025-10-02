@@ -395,8 +395,10 @@ class CommentExtractor:
                 # Comment line without tag, but we're in a tagged block
                 # Check if it's a continuation (starts with #)
                 if stripped.startswith('#'):
-                    # Remove # but preserve leading whitespace for indentation
-                    content = stripped[1:].rstrip()  # Only strip trailing whitespace
+                    # Find the # position in original line to preserve leading whitespace
+                    hash_pos = line.find('#')
+                    # Extract content after # while preserving indentation
+                    content = line[hash_pos + 1:].rstrip()
                     if content or not current_block.lines:  # Allow empty lines in blocks
                         current_block.lines.append(content)
                 else:
