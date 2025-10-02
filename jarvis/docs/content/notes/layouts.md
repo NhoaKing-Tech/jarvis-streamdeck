@@ -2,7 +2,7 @@
 title: "Implementation Notes: Layouts"
 tags: [note, auto-generated]
 description: "Implementation Notes from layouts.py"
-date: 2025-10-02
+date: 2025-10-03
 ---
 
 # Implementation Notes: Layouts

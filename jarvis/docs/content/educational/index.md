@@ -2,7 +2,7 @@
 title: "Educational Content"
 tags: [edu, index]
 description: "Computer science concepts, design patterns, and learning material"
-date: 2025-10-02
+date: 2025-10-03
 ---
 
 # Educational Content

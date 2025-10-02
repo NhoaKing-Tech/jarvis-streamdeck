@@ -2,7 +2,7 @@
 title: "DEBUG: Layouts"
 tags: [debug, auto-generated]
 description: "DEBUG from layouts.py"
-date: 2025-10-02
+date: 2025-10-03
 ---
 
 # DEBUG: Layouts
