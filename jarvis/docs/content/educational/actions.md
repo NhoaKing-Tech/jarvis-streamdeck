@@ -24,6 +24,7 @@ config.env is generated with setup_config.py script (to be executed in the jarvi
 4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
+##
 Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 This uses a Global Configuration with Dynamic Initialization pattern.
 ### Why not read environment variables directly in this module?
