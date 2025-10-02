@@ -155,12 +155,6 @@ Our pattern stores configuration in module-level global variables that are set a
 
 4. Configuration is "injected" into the module, not into individual functions
 
-*[Source: actions.py:87]*
-
----
-
-<a id="general-5"></a>
-
 ### What is true dependency injection?
 
 Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
@@ -174,6 +168,8 @@ KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
 - An external "injector" provides the dependencies
 
 **TRUE DEPENDENCY INJECTION EXAMPLE:**
+
+```python
 
 def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
 
@@ -190,6 +186,8 @@ raise ValueError(f"Unknown key: {key}")
 sequence.append(f"{keycodes[key]}:1")
 
 subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
+
+```
 
 You would call it like: `hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")`  with dependencies passed in.
 
@@ -293,11 +291,11 @@ def hot_keys(*keys): # Uses captured dependencies
 
 return hot_keys
 
-*[Source: actions.py:104]*
+*[Source: actions.py:87]*
 
 ---
 
-<a id="general-6"></a>
+<a id="general-5"></a>
 
 =====================================================================================
 
@@ -431,7 +429,7 @@ causing the microphone toggle functionality to fail.
 
 ---
 
-<a id="general-7"></a>
+<a id="general-6"></a>
 
 DESIGN PATTERN: Module-level Configuration with General Initialization
 
@@ -477,7 +475,7 @@ by calling setattr(module, key, value) for each configuration parameter.
 
 ---
 
-<a id="general-8"></a>
+<a id="general-7"></a>
 
 URL Functions - Browser Integration
 
@@ -549,7 +547,7 @@ SECURITY CONSIDERATIONS:
 
 ---
 
-<a id="general-9"></a>
+<a id="general-8"></a>
 
 SPOTIFY LAUNCH ALTERNATIVES:
 
@@ -567,7 +565,7 @@ as they typically create a symlink in PATH
 
 ---
 
-<a id="general-10"></a>
+<a id="general-9"></a>
 
 ERROR HANDLING CONSIDERATIONS:
 
@@ -583,7 +581,7 @@ Current implementation gracefully handles these by allowing subprocess errors
 
 ---
 
-<a id="general-11"></a>
+<a id="general-10"></a>
 
 ## Circular import to avoid
 

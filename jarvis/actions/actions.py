@@ -100,7 +100,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: 2. At startup, init_module() uses setattr() to set real values
 # EDU: 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
 # EDU: 4. Configuration is "injected" into the module, not into individual functions
-
+# EDU: 
 # EDU: ### What is true dependency injection?
 # EDU: 
 # EDU: Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
@@ -111,7 +111,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: - An external "injector" provides the dependencies
 #
 # EDU: **TRUE DEPENDENCY INJECTION EXAMPLE:**
-# EDU:
+# EDU: ```python
 # EDU: def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
 # EDU:
 # EDU:     """Dependencies are INJECTED as parameters - this is true DI"""
@@ -127,7 +127,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU:         sequence.append(f"{keycodes[key]}:1")
 # EDU:
 # EDU:     subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
-# EDU:
+# EDU: ```
 # EDU: You would call it like: `hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")`  with dependencies passed in.
 # EDU:
 # EDU: CURRENT APPROACH (Global Configuration):
