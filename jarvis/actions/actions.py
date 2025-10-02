@@ -27,6 +27,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: - Keeps configuration loading centralized in core.application, so it is easier to maintain
 # EDU: - Makes dependencies explicit (you can see what each module needs)
 # EDU: - Better separation of concerns (core.application handles config, this module handles actions)
+# EDU: 
 # EDU: ###
 # EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
