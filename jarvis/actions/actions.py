@@ -33,12 +33,12 @@ Configuration initialized via config.initialization.init_module().
 # EDU: ## Module Functionality Overview
 # EDU: 
 # EDU: 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
-# EDU:    - url_freecodecamp
-# EDU:    - url_youtube
-# EDU:    - url_github
-# EDU:    - url_claude
-# EDU:    - url_chatgpt
-# EDU:    - url_gemini
+# EDU:      - url_freecodecamp
+# EDU:      - url_youtube
+# EDU:      - url_github
+# EDU:      - url_claude
+# EDU:      - url_chatgpt
+# EDU:      - url_gemini
 # EDU: 1. Open spotify or trigger play/pause: spotify
 # EDU: 1. Microphone ON/OFF toggle: is_mic_muted, toggle_mic
 # EDU: 1. Trigger hotkeys/shortcuts: hot_keys (example usage in hk_terminal and copy)
