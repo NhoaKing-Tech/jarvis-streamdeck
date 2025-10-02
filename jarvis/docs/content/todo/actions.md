@@ -27,7 +27,7 @@ Handle positioning and sizing of windows, at the moment everything opens correct
 
 Add visual feedback on StreamDeck key for current state
 
-*[Source: actions.py:460]*
+*[Source: actions.py:454]*
 
 ---
 
@@ -37,6 +37,6 @@ Add visual feedback on StreamDeck key for current state
 
 Check if VSCode already has project open before launching
 
-*[Source: actions.py:639]*
+*[Source: actions.py:633]*
 
 ---

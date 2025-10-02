@@ -425,7 +425,7 @@ This documentation explains the wrapper pattern inconsistencies that were
 
 causing the microphone toggle functionality to fail.
 
-*[Source: actions.py:214]*
+*[Source: actions.py:208]*
 
 ---
 
@@ -471,7 +471,7 @@ The config.initialization.init_module() function sets these global variables
 
 by calling setattr(module, key, value) for each configuration parameter.
 
-*[Source: actions.py:297]*
+*[Source: actions.py:291]*
 
 ---
 
@@ -543,7 +543,7 @@ SECURITY CONSIDERATIONS:
 
 - Browser handles HTTPS validation and security
 
-*[Source: actions.py:322]*
+*[Source: actions.py:316]*
 
 ---
 
@@ -561,7 +561,7 @@ Using simple "spotify" command works with most installation methods
 
 as they typically create a symlink in PATH
 
-*[Source: actions.py:449]*
+*[Source: actions.py:443]*
 
 ---
 
@@ -577,7 +577,7 @@ ERROR HANDLING CONSIDERATIONS:
 
 Current implementation gracefully handles these by allowing subprocess errors
 
-*[Source: actions.py:462]*
+*[Source: actions.py:456]*
 
 ---
 
@@ -591,7 +591,7 @@ render_keys import moved inside toggle_mic function to avoid circular import
 
 This breaks the cycle: actions -> ui.render -> core.logic -> actions
 
-*[Source: actions.py:468]*
+*[Source: actions.py:462]*
 
 ---
 
@@ -617,7 +617,7 @@ commit message in vscode, as I prefer that over nano or vim. I have the lines sh
 
 commit title and description can extend to, so this is nice.
 
-*[Source: actions.py:996]*
+*[Source: actions.py:990]*
 
 ---
 
@@ -629,7 +629,7 @@ Simple demonstration of the hot_keys function that sends the standard
 
 copy-to-clipboard keyboard shortcut. This is a basic example of hotkey usage.
 
-*[Source: actions.py:621]*
+*[Source: actions.py:615]*
 
 ---
 
@@ -667,7 +667,7 @@ Advantages:
 
 - Integrates with desktop environment's window management
 
-*[Source: actions.py:589]*
+*[Source: actions.py:583]*
 
 ---
 
@@ -677,7 +677,7 @@ Send the standard Linux terminal hotkey combination
 
 This is recognized by virtually all Linux desktop environments
 
-*[Source: actions.py:611]*
+*[Source: actions.py:605]*
 
 ---
 
@@ -699,7 +699,7 @@ Technical Details:
 
 - All events are sent in a single ydotool command for atomic execution
 
-*[Source: actions.py:545]*
+*[Source: actions.py:539]*
 
 ---
 
@@ -707,7 +707,7 @@ Technical Details:
 
 Look up the Linux input event code for this key name
 
-*[Source: actions.py:561]*
+*[Source: actions.py:555]*
 
 ---
 
@@ -715,7 +715,7 @@ Look up the Linux input event code for this key name
 
 Format as "keycode:1" for key press event
 
-*[Source: actions.py:564]*
+*[Source: actions.py:558]*
 
 ---
 
@@ -723,7 +723,7 @@ Format as "keycode:1" for key press event
 
 Format as "keycode:0" for key release event
 
-*[Source: actions.py:569]*
+*[Source: actions.py:563]*
 
 ---
 
@@ -733,7 +733,7 @@ Give ydotool daemon time to wake up from idle state
 
 First command after idle needs a moment to initialize properly
 
-*[Source: actions.py:573]*
+*[Source: actions.py:567]*
 
 ---
 
@@ -749,7 +749,7 @@ Requires amixer to be installed and the Capture device to be available.
 
 This is the standard microphone control on most Linux systems.
 
-*[Source: actions.py:482]*
+*[Source: actions.py:476]*
 
 ---
 
@@ -785,7 +785,7 @@ wmctrl Details:
 
 - "-i -a window_id" activates window by ID
 
-*[Source: actions.py:1022]*
+*[Source: actions.py:1016]*
 
 ---
 
@@ -803,7 +803,7 @@ Window Management Strategy:
 
 This prevents window clutter and improves UX
 
-*[Source: actions.py:842]*
+*[Source: actions.py:836]*
 
 ---
 
@@ -819,7 +819,7 @@ Alternative Launch Methods:
 
 URI scheme works regardless of installation method
 
-*[Source: actions.py:850]*
+*[Source: actions.py:844]*
 
 ---
 
@@ -839,7 +839,7 @@ OBSIDIAN INTEGRATION:
 
 - Works with both local and synced vaults
 
-*[Source: actions.py:856]*
+*[Source: actions.py:850]*
 
 ---
 
@@ -849,7 +849,7 @@ Extract vault name from the full path for window matching and URI construction
 
 Path.resolve() normalizes the path and .name gets the final component
 
-*[Source: actions.py:865]*
+*[Source: actions.py:859]*
 
 ---
 
@@ -865,7 +865,7 @@ Alternative approaches:
 
 - Integrate with VSCode's workspace API for session management
 
-*[Source: actions.py:641]*
+*[Source: actions.py:635]*
 
 ---
 
@@ -905,7 +905,7 @@ before accepting hotkeys. This delay works well for most hardware and
 
 project sizes.
 
-*[Source: actions.py:646]*
+*[Source: actions.py:640]*
 
 ---
 
@@ -941,7 +941,7 @@ PLAYERCTL ADVANTAGES:
 
 - More reliable than application-specific APIs
 
-*[Source: actions.py:405]*
+*[Source: actions.py:399]*
 
 ---
 
@@ -953,7 +953,7 @@ pgrep flags: -x (exact match), searches for process name "spotify"
 
 capture_output=True prevents command output from appearing in terminal
 
-*[Source: actions.py:426]*
+*[Source: actions.py:420]*
 
 ---
 
@@ -961,7 +961,7 @@ capture_output=True prevents command output from appearing in terminal
 
 Check return code: 0 = found process, non-zero = process not found
 
-*[Source: actions.py:431]*
+*[Source: actions.py:425]*
 
 ---
 
@@ -971,7 +971,7 @@ Spotify is running - toggle play/pause state
 
 playerctl flags: --player=spotify (target specific player), play-pause (toggle command)
 
-*[Source: actions.py:433]*
+*[Source: actions.py:427]*
 
 ---
 
@@ -989,7 +989,7 @@ ALTERNATIVE PLAYERCTL COMMANDS:
 
 - "stop" - stop playback
 
-*[Source: actions.py:437]*
+*[Source: actions.py:431]*
 
 ---
 
@@ -999,7 +999,7 @@ Spotify not running - launch the application
 
 This will start Spotify in the background
 
-*[Source: actions.py:445]*
+*[Source: actions.py:439]*
 
 ---
 
@@ -1011,7 +1011,7 @@ Similar to terminal_env_jarvis() but specifically for the busybee project
 
 environment. See terminal_env_jarvis() for detailed workflow explanation.
 
-*[Source: actions.py:985]*
+*[Source: actions.py:979]*
 
 ---
 
@@ -1045,7 +1045,7 @@ Executes "open_jarvisbusybee_env_T.sh" which handles:
 
 - Loading any necessary environment variables
 
-*[Source: actions.py:962]*
+*[Source: actions.py:956]*
 
 ---
 
@@ -1067,7 +1067,7 @@ Visual Feedback:
 
 Uses amixer to control the Capture device. Requires ALSA to be configured.
 
-*[Source: actions.py:507]*
+*[Source: actions.py:501]*
 
 ---
 
@@ -1119,7 +1119,7 @@ However, snippets are typically small and accessed infrequently,
 
 so the current simple approach is adequate.
 
-*[Source: actions.py:775]*
+*[Source: actions.py:769]*
 
 ---
 
@@ -1155,7 +1155,7 @@ immediately. This allows configuration during layout building and
 
 execution when keys are pressed.
 
-*[Source: actions.py:700]*
+*[Source: actions.py:694]*
 
 ---
 
@@ -1171,7 +1171,7 @@ fine on X11 too. No need to change it for now, unless I face limitations or issu
 
 - PyAutoGUI: Not tested yet, but I keep it in mind for future exploration.
 
-*[Source: actions.py:731]*
+*[Source: actions.py:725]*
 
 ---
 
@@ -1189,7 +1189,7 @@ Having quick access to learning platforms supports continuous learning
 
 and skill development during coding sessions.
 
-*[Source: actions.py:363]*
+*[Source: actions.py:357]*
 
 ---
 
@@ -1205,7 +1205,7 @@ their associated default applications.
 
 xdg-open is the freedesktop.org standard for opening files/URLs
 
-*[Source: actions.py:381]*
+*[Source: actions.py:375]*
 
 ---
 
@@ -1223,7 +1223,7 @@ Follows same pattern as other web-opening functions for consistency
 
 and predictable behavior across all web-based StreamDeck actions.
 
-*[Source: actions.py:372]*
+*[Source: actions.py:366]*
 
 ---
 
@@ -1235,7 +1235,7 @@ Launch VSCode with the project path as argument
 
 VSCode will open the directory and load workspace settings
 
-*[Source: actions.py:668]*
+*[Source: actions.py:662]*
 
 ---
 
@@ -1245,7 +1245,7 @@ Wait for VSCode to fully initialize before sending hotkeys
 
 This prevents the terminal hotkey from being ignored
 
-*[Source: actions.py:673]*
+*[Source: actions.py:667]*
 
 ---
 
@@ -1255,7 +1255,7 @@ Open VSCode integrated terminal using Ctrl+` (grave/backtick)
 
 This provides immediate access to command line in project context
 
-*[Source: actions.py:677]*
+*[Source: actions.py:671]*
 
 ---
 
@@ -1273,7 +1273,7 @@ Arguments:
 
 - text: The actual text to type
 
-*[Source: actions.py:723]*
+*[Source: actions.py:717]*
 
 ---
 
@@ -1283,7 +1283,7 @@ Read snippet content from file
 
 Using context manager (with statement) ensures file is properly closed
 
-*[Source: actions.py:812]*
+*[Source: actions.py:806]*
 
 ---
 
@@ -1293,7 +1293,7 @@ Type the snippet content using ydotool
 
 Same approach as type_text() function
 
-*[Source: actions.py:821]*
+*[Source: actions.py:815]*
 
 ---
 
@@ -1301,7 +1301,7 @@ Same approach as type_text() function
 
 STEP 1: Check if Obsidian is already open with this vault
 
-*[Source: actions.py:870]*
+*[Source: actions.py:864]*
 
 ---
 
@@ -1311,7 +1311,7 @@ Use wmctrl to list all open windows with their titles
 
 wmctrl -l output format: window_id desktop_num client_machine window_title
 
-*[Source: actions.py:872]*
+*[Source: actions.py:866]*
 
 ---
 
@@ -1319,7 +1319,7 @@ wmctrl -l output format: window_id desktop_num client_machine window_title
 
 Search through each window to find Obsidian with our vault
 
-*[Source: actions.py:876]*
+*[Source: actions.py:870]*
 
 ---
 
@@ -1329,7 +1329,7 @@ Look for lines containing both "Obsidian" and our vault name
 
 This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidian"
 
-*[Source: actions.py:878]*
+*[Source: actions.py:872]*
 
 ---
 
@@ -1337,7 +1337,7 @@ This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidia
 
 Extract window ID (first column in wmctrl output)
 
-*[Source: actions.py:881]*
+*[Source: actions.py:875]*
 
 ---
 
@@ -1347,7 +1347,7 @@ Activate the existing window (bring to front and focus)
 
 wmctrl flags: -i (use window ID), -a (activate window)
 
-*[Source: actions.py:884]*
+*[Source: actions.py:878]*
 
 ---
 
@@ -1357,7 +1357,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:890]*
+*[Source: actions.py:884]*
 
 ---
 
@@ -1369,7 +1369,7 @@ Use Obsidian's URI scheme for clean vault opening
 
 Format: obsidian://open?vault=vault_name
 
-*[Source: actions.py:894]*
+*[Source: actions.py:888]*
 
 ---
 
@@ -1379,7 +1379,7 @@ Use xdg-open to handle the URI scheme
 
 xdg-open is the standard Linux way to open files/URIs with default applications
 
-*[Source: actions.py:899]*
+*[Source: actions.py:893]*
 
 ---
 
@@ -1387,7 +1387,7 @@ xdg-open is the standard Linux way to open files/URIs with default applications
 
 pathlib.Path provides cross-platform path construction
 
-*[Source: actions.py:924]*
+*[Source: actions.py:918]*
 
 ---
 
@@ -1395,7 +1395,7 @@ pathlib.Path provides cross-platform path construction
 
 The bash script should be executable (chmod u+x)
 
-*[Source: actions.py:933]*
+*[Source: actions.py:927]*
 
 ---
 
@@ -1403,7 +1403,7 @@ The bash script should be executable (chmod u+x)
 
 Build command for terminal execution
 
-*[Source: actions.py:940]*
+*[Source: actions.py:934]*
 
 ---
 
@@ -1423,7 +1423,7 @@ I need to convert the target directory to an absolute path because:
 
 Path.resolve() follows the shortcut to get the real location)
 
-*[Source: actions.py:1041]*
+*[Source: actions.py:1035]*
 
 ---
 
@@ -1443,7 +1443,7 @@ subprocess.check_output() runs this command and captures its text output
 
 text=True ensures I get a string back instead of bytes
 
-*[Source: actions.py:1050]*
+*[Source: actions.py:1044]*
 
 ---
 
@@ -1459,7 +1459,7 @@ Each line contains: window_id, desktop_number, WM_CLASS, hostname, window_title
 
 I need to parse each line to extract the information I need
 
-*[Source: actions.py:1062]*
+*[Source: actions.py:1056]*
 
 ---
 
@@ -1469,7 +1469,7 @@ I only care about Nautilus windows, so I check if "org.gnome.Nautilus"
 
 is in the line. This is the WM_CLASS identifier for Nautilus windows.
 
-*[Source: actions.py:1069]*
+*[Source: actions.py:1063]*
 
 ---
 
@@ -1483,7 +1483,7 @@ The window ID is always the first part (index 0)
 
 Example: "0x02400003" from the line above
 
-*[Source: actions.py:1073]*
+*[Source: actions.py:1067]*
 
 ---
 
@@ -1499,7 +1499,7 @@ Example: from "desktop file-browser - /home/user/Documents"
 
 I want "file-browser - /home/user/Documents"
 
-*[Source: actions.py:1079]*
+*[Source: actions.py:1073]*
 
 ---
 
@@ -1515,7 +1515,7 @@ Path(path).name returns "Documents" from "/home/user/Documents"
 
 This helps me match windows that might not show the full path
 
-*[Source: actions.py:1086]*
+*[Source: actions.py:1080]*
 
 ---
 
@@ -1523,7 +1523,7 @@ This helps me match windows that might not show the full path
 
 I check three conditions to see if this window matches my target:
 
-*[Source: actions.py:1095]*
+*[Source: actions.py:1089]*
 
 ---
 
@@ -1545,7 +1545,7 @@ instead of a window title/name (more reliable than titles)
 
 window_id: the window ID I extracted earlier (like 0x02400003)
 
-*[Source: actions.py:1100]*
+*[Source: actions.py:1094]*
 
 ---
 
@@ -1555,7 +1555,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:1113]*
+*[Source: actions.py:1107]*
 
 ---
 
@@ -1577,6 +1577,6 @@ This is perfect for GUI applications because:
 
 I pass the target directory as an argument to nautilus so it opens there
 
-*[Source: actions.py:1117]*
+*[Source: actions.py:1111]*
 
 ---

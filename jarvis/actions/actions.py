@@ -113,17 +113,11 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: **TRUE DEPENDENCY INJECTION EXAMPLE:**
 # EDU: ```python
 # EDU: def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
-# EDU:
 # EDU:     """Dependencies are INJECTED as parameters - this is true DI"""
-# EDU:
 # EDU:     sequence = []
-# EDU:
 # EDU:     for key in keys:
-# EDU:
 # EDU:         if key not in keycodes:  # Uses injected dependency
-# EDU:
 # EDU:             raise ValueError(f"Unknown key: {key}")
-# EDU:
 # EDU:         sequence.append(f"{keycodes[key]}:1")
 # EDU:
 # EDU:     subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
