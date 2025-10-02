@@ -13,6 +13,6 @@ Important implementation details and gotchas
 
 ## Documentation Files
 
-- [Actions](./actions.md)
-- [Application](./application.md)
-- [Layouts](./layouts.md)
+- [Actions](notes/actions)
+- [Application](notes/application)
+- [Layouts](notes/layouts)

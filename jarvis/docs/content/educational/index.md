@@ -13,5 +13,5 @@ Computer science concepts, design patterns, and learning material
 
 ## Documentation Files
 
-- [Actions](./actions.md)
-- [Extract Comments](./extract_comments.md)
+- [Actions](educational/actions)
+- [Extract Comments](educational/extract_comments)

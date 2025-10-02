@@ -294,11 +294,14 @@ class MarkdownGenerator:
         content.append("")
 
         for file_path in sorted(files):
-            # Get relative path from category dir
+            # Get relative path from category dir for filename
             rel_path = file_path.relative_to(category_dir)
             # Create title from filename
             title = file_path.stem.replace('_', ' ').title()
-            content.append(f"- [{title}](./{rel_path})")
+            # Use full path from content root (category/filename without .md)
+            # This avoids ambiguity when multiple files have the same name
+            link_path = f"{category['dir']}/{file_path.stem}"
+            content.append(f"- [{title}]({link_path})")
 
         content.append("")
 

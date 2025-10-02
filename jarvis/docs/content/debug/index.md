@@ -13,6 +13,6 @@ DEBUG comments
 
 ## Documentation Files
 
-- [Actions](./actions.md)
-- [Layouts](./layouts.md)
-- [Logic](./logic.md)
+- [Actions](debug/actions)
+- [Layouts](debug/layouts)
+- [Logic](debug/logic)
