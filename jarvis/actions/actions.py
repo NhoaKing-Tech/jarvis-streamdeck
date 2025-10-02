@@ -19,7 +19,6 @@ Configuration initialized via config.initialization.init_module().
 # EDU: ### Configuration Flow
 # EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
 # EDU: 
-# EDU: 
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.
 # EDU: 
 # EDU: ### Why not read environment variables directly in this module?
@@ -31,7 +30,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: 
 # EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
-# EDU: Module Functionality Overview
+# EDU: ## Module Functionality Overview
 # EDU: 
 # EDU: 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
 # EDU:    - url_freecodecamp
@@ -40,21 +39,21 @@ Configuration initialized via config.initialization.init_module().
 # EDU:    - url_claude
 # EDU:    - url_chatgpt
 # EDU:    - url_gemini
-# EDU: 2. Open spotify or trigger play/pause: spotify
-# EDU: 3. Microphone ON/OFF toggle: is_mic_muted, toggle_mic
-# EDU: 4. Trigger hotkeys/shortcuts: hot_keys (example usage in hk_terminal and copy)
-# EDU: 5. Open VSCode with a given project path: open_vscode
+# EDU: 1. Open spotify or trigger play/pause: spotify
+# EDU: 1. Microphone ON/OFF toggle: is_mic_muted, toggle_mic
+# EDU: 1. Trigger hotkeys/shortcuts: hot_keys (example usage in hk_terminal and copy)
+# EDU: 1. Open VSCode with a given project path: open_vscode
 # EDU:    Control of vscode appearance for each project is done through the
 # EDU:    hidden .vscode folder inside the project directory and the file settings.json
-# EDU: 6. Type text and text blocks or snippets:
+# EDU: 1. Type text and text blocks or snippets:
 # EDU:    - type_text, type_snippet
 # EDU:    - type_keyring: Type and enter passwords without exposing them in your codebase. The password can be stored in config.env
-# EDU: 7. Open obsidian with a given vault path. It supports the possibility to open multiple vaults,
+# EDU: 1. Open obsidian with a given vault path. It supports the possibility to open multiple vaults,
 # EDU:    so you can reuse the function in different keys for different vaults: open_obsidian
-# EDU: 8. Execute bash scripts: execute_bash
+# EDU: 1. Execute bash scripts: execute_bash
 # EDU:    Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
 # EDU:    Example of advanced usage with git_commit_workflow.sh
-# EDU: 9. Open nautilus windows with a target path. If that path is already open in another window,
+# EDU: 1. Open nautilus windows with a target path. If that path is already open in another window,
 # EDU:    simply raise it, to avoid multiple nautilus windows with the same path (which happens often
 # EDU:    if this check is not in place before opening the window).
 # EDU:    This was the trigger to change to X11 from Wayland, as Wayland does not support window
