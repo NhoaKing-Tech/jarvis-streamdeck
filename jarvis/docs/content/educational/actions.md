@@ -159,7 +159,7 @@ Our pattern stores configuration in module-level global variables that are set a
 
 Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
 
-KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
+==KEY PRINCIPLE==: "Don't call us, we'll call you" (Inversion of Control)
 
 - Dependencies are PASSED IN as parameters to functions/constructors
 

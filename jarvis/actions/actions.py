@@ -105,7 +105,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: 
 # EDU: Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
 # EDU: 
-# EDU: KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
+# EDU: ==KEY PRINCIPLE==: "Don't call us, we'll call you" (Inversion of Control)
 # EDU: - Dependencies are PASSED IN as parameters to functions/constructors
 # EDU: - The function/object doesn't know HOW to create its dependencies
 # EDU: - An external "injector" provides the dependencies
