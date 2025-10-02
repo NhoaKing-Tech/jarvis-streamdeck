@@ -13,20 +13,12 @@ date: 2025-10-03
 
 ---
 
-<a id="general-1"></a>
-
-Global variable declarations are MANDATORY for the init_module() pattern to work
-
-*[Source: actions.py:73]*
-
----
-
 ## function: hot_keys
 
 <a id="function:-hot_keys-1"></a>
 
 Release keys in reverse order (essential for proper modifier key handling)
 
-*[Source: actions.py:553]*
+*[Source: actions.py:567]*
 
 ---

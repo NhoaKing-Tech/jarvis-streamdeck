@@ -15,48 +15,6 @@ date: 2025-10-03
 
 <a id="general-1"></a>
 
-## Configuration Flow Architecture
-
-How environment variables in config.env reach this module:
-
-config.env is generated with setup_config.py script (to be executed in the jarvis directory).
-
-1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
-
-2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
-
-3. \_\_main\_\_.py delegates to core.application which reads environment variables using os.getenv()
-
-4. core.application calls config.initialization.init_jarvis() with all configuration
-
-5. init_jarvis() uses the general init_module() function to set global variables in this module
-
-6. This module stores them in global variables for use by action functions
-
-### Configuration Flow
-
-Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
-
-This uses a Global Configuration with Dynamic Initialization pattern.
-
-### Why not read environment variables directly in this module?
-
-We could have each action function call `os.getenv()` directly, but I chose centralized global configuration instead because:
-
-- Keeps configuration loading centralized in core.application, so it is easier to maintain
-
-- Makes dependencies explicit (you can see what each module needs)
-
-- Better separation of concerns (core.application handles config, this module handles actions)
-
-The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
-
-*[Source: actions.py:7]*
-
----
-
-<a id="general-2"></a>
-
 ## Module Functionality Overview
 
 1. Opening of **URLs** in default browser. In my case, Google Chrome. Functions here are:
@@ -99,31 +57,59 @@ The .env file provides the configuration, not the logic itself. The logic is pro
 
 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path (which happens often if this check is not in place before opening the window). This was the trigger to change to X11 from Wayland, as Wayland does not support window management in a straightforward way as X11 does, and it was giving me too many headaches. I do not discard in the future to ==TRY== to implement jarvis in wayland.
 
-*[Source: actions.py:33]*
+*[Source: actions.py:7]*
+
+---
+
+<a id="general-2"></a>
+
+## Configuration Flow Architecture
+
+How environment variables in config.env reach this module:
+
+config.env is generated with setup_config.py script (to be executed in the jarvis directory).
+
+1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
+
+2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
+
+3. \_\_main\_\_.py delegates to core.application which reads environment variables using os.getenv()
+
+4. core.application calls config.initialization.init_jarvis() with all configuration
+
+5. init_jarvis() uses the general init_module() function to set global variables in this module
+
+6. This module stores them in global variables for use by action functions
+
+### Configuration Flow
+
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
+
+This uses a Global Configuration with Dynamic Initialization (DI) pattern.
+
+### Why not read environment variables directly in this module?
+
+We could have each action function call `os.getenv()` directly, but I chose centralized global configuration instead because:
+
+- Keeps configuration loading centralized in core.application, so it is easier to maintain
+
+- Makes dependencies explicit (you can see what each module needs)
+
+- Better separation of concerns (core.application handles config, this module handles actions)
+
+The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
+
+*[Source: actions.py:40]*
 
 ---
 
 <a id="general-3"></a>
 
-## Circular import to avoid
+## Global variable declarations for dynamic initialization
 
-I was importing render_keys from ui.render at the top of the file, but this was causing a circular import issue.
+==IMPORTANT==: Global variable declarations are MANDATORY for the init_module() pattern to work.
 
-render_keys import moved inside toggle_mic function to avoid circular import
-
-This breaks the cycle: actions -> ui.render -> core.logic -> actions
-
-*[Source: actions.py:66]*
-
----
-
-<a id="general-4"></a>
-
-The config.initialization.init_module() function uses hasattr() to check if each variable
-
-exists in this module's namespace before attempting to set its value with setattr().
-
-Without these declarations, hasattr() returns False and initialization silently fails.
+The config.initialization.init_module() function uses hasattr() to check if each variable exists in this module's namespace before attempting to set its value with setattr(). Without these declarations, hasattr() returns False and initialization silently fails.
 
 Initialization flow:
 
@@ -137,29 +123,29 @@ Initialization flow:
 
 5. Action functions check if variables are still None to detect initialization failures
 
-*[Source: actions.py:74]*
+*[Source: actions.py:67]*
 
 ---
 
-<a id="general-5"></a>
+<a id="general-4"></a>
 
-## DESIGN PATTERNS COMPARISON
+## Design pattern comparison: Global Configuration vs dependency injection
 
-We are using Global Configuration with Dynamic Initialization
+We are using global configuration with dynamic initialization.
 
-Our pattern stores configuration in module-level global variables that are set at runtime.
+Our pattern stores configuration in module-level global variables that are set at runtime. This approach provides:
 
-This approach provides:
+1. Testability: Easy to mock configuration by setting globals for unit tests
 
-1. TESTABILITY: Easy to mock configuration by setting globals for unit tests
+2. Flexibility: Can be configured differently for different environments
 
-2. FLEXIBILITY: Can be configured differently for different environments
+3. Performance: Configuration accessed directly without repeated file reads or imports
 
-3. PERFORMANCE: Configuration accessed directly without repeated file reads or imports
+4. Error handling: Can detect and report missing configuration with None checks
 
-4. ERROR HANDLING: Can detect and report missing configuration with None checks
+5. Simplicity: No complex dependency injection framework needed
 
-HOW OUR PATTERN WORKS:
+### How the pattern works
 
 1. Declare global variables as None (creates module attributes)
 
@@ -169,19 +155,15 @@ HOW OUR PATTERN WORKS:
 
 4. Configuration is "injected" into the module, not into individual functions
 
-*[Source: actions.py:92]*
+*[Source: actions.py:87]*
 
 ---
 
-<a id="general-6"></a>
+<a id="general-5"></a>
 
-## What is true dependency injection?
+### What is true dependency injection?
 
-Dependency Injection (DI) is a design pattern where an object's dependencies
-
-are provided (injected) to it from external sources rather than the object
-
-creating or finding them itself.
+Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
 
 KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
 
@@ -191,7 +173,7 @@ KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
 
 - An external "injector" provides the dependencies
 
-TRUE DEPENDENCY INJECTION EXAMPLE:
+**TRUE DEPENDENCY INJECTION EXAMPLE:**
 
 def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
 
@@ -201,19 +183,17 @@ sequence = []
 
 for key in keys:
 
-if key not in keycodes:  # EDU: Uses injected dependency
+if key not in keycodes:  # Uses injected dependency
 
 raise ValueError(f"Unknown key: {key}")
 
 sequence.append(f"{keycodes[key]}:1")
 
-subprocess.run([ydotool_path, "key"] + sequence)  # EDU: Uses injected dependency
+subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
 
-HOW YOU WOULD CALL IT:
+You would call it like: `hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")`  with dependencies passed in.
 
-hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # EDU: Dependencies passed in
-
-OUR CURRENT APPROACH (Global Configuration):
+CURRENT APPROACH (Global Configuration):
 
 def hot_keys(*keys: str) -> None:
 
@@ -235,11 +215,9 @@ sequence.append(f"{KEYCODES[key]}:1")
 
 subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
 
-HOW YOU CALL IT:
+You call it like: `hot_keys("CTRL", "C")`  No dependencies passed, function finds them globally.
 
-hot_keys("CTRL", "C")  # EDU: No dependencies passed - function finds them globally
-
-## KEY DIFFERENCES EXPLAINED:
+### Key differences
 
 1. WHERE DEPENDENCIES COME FROM:
 
@@ -315,11 +293,11 @@ def hot_keys(*keys): # Uses captured dependencies
 
 return hot_keys
 
-*[Source: actions.py:110]*
+*[Source: actions.py:104]*
 
 ---
 
-<a id="general-7"></a>
+<a id="general-6"></a>
 
 =====================================================================================
 
@@ -449,11 +427,11 @@ This documentation explains the wrapper pattern inconsistencies that were
 
 causing the microphone toggle functionality to fail.
 
-*[Source: actions.py:207]*
+*[Source: actions.py:214]*
 
 ---
 
-<a id="general-8"></a>
+<a id="general-7"></a>
 
 DESIGN PATTERN: Module-level Configuration with General Initialization
 
@@ -495,11 +473,11 @@ The config.initialization.init_module() function sets these global variables
 
 by calling setattr(module, key, value) for each configuration parameter.
 
-*[Source: actions.py:290]*
+*[Source: actions.py:297]*
 
 ---
 
-<a id="general-9"></a>
+<a id="general-8"></a>
 
 URL Functions - Browser Integration
 
@@ -567,11 +545,11 @@ SECURITY CONSIDERATIONS:
 
 - Browser handles HTTPS validation and security
 
-*[Source: actions.py:315]*
+*[Source: actions.py:322]*
 
 ---
 
-<a id="general-10"></a>
+<a id="general-9"></a>
 
 SPOTIFY LAUNCH ALTERNATIVES:
 
@@ -585,11 +563,11 @@ Using simple "spotify" command works with most installation methods
 
 as they typically create a symlink in PATH
 
-*[Source: actions.py:442]*
+*[Source: actions.py:449]*
 
 ---
 
-<a id="general-11"></a>
+<a id="general-10"></a>
 
 ERROR HANDLING CONSIDERATIONS:
 
@@ -601,7 +579,21 @@ ERROR HANDLING CONSIDERATIONS:
 
 Current implementation gracefully handles these by allowing subprocess errors
 
-*[Source: actions.py:455]*
+*[Source: actions.py:462]*
+
+---
+
+<a id="general-11"></a>
+
+## Circular import to avoid
+
+I was importing render_keys from ui.render at the top of the file, but this was causing a circular import issue.
+
+render_keys import moved inside toggle_mic function to avoid circular import
+
+This breaks the cycle: actions -> ui.render -> core.logic -> actions
+
+*[Source: actions.py:468]*
 
 ---
 
@@ -627,7 +619,7 @@ commit message in vscode, as I prefer that over nano or vim. I have the lines sh
 
 commit title and description can extend to, so this is nice.
 
-*[Source: actions.py:982]*
+*[Source: actions.py:996]*
 
 ---
 
@@ -639,7 +631,7 @@ Simple demonstration of the hot_keys function that sends the standard
 
 copy-to-clipboard keyboard shortcut. This is a basic example of hotkey usage.
 
-*[Source: actions.py:607]*
+*[Source: actions.py:621]*
 
 ---
 
@@ -677,7 +669,7 @@ Advantages:
 
 - Integrates with desktop environment's window management
 
-*[Source: actions.py:575]*
+*[Source: actions.py:589]*
 
 ---
 
@@ -687,7 +679,7 @@ Send the standard Linux terminal hotkey combination
 
 This is recognized by virtually all Linux desktop environments
 
-*[Source: actions.py:597]*
+*[Source: actions.py:611]*
 
 ---
 
@@ -709,7 +701,7 @@ Technical Details:
 
 - All events are sent in a single ydotool command for atomic execution
 
-*[Source: actions.py:531]*
+*[Source: actions.py:545]*
 
 ---
 
@@ -717,7 +709,7 @@ Technical Details:
 
 Look up the Linux input event code for this key name
 
-*[Source: actions.py:547]*
+*[Source: actions.py:561]*
 
 ---
 
@@ -725,7 +717,7 @@ Look up the Linux input event code for this key name
 
 Format as "keycode:1" for key press event
 
-*[Source: actions.py:550]*
+*[Source: actions.py:564]*
 
 ---
 
@@ -733,7 +725,7 @@ Format as "keycode:1" for key press event
 
 Format as "keycode:0" for key release event
 
-*[Source: actions.py:555]*
+*[Source: actions.py:569]*
 
 ---
 
@@ -743,7 +735,7 @@ Give ydotool daemon time to wake up from idle state
 
 First command after idle needs a moment to initialize properly
 
-*[Source: actions.py:559]*
+*[Source: actions.py:573]*
 
 ---
 
@@ -759,7 +751,7 @@ Requires amixer to be installed and the Capture device to be available.
 
 This is the standard microphone control on most Linux systems.
 
-*[Source: actions.py:468]*
+*[Source: actions.py:482]*
 
 ---
 
@@ -795,7 +787,7 @@ wmctrl Details:
 
 - "-i -a window_id" activates window by ID
 
-*[Source: actions.py:1008]*
+*[Source: actions.py:1022]*
 
 ---
 
@@ -813,7 +805,7 @@ Window Management Strategy:
 
 This prevents window clutter and improves UX
 
-*[Source: actions.py:828]*
+*[Source: actions.py:842]*
 
 ---
 
@@ -829,7 +821,7 @@ Alternative Launch Methods:
 
 URI scheme works regardless of installation method
 
-*[Source: actions.py:836]*
+*[Source: actions.py:850]*
 
 ---
 
@@ -849,7 +841,7 @@ OBSIDIAN INTEGRATION:
 
 - Works with both local and synced vaults
 
-*[Source: actions.py:842]*
+*[Source: actions.py:856]*
 
 ---
 
@@ -859,7 +851,7 @@ Extract vault name from the full path for window matching and URI construction
 
 Path.resolve() normalizes the path and .name gets the final component
 
-*[Source: actions.py:851]*
+*[Source: actions.py:865]*
 
 ---
 
@@ -875,7 +867,7 @@ Alternative approaches:
 
 - Integrate with VSCode's workspace API for session management
 
-*[Source: actions.py:627]*
+*[Source: actions.py:641]*
 
 ---
 
@@ -915,7 +907,7 @@ before accepting hotkeys. This delay works well for most hardware and
 
 project sizes.
 
-*[Source: actions.py:632]*
+*[Source: actions.py:646]*
 
 ---
 
@@ -951,7 +943,7 @@ PLAYERCTL ADVANTAGES:
 
 - More reliable than application-specific APIs
 
-*[Source: actions.py:398]*
+*[Source: actions.py:405]*
 
 ---
 
@@ -963,7 +955,7 @@ pgrep flags: -x (exact match), searches for process name "spotify"
 
 capture_output=True prevents command output from appearing in terminal
 
-*[Source: actions.py:419]*
+*[Source: actions.py:426]*
 
 ---
 
@@ -971,7 +963,7 @@ capture_output=True prevents command output from appearing in terminal
 
 Check return code: 0 = found process, non-zero = process not found
 
-*[Source: actions.py:424]*
+*[Source: actions.py:431]*
 
 ---
 
@@ -981,7 +973,7 @@ Spotify is running - toggle play/pause state
 
 playerctl flags: --player=spotify (target specific player), play-pause (toggle command)
 
-*[Source: actions.py:426]*
+*[Source: actions.py:433]*
 
 ---
 
@@ -999,7 +991,7 @@ ALTERNATIVE PLAYERCTL COMMANDS:
 
 - "stop" - stop playback
 
-*[Source: actions.py:430]*
+*[Source: actions.py:437]*
 
 ---
 
@@ -1009,7 +1001,7 @@ Spotify not running - launch the application
 
 This will start Spotify in the background
 
-*[Source: actions.py:438]*
+*[Source: actions.py:445]*
 
 ---
 
@@ -1021,7 +1013,7 @@ Similar to terminal_env_jarvis() but specifically for the busybee project
 
 environment. See terminal_env_jarvis() for detailed workflow explanation.
 
-*[Source: actions.py:971]*
+*[Source: actions.py:985]*
 
 ---
 
@@ -1055,7 +1047,7 @@ Executes "open_jarvisbusybee_env_T.sh" which handles:
 
 - Loading any necessary environment variables
 
-*[Source: actions.py:948]*
+*[Source: actions.py:962]*
 
 ---
 
@@ -1077,7 +1069,7 @@ Visual Feedback:
 
 Uses amixer to control the Capture device. Requires ALSA to be configured.
 
-*[Source: actions.py:493]*
+*[Source: actions.py:507]*
 
 ---
 
@@ -1129,7 +1121,7 @@ However, snippets are typically small and accessed infrequently,
 
 so the current simple approach is adequate.
 
-*[Source: actions.py:761]*
+*[Source: actions.py:775]*
 
 ---
 
@@ -1165,7 +1157,7 @@ immediately. This allows configuration during layout building and
 
 execution when keys are pressed.
 
-*[Source: actions.py:686]*
+*[Source: actions.py:700]*
 
 ---
 
@@ -1181,7 +1173,7 @@ fine on X11 too. No need to change it for now, unless I face limitations or issu
 
 - PyAutoGUI: Not tested yet, but I keep it in mind for future exploration.
 
-*[Source: actions.py:717]*
+*[Source: actions.py:731]*
 
 ---
 
@@ -1199,7 +1191,7 @@ Having quick access to learning platforms supports continuous learning
 
 and skill development during coding sessions.
 
-*[Source: actions.py:356]*
+*[Source: actions.py:363]*
 
 ---
 
@@ -1215,7 +1207,7 @@ their associated default applications.
 
 xdg-open is the freedesktop.org standard for opening files/URLs
 
-*[Source: actions.py:374]*
+*[Source: actions.py:381]*
 
 ---
 
@@ -1233,7 +1225,7 @@ Follows same pattern as other web-opening functions for consistency
 
 and predictable behavior across all web-based StreamDeck actions.
 
-*[Source: actions.py:365]*
+*[Source: actions.py:372]*
 
 ---
 
@@ -1245,7 +1237,7 @@ Launch VSCode with the project path as argument
 
 VSCode will open the directory and load workspace settings
 
-*[Source: actions.py:654]*
+*[Source: actions.py:668]*
 
 ---
 
@@ -1255,7 +1247,7 @@ Wait for VSCode to fully initialize before sending hotkeys
 
 This prevents the terminal hotkey from being ignored
 
-*[Source: actions.py:659]*
+*[Source: actions.py:673]*
 
 ---
 
@@ -1265,7 +1257,7 @@ Open VSCode integrated terminal using Ctrl+` (grave/backtick)
 
 This provides immediate access to command line in project context
 
-*[Source: actions.py:663]*
+*[Source: actions.py:677]*
 
 ---
 
@@ -1283,7 +1275,7 @@ Arguments:
 
 - text: The actual text to type
 
-*[Source: actions.py:709]*
+*[Source: actions.py:723]*
 
 ---
 
@@ -1293,7 +1285,7 @@ Read snippet content from file
 
 Using context manager (with statement) ensures file is properly closed
 
-*[Source: actions.py:798]*
+*[Source: actions.py:812]*
 
 ---
 
@@ -1303,7 +1295,7 @@ Type the snippet content using ydotool
 
 Same approach as type_text() function
 
-*[Source: actions.py:807]*
+*[Source: actions.py:821]*
 
 ---
 
@@ -1311,7 +1303,7 @@ Same approach as type_text() function
 
 STEP 1: Check if Obsidian is already open with this vault
 
-*[Source: actions.py:856]*
+*[Source: actions.py:870]*
 
 ---
 
@@ -1321,7 +1313,7 @@ Use wmctrl to list all open windows with their titles
 
 wmctrl -l output format: window_id desktop_num client_machine window_title
 
-*[Source: actions.py:858]*
+*[Source: actions.py:872]*
 
 ---
 
@@ -1329,7 +1321,7 @@ wmctrl -l output format: window_id desktop_num client_machine window_title
 
 Search through each window to find Obsidian with our vault
 
-*[Source: actions.py:862]*
+*[Source: actions.py:876]*
 
 ---
 
@@ -1339,7 +1331,7 @@ Look for lines containing both "Obsidian" and our vault name
 
 This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidian"
 
-*[Source: actions.py:864]*
+*[Source: actions.py:878]*
 
 ---
 
@@ -1347,7 +1339,7 @@ This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidia
 
 Extract window ID (first column in wmctrl output)
 
-*[Source: actions.py:867]*
+*[Source: actions.py:881]*
 
 ---
 
@@ -1357,7 +1349,7 @@ Activate the existing window (bring to front and focus)
 
 wmctrl flags: -i (use window ID), -a (activate window)
 
-*[Source: actions.py:870]*
+*[Source: actions.py:884]*
 
 ---
 
@@ -1367,7 +1359,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:876]*
+*[Source: actions.py:890]*
 
 ---
 
@@ -1379,7 +1371,7 @@ Use Obsidian's URI scheme for clean vault opening
 
 Format: obsidian://open?vault=vault_name
 
-*[Source: actions.py:880]*
+*[Source: actions.py:894]*
 
 ---
 
@@ -1389,7 +1381,7 @@ Use xdg-open to handle the URI scheme
 
 xdg-open is the standard Linux way to open files/URIs with default applications
 
-*[Source: actions.py:885]*
+*[Source: actions.py:899]*
 
 ---
 
@@ -1397,7 +1389,7 @@ xdg-open is the standard Linux way to open files/URIs with default applications
 
 pathlib.Path provides cross-platform path construction
 
-*[Source: actions.py:910]*
+*[Source: actions.py:924]*
 
 ---
 
@@ -1405,7 +1397,7 @@ pathlib.Path provides cross-platform path construction
 
 The bash script should be executable (chmod u+x)
 
-*[Source: actions.py:919]*
+*[Source: actions.py:933]*
 
 ---
 
@@ -1413,7 +1405,7 @@ The bash script should be executable (chmod u+x)
 
 Build command for terminal execution
 
-*[Source: actions.py:926]*
+*[Source: actions.py:940]*
 
 ---
 
@@ -1433,7 +1425,7 @@ I need to convert the target directory to an absolute path because:
 
 Path.resolve() follows the shortcut to get the real location)
 
-*[Source: actions.py:1027]*
+*[Source: actions.py:1041]*
 
 ---
 
@@ -1453,7 +1445,7 @@ subprocess.check_output() runs this command and captures its text output
 
 text=True ensures I get a string back instead of bytes
 
-*[Source: actions.py:1036]*
+*[Source: actions.py:1050]*
 
 ---
 
@@ -1469,7 +1461,7 @@ Each line contains: window_id, desktop_number, WM_CLASS, hostname, window_title
 
 I need to parse each line to extract the information I need
 
-*[Source: actions.py:1048]*
+*[Source: actions.py:1062]*
 
 ---
 
@@ -1479,7 +1471,7 @@ I only care about Nautilus windows, so I check if "org.gnome.Nautilus"
 
 is in the line. This is the WM_CLASS identifier for Nautilus windows.
 
-*[Source: actions.py:1055]*
+*[Source: actions.py:1069]*
 
 ---
 
@@ -1493,7 +1485,7 @@ The window ID is always the first part (index 0)
 
 Example: "0x02400003" from the line above
 
-*[Source: actions.py:1059]*
+*[Source: actions.py:1073]*
 
 ---
 
@@ -1509,7 +1501,7 @@ Example: from "desktop file-browser - /home/user/Documents"
 
 I want "file-browser - /home/user/Documents"
 
-*[Source: actions.py:1065]*
+*[Source: actions.py:1079]*
 
 ---
 
@@ -1525,7 +1517,7 @@ Path(path).name returns "Documents" from "/home/user/Documents"
 
 This helps me match windows that might not show the full path
 
-*[Source: actions.py:1072]*
+*[Source: actions.py:1086]*
 
 ---
 
@@ -1533,7 +1525,7 @@ This helps me match windows that might not show the full path
 
 I check three conditions to see if this window matches my target:
 
-*[Source: actions.py:1081]*
+*[Source: actions.py:1095]*
 
 ---
 
@@ -1555,7 +1547,7 @@ instead of a window title/name (more reliable than titles)
 
 window_id: the window ID I extracted earlier (like 0x02400003)
 
-*[Source: actions.py:1086]*
+*[Source: actions.py:1100]*
 
 ---
 
@@ -1565,7 +1557,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:1099]*
+*[Source: actions.py:1113]*
 
 ---
 
@@ -1587,6 +1579,6 @@ This is perfect for GUI applications because:
 
 I pass the target directory as an argument to nautilus so it opens there
 
-*[Source: actions.py:1103]*
+*[Source: actions.py:1117]*
 
 ---

@@ -4,32 +4,6 @@ Bridges StreamDeck key events to system operations/actions.
 Configuration initialized via config.initialization.init_module().
 """
 
-# EDU: ## Configuration Flow Architecture
-# EDU: 
-# EDU: How environment variables in config.env reach this module:
-# EDU:  
-# EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory).
-# EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
-# EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
-# EDU: 3. \_\_main\_\_.py delegates to core.application which reads environment variables using os.getenv()
-# EDU: 4. core.application calls config.initialization.init_jarvis() with all configuration
-# EDU: 5. init_jarvis() uses the general init_module() function to set global variables in this module
-# EDU: 6. This module stores them in global variables for use by action functions
-# EDU: 
-# EDU: ### Configuration Flow
-# EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
-# EDU: 
-# EDU: This uses a Global Configuration with Dynamic Initialization pattern.
-# EDU: 
-# EDU: ### Why not read environment variables directly in this module?
-# EDU: 
-# EDU: We could have each action function call `os.getenv()` directly, but I chose centralized global configuration instead because:
-# EDU: - Keeps configuration loading centralized in core.application, so it is easier to maintain
-# EDU: - Makes dependencies explicit (you can see what each module needs)
-# EDU: - Better separation of concerns (core.application handles config, this module handles actions)
-# EDU: 
-# EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
-
 # EDU: ## Module Functionality Overview
 # EDU: 
 # EDU: 1. Opening of **URLs** in default browser. In my case, Google Chrome. Functions here are:
@@ -63,18 +37,39 @@ import os          # File system operations and path manipulation
 from pathlib import Path  # Object-oriented filesystem paths
 from typing import Dict, Optional, Callable, Any
 
-# EDU: ## Circular import to avoid
-# EDU: I was importing render_keys from ui.render at the top of the file, but this was causing a circular import issue.
+# EDU: ## Configuration Flow Architecture
 # EDU: 
-# EDU: render_keys import moved inside toggle_mic function to avoid circular import
+# EDU: How environment variables in config.env reach this module:
+# EDU:  
+# EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory).
+# EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
+# EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
+# EDU: 3. \_\_main\_\_.py delegates to core.application which reads environment variables using os.getenv()
+# EDU: 4. core.application calls config.initialization.init_jarvis() with all configuration
+# EDU: 5. init_jarvis() uses the general init_module() function to set global variables in this module
+# EDU: 6. This module stores them in global variables for use by action functions
 # EDU: 
-# EDU: This breaks the cycle: actions -> ui.render -> core.logic -> actions
-
-# IMPORTANT: Global variable declarations are MANDATORY for the init_module() pattern to work
-# EDU: The config.initialization.init_module() function uses hasattr() to check if each variable
-# EDU: exists in this module's namespace before attempting to set its value with setattr().
-# EDU: Without these declarations, hasattr() returns False and initialization silently fails.
+# EDU: ### Configuration Flow
+# EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
+# EDU: 
+# EDU: This uses a Global Configuration with Dynamic Initialization (DI) pattern.
+# EDU: 
+# EDU: ### Why not read environment variables directly in this module?
+# EDU: 
+# EDU: We could have each action function call `os.getenv()` directly, but I chose centralized global configuration instead because:
+# EDU: - Keeps configuration loading centralized in core.application, so it is easier to maintain
+# EDU: - Makes dependencies explicit (you can see what each module needs)
+# EDU: - Better separation of concerns (core.application handles config, this module handles actions)
+# EDU: 
+# EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 # EDU:
+
+# EDU: ## Global variable declarations for dynamic initialization
+# EDU: 
+# EDU: ==IMPORTANT==: Global variable declarations are MANDATORY for the init_module() pattern to work.
+# EDU: 
+# EDU: The config.initialization.init_module() function uses hasattr() to check if each variable exists in this module's namespace before attempting to set its value with setattr(). Without these declarations, hasattr() returns False and initialization silently fails.
+# EDU: 
 # EDU: Initialization flow:
 # EDU: 1. These variables are declared as None (creates the module attributes)
 # EDU: 2. core.application calls init_jarvis() which internally calls init_module(actions, ...)
@@ -82,73 +77,85 @@ from typing import Dict, Optional, Callable, Any
 # EDU: 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
 # EDU: 5. Action functions check if variables are still None to detect initialization failures
 
-YDOTOOL_PATH: Optional[str] = None     # Path to ydotool executable for keyboard/mouse input simulation
+YDOTOOL_PATH: Optional[str] = None     # Path to ydotool executable for keyboard/mouse input simulation. It should be the path to custom build with uinput support in udev
 SNIPPETS_DIR: Optional[Path] = None     # Directory containing code snippet text files
 BASHSCRIPTS_DIR: Optional[Path] = None  # Directory containing executable bash scripts
 PROJECTS_DIR: Optional[Path] = None     # User's main projects directory (usually ~/Zenith)
 KEYCODES: Optional[Dict[str, int]] = None  # Mapping of key names to Linux input event codes
 KEYRING_PW: Optional[str] = None       # Password for keyring/password manager access (from config.env)
 
+# EDU: ## Design pattern comparison: Global Configuration vs dependency injection
 # EDU: 
-# EDU: ## DESIGN PATTERNS COMPARISON
+# EDU: We are using global configuration with dynamic initialization.
 # EDU: 
-# EDU: We are using Global Configuration with Dynamic Initialization
+# EDU: Our pattern stores configuration in module-level global variables that are set at runtime. This approach provides:
+# EDU: 1. Testability: Easy to mock configuration by setting globals for unit tests
+# EDU: 2. Flexibility: Can be configured differently for different environments
+# EDU: 3. Performance: Configuration accessed directly without repeated file reads or imports
+# EDU: 4. Error handling: Can detect and report missing configuration with None checks
+# EDU: 5. Simplicity: No complex dependency injection framework needed
 # EDU: 
-# EDU: Our pattern stores configuration in module-level global variables that are set at runtime.
-# EDU: This approach provides:
-# EDU: 1. TESTABILITY: Easy to mock configuration by setting globals for unit tests
-# EDU: 2. FLEXIBILITY: Can be configured differently for different environments
-# EDU: 3. PERFORMANCE: Configuration accessed directly without repeated file reads or imports
-# EDU: 4. ERROR HANDLING: Can detect and report missing configuration with None checks
-#
-# EDU: HOW OUR PATTERN WORKS:
+# EDU: ### How the pattern works
 # EDU: 1. Declare global variables as None (creates module attributes)
 # EDU: 2. At startup, init_module() uses setattr() to set real values
 # EDU: 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
 # EDU: 4. Configuration is "injected" into the module, not into individual functions
 
-# EDU: ## What is true dependency injection?
+# EDU: ### What is true dependency injection?
 # EDU: 
-# EDU: Dependency Injection (DI) is a design pattern where an object's dependencies
-# EDU: are provided (injected) to it from external sources rather than the object
-# EDU: creating or finding them itself.
-#
+# EDU: Dependency Injection (DI) is a design pattern where an object's dependencies are provided (injected) to it from external sources rather than the object creating or finding them itself.
+# EDU: 
 # EDU: KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
 # EDU: - Dependencies are PASSED IN as parameters to functions/constructors
 # EDU: - The function/object doesn't know HOW to create its dependencies
 # EDU: - An external "injector" provides the dependencies
 #
-# EDU: TRUE DEPENDENCY INJECTION EXAMPLE:
+# EDU: **TRUE DEPENDENCY INJECTION EXAMPLE:**
+# EDU:
 # EDU: def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
+# EDU:
 # EDU:     """Dependencies are INJECTED as parameters - this is true DI"""
+# EDU:
 # EDU:     sequence = []
+# EDU:
 # EDU:     for key in keys:
-# EDU:         if key not in keycodes:  # EDU: Uses injected dependency
+# EDU:
+# EDU:         if key not in keycodes:  # Uses injected dependency
+# EDU:
 # EDU:             raise ValueError(f"Unknown key: {key}")
+# EDU:
 # EDU:         sequence.append(f"{keycodes[key]}:1")
-# EDU:     subprocess.run([ydotool_path, "key"] + sequence)  # EDU: Uses injected dependency
-#
-# EDU: HOW YOU WOULD CALL IT:
-# EDU: hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # EDU: Dependencies passed in
-#
-# EDU: OUR CURRENT APPROACH (Global Configuration):
+# EDU:
+# EDU:     subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
+# EDU:
+# EDU: You would call it like: `hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")`  with dependencies passed in.
+# EDU:
+# EDU: CURRENT APPROACH (Global Configuration):
+# EDU:
 # EDU: def hot_keys(*keys: str) -> None:
+# EDU:
 # EDU:     """Dependencies accessed from global state - NOT dependency injection"""
+# EDU:
 # EDU:     if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
+# EDU:
 # EDU:         raise RuntimeError("Module not initialized")
+# EDU:
 # EDU:     sequence = []
+# EDU:
 # EDU:     for key in keys:
+# EDU:
 # EDU:         if key not in KEYCODES:  # EDU: Uses global variable
+# EDU:
 # EDU:             raise ValueError(f"Unknown key: {key}")
+# EDU:
 # EDU:         sequence.append(f"{KEYCODES[key]}:1")
+# EDU:
 # EDU:     subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
-#
-# EDU: HOW YOU CALL IT:
-# EDU: hot_keys("CTRL", "C")  # EDU: No dependencies passed - function finds them globally
-#
-# EDU: ## KEY DIFFERENCES EXPLAINED:
+# EDU:
+# EDU: You call it like: `hot_keys("CTRL", "C")`  No dependencies passed, function finds them globally.
 # EDU: 
-#
+# EDU: ### Key differences
+# EDU: 
 # EDU: 1. WHERE DEPENDENCIES COME FROM:
 # EDU:    - TRUE DI: Dependencies passed as function parameters
 # EDU:    - OUR APPROACH: Dependencies accessed from module-level globals
@@ -457,6 +464,13 @@ def spotify() -> None:
     # EDU: - playerctl might fail if no MPRIS session exists
     # EDU: - spotify command might fail if not in PATH
     # EDU: Current implementation gracefully handles these by allowing subprocess errors
+
+# EDU: ## Circular import to avoid
+# EDU: I was importing render_keys from ui.render at the top of the file, but this was causing a circular import issue.
+# EDU: 
+# EDU: render_keys import moved inside toggle_mic function to avoid circular import
+# EDU: 
+# EDU: This breaks the cycle: actions -> ui.render -> core.logic -> actions
 
 # 3. Microphone state function and toggle ON/OFF
 def is_mic_muted() -> bool:
