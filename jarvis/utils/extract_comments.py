@@ -319,7 +319,7 @@ class CommentExtractor:
         # Matches: # TAG: content or #TAG content or # TAG content
         tag_pattern = '|'.join(self.tags)
         self.tag_regex = re.compile(
-            rf'^\s*#\s*({tag_pattern})[\s:]*(.*)$',
+            rf'^\s*#\s*({tag_pattern})(?::\s?|\s?)(.*)$',
             re.IGNORECASE
         )
 

@@ -43,9 +43,9 @@ date: 2025-10-03
 
 6. Type text and text blocks or snippets:
 
-- type_text, type_snippet
+   - type_text, type_snippet
 
-- type_keyring: Type and enter passwords. However, it is recommended to leave this function unused. I need to find a way to encrypt passwords. I leave this here as a placeholder for a future implementation, as I do not know at the moment how to do it securely. Therefore, in the config.env file it is recommended to leave the KEYRING_PW variable empty.
+   - type_keyring: Type and enter passwords. However, it is recommended to leave this function unused. I need to find a way to encrypt passwords. I leave this here as a placeholder for a future implementation, as I do not know at the moment how to do it securely. Therefore, in the config.env file it is recommended to leave the KEYRING_PW variable empty.
 
 7. Open **Obsidian** with a given vault path. It supports the possibility to open multiple vaults, so you can reuse the function in different keys for different vaults with open_obsidian. However, it is needed to specify the codename, and the path to the vault needs to be in the config.env file.
 
@@ -173,19 +173,19 @@ Dependency Injection (DI) is a design pattern where an object's dependencies are
 
 def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
 
-"""Dependencies are INJECTED as parameters - this is true DI"""
+    """Dependencies are INJECTED as parameters - this is true DI"""
 
-sequence = []
+    sequence = []
 
-for key in keys:
+    for key in keys:
 
-if key not in keycodes:  # Uses injected dependency
+        if key not in keycodes:  # Uses injected dependency
 
-raise ValueError(f"Unknown key: {key}")
+            raise ValueError(f"Unknown key: {key}")
 
-sequence.append(f"{keycodes[key]}:1")
+        sequence.append(f"{keycodes[key]}:1")
 
-subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
+    subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
 
 ```
 
@@ -195,23 +195,23 @@ CURRENT APPROACH (Global Configuration):
 
 def hot_keys(*keys: str) -> None:
 
-"""Dependencies accessed from global state - NOT dependency injection"""
+    """Dependencies accessed from global state - NOT dependency injection"""
 
-if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
+    if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
 
-raise RuntimeError("Module not initialized")
+        raise RuntimeError("Module not initialized")
 
-sequence = []
+    sequence = []
 
-for key in keys:
+    for key in keys:
 
-if key not in KEYCODES:  # EDU: Uses global variable
+        if key not in KEYCODES:  # EDU: Uses global variable
 
-raise ValueError(f"Unknown key: {key}")
+            raise ValueError(f"Unknown key: {key}")
 
-sequence.append(f"{KEYCODES[key]}:1")
+        sequence.append(f"{KEYCODES[key]}:1")
 
-subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
+    subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
 
 You call it like: `hot_keys("CTRL", "C")`  No dependencies passed, function finds them globally.
 
@@ -219,57 +219,57 @@ You call it like: `hot_keys("CTRL", "C")`  No dependencies passed, function find
 
 1. WHERE DEPENDENCIES COME FROM:
 
-- TRUE DI: Dependencies passed as function parameters
+   - TRUE DI: Dependencies passed as function parameters
 
-- OUR APPROACH: Dependencies accessed from module-level globals
+   - OUR APPROACH: Dependencies accessed from module-level globals
 
 2. FUNCTION SIGNATURES:
 
-- TRUE DI: Functions declare what they need as parameters
+   - TRUE DI: Functions declare what they need as parameters
 
-- OUR APPROACH: Functions have simpler signatures, find dependencies internally
+   - OUR APPROACH: Functions have simpler signatures, find dependencies internally
 
 3. CALLER RESPONSIBILITY:
 
-- TRUE DI: Caller must provide all dependencies when calling function
+   - TRUE DI: Caller must provide all dependencies when calling function
 
-- OUR APPROACH: Caller just calls function, dependencies already available globally
+   - OUR APPROACH: Caller just calls function, dependencies already available globally
 
 4. COUPLING:
 
-- TRUE DI: Functions are decoupled from specific dependency sources
+   - TRUE DI: Functions are decoupled from specific dependency sources
 
-- OUR APPROACH: Functions are coupled to specific global variable names
+   - OUR APPROACH: Functions are coupled to specific global variable names
 
 5. TESTING:
 
-- TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
+   - TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
 
-- OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
+   - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
 
 WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
 
 1. STREAMDECK CONSTRAINT: StreamDeck library calls our functions with fixed signatures
 
-- StreamDeck expects: key_pressed(deck, key_number)
+   - StreamDeck expects: key_pressed(deck, key_number)
 
-- Can't change to: key_pressed(deck, key_number, ydotool_path, keycodes, ...)
+   - Can't change to: key_pressed(deck, key_number, ydotool_path, keycodes, ...)
 
 2. SIMPLICITY: Fewer parameters to pass around in every function call
 
-- Our way: hot_keys("CTRL", "C")
+   - Our way: hot_keys("CTRL", "C")
 
-- DI way: hot_keys(ydotool_path, keycodes, "CTRL", "C")
+   - DI way: hot_keys(ydotool_path, keycodes, "CTRL", "C")
 
 3. PERFORMANCE: No need to pass the same config objects repeatedly
 
-- Configuration set once at startup, accessed directly when needed
+   - Configuration set once at startup, accessed directly when needed
 
 4. STREAMDECK INTEGRATION: Hardware callbacks can't receive arbitrary parameters
 
-- Hardware events trigger callbacks with predetermined signatures
+   - Hardware events trigger callbacks with predetermined signatures
 
-- Global state allows callbacks to access needed configuration
+   - Global state allows callbacks to access needed configuration
 
 ALTERNATIVE PATTERNS WE COULD HAVE USED:
 
@@ -277,19 +277,19 @@ ALTERNATIVE PATTERNS WE COULD HAVE USED:
 
 1. SERVICE LOCATOR: Functions call a service to get dependencies
 
-config = ConfigService.get_config(); config.ydotool_path
+   config = ConfigService.get_config(); config.ydotool_path
 
 2. SINGLETON: Global configuration object
 
-Config.instance().ydotool_path
+   Config.instance().ydotool_path
 
 3. CLOSURE WITH DEPENDENCY INJECTION: Factory functions that capture dependencies
 
-def create_hotkey_function(ydotool_path, keycodes):
+   def create_hotkey_function(ydotool_path, keycodes):
 
-def hot_keys(*keys): # Uses captured dependencies
+       def hot_keys(*keys): # Uses captured dependencies
 
-return hot_keys
+       return hot_keys
 
 *[Source: actions.py:87]*
 
@@ -317,23 +317,23 @@ Functions that need arguments use the Factory Pattern:
 
 Definition in actions.py:
 
-def toggle_mic(deck, key):
+  def toggle_mic(deck, key):
 
-def wrapper():
+      def wrapper():
 
-# ... do the actual work ...
+          # ... do the actual work ...
 
-return wrapper  # Return function reference, don't call it
+      return wrapper  # Return function reference, don't call it
 
 Usage in layouts.py:
 
-"action": actions.toggle_mic(deck, 31)  # Called WITH parentheses
+  "action": actions.toggle_mic(deck, 31)  # Called WITH parentheses
 
 What happens:
 
-1. Layout creation: toggle_mic(deck, 31) is called → returns wrapper function
+  1. Layout creation: toggle_mic(deck, 31) is called → returns wrapper function
 
-2. Key press: StreamDeck calls the stored wrapper function → actual work happens
+  2. Key press: StreamDeck calls the stored wrapper function → actual work happens
 
 Examples: toggle_mic(deck, key), type_text(text), open_obsidian(vault_path)
 
@@ -345,23 +345,23 @@ Functions that need no arguments use Direct Execution Pattern:
 
 Definition in actions.py:
 
-def terminal_env_jarvis():
+  def terminal_env_jarvis():
 
-def wrapper():
+      def wrapper():
 
-# ... do the actual work ...
+          # ... do the actual work ...
 
-return wrapper()  # Call function immediately and return result
+      return wrapper()  # Call function immediately and return result
 
 Usage in layouts.py:
 
-"action": actions.terminal_env_jarvis  # Referenced WITHOUT parentheses
+  "action": actions.terminal_env_jarvis  # Referenced WITHOUT parentheses
 
 What happens:
 
-1. Layout creation: terminal_env_jarvis is stored as function reference
+  1. Layout creation: terminal_env_jarvis is stored as function reference
 
-2. Key press: StreamDeck calls terminal_env_jarvis() → wrapper() executes immediately
+  2. Key press: StreamDeck calls terminal_env_jarvis() → wrapper() executes immediately
 
 Examples: terminal_env_jarvis, terminal_env_busybee, defaultbranch_commit
 
@@ -373,19 +373,19 @@ The pattern depends on whether the function needs arguments:
 
 1. Functions WITH arguments:
 
-- Must be called during layout creation to pass arguments
+   - Must be called during layout creation to pass arguments
 
-- Return wrapper function for later execution
+   - Return wrapper function for later execution
 
-- Use: "action": actions.function_name(arg1, arg2)
+   - Use: "action": actions.function_name(arg1, arg2)
 
 2. Functions WITHOUT arguments:
 
-- Can be referenced directly in layout
+   - Can be referenced directly in layout
 
-- Execute immediately when called by StreamDeck
+   - Execute immediately when called by StreamDeck
 
-- Use: "action": actions.function_name
+   - Use: "action": actions.function_name
 
 COMMON MISTAKE:
 
@@ -403,23 +403,23 @@ EXAMPLE COMPARISON:
 
 CORRECT (with arguments):
 
-def toggle_mic(deck, key):
+  def toggle_mic(deck, key):
 
-def wrapper():
+      def wrapper():
 
-render_keys(deck, key, ...)
+          render_keys(deck, key, ...)
 
-return wrapper  # ✓ Correct: returns function for later execution
+      return wrapper  # ✓ Correct: returns function for later execution
 
 INCORRECT (with arguments):
 
-def toggle_mic(deck, key):
+  def toggle_mic(deck, key):
 
-def wrapper():
+      def wrapper():
 
-render_keys(deck, key, ...)
+          render_keys(deck, key, ...)
 
-return wrapper()  # ✗ Wrong: executes immediately, returns None
+      return wrapper()  # ✗ Wrong: executes immediately, returns None
 
 This documentation explains the wrapper pattern inconsistencies that were
 
@@ -483,65 +483,65 @@ URL Functions - Browser Integration
 
 BROWSER INTEGRATION DECISIONS:
 
-Originally considered checking for existing browser tabs and focusing them
+   Originally considered checking for existing browser tabs and focusing them
 
-instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
+   instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
 
-or similar browser automation tools.
+   or similar browser automation tools.
 
-WHY SIMPLE APPROACH WAS CHOSEN:
+   WHY SIMPLE APPROACH WAS CHOSEN:
 
-- CDP is complex and overkill for simple URL opening
+   - CDP is complex and overkill for simple URL opening
 
-- Security risks with browser automation protocols
+   - Security risks with browser automation protocols
 
-- xdg-open is simpler, safer, and more reliable
+   - xdg-open is simpler, safer, and more reliable
 
-- Works with any browser (Chrome, Firefox, Edge, etc.)
+   - Works with any browser (Chrome, Firefox, Edge, etc.)
 
-- Respects user's default browser preference
+   - Respects user's default browser preference
 
-TECHNICAL DETAILS:
+   TECHNICAL DETAILS:
 
-- xdg-open delegates to desktop environment's URL handler
+   - xdg-open delegates to desktop environment's URL handler
 
-- Most browsers will reuse existing windows when possible
+   - Most browsers will reuse existing windows when possible
 
-- URL opening is non-blocking (doesn't freeze jarvis)
+   - URL opening is non-blocking (doesn't freeze jarvis)
 
-ALTERNATIVE METHODS CONSIDERED:
+   ALTERNATIVE METHODS CONSIDERED:
 
-- webbrowser.open(): Python standard library, but less robust on Linux
+   - webbrowser.open(): Python standard library, but less robust on Linux
 
-- Direct browser commands: Browser-specific, not portable
+   - Direct browser commands: Browser-specific, not portable
 
-- CDP/WebDriver: Overkill and security risks for simple URL opening
+   - CDP/WebDriver: Overkill and security risks for simple URL opening
 
-BROWSER COMPATIBILITY:
+   BROWSER COMPATIBILITY:
 
-xdg-open works with all major browsers:
+   xdg-open works with all major browsers:
 
-- Chrome/Chromium: google-chrome
+   - Chrome/Chromium: google-chrome
 
-- Firefox: firefox
+   - Firefox: firefox
 
-- Edge: microsoft-edge
+   - Edge: microsoft-edge
 
-- Safari: (not available on Linux)
+   - Safari: (not available on Linux)
 
-- Brave: brave-browser
+   - Brave: brave-browser
 
-- Opera: opera
+   - Opera: opera
 
-SECURITY CONSIDERATIONS:
+   SECURITY CONSIDERATIONS:
 
-- URL is hardcoded and safe (no user input injection)
+   - URL is hardcoded and safe (no user input injection)
 
-- xdg-open is a trusted system utility
+   - xdg-open is a trusted system utility
 
-- No browser automation or remote control involved
+   - No browser automation or remote control involved
 
-- Browser handles HTTPS validation and security
+   - Browser handles HTTPS validation and security
 
 *[Source: actions.py:316]*
 
@@ -1419,9 +1419,9 @@ I need to convert the target directory to an absolute path because:
 
 4. It also resolves any symbolic links to their actual paths
 
-(Symbolic links are like shortcuts - they point to another file/directory.
+   (Symbolic links are like shortcuts - they point to another file/directory.
 
-Path.resolve() follows the shortcut to get the real location)
+    Path.resolve() follows the shortcut to get the real location)
 
 *[Source: actions.py:1035]*
 
