@@ -4,9 +4,11 @@ Bridges StreamDeck key events to system operations/actions.
 Configuration initialized via config.initialization.init_module().
 """
 
-# EDU: Configuration Flow Architecture
-# EDU: ===============================
+# EDU: ## Configuration Flow Architecture
+# EDU: 
 # EDU: How environment variables in config.env reach this module:
+# EDU: 
+# EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory)
 # EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 # EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
 # EDU: 3. __main__.py delegates to core.application which reads environment variables using os.getenv()
@@ -18,9 +20,9 @@ Configuration initialized via config.initialization.init_module().
 # EDU:
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.
 # EDU:
-# EDU: Why not read environment variables directly in this module?
-# EDU: We could have each action function call os.getenv() directly, but I chose
-# EDU: centralized global configuration instead because:
+# EDU: ### Why not read environment variables directly in this module?
+# EDU: 
+# EDU: We could have each action function call os.getenv() directly, but I chose centralized global configuration instead because:
 # EDU: - Keeps configuration loading centralized in core.application, so it is easier to maintain
 # EDU: - Makes dependencies explicit (you can see what each module needs)
 # EDU: - Better separation of concerns (core.application handles config, this module handles actions)
@@ -85,11 +87,10 @@ KEYCODES: Optional[Dict[str, int]] = None  # Mapping of key names to Linux input
 KEYRING_PW: Optional[str] = None       # Password for keyring/password manager access (from config.env)
 
 # EDU: 
-# EDU: ## COMPUTER SCIENCE EDUCATION: DESIGN PATTERNS COMPARISON
+# EDU: ## DESIGN PATTERNS COMPARISON
 # EDU: 
-#
-# EDU: WHAT WE'RE ACTUALLY USING: Global Configuration with Dynamic Initialization
-# EDU: ===========================================================================
+# EDU: We are using Global Configuration with Dynamic Initialization
+# EDU: 
 # EDU: Our pattern stores configuration in module-level global variables that are set at runtime.
 # EDU: This approach provides:
 # EDU: 1. TESTABILITY: Easy to mock configuration by setting globals for unit tests
@@ -103,8 +104,8 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
 # EDU: 4. Configuration is "injected" into the module, not into individual functions
 
-# EDU: WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
-# EDU: ================================================================
+# EDU: ## What is true dependency injection?
+# EDU: 
 # EDU: Dependency Injection (DI) is a design pattern where an object's dependencies
 # EDU: are provided (injected) to it from external sources rather than the object
 # EDU: creating or finding them itself.
@@ -142,8 +143,8 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: HOW YOU CALL IT:
 # EDU: hot_keys("CTRL", "C")  # EDU: No dependencies passed - function finds them globally
 #
-# EDU: KEY DIFFERENCES EXPLAINED:
-# EDU: ==========================
+# EDU: ## KEY DIFFERENCES EXPLAINED:
+# EDU: 
 #
 # EDU: 1. WHERE DEPENDENCIES COME FROM:
 # EDU:    - TRUE DI: Dependencies passed as function parameters
@@ -166,7 +167,7 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU:    - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
 #
 # EDU: WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
-# EDU: ==============================================================
+# EDU: 
 # EDU: 1. STREAMDECK CONSTRAINT: StreamDeck library calls our functions with fixed signatures
 # EDU:    - StreamDeck expects: key_pressed(deck, key_number)
 # EDU:    - Can't change to: key_pressed(deck, key_number, ydotool_path, keycodes, ...)
