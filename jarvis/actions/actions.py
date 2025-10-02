@@ -7,7 +7,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: ## Configuration Flow Architecture
 # EDU: 
 # EDU: How environment variables in config.env reach this module:
-# EDU: 
+# EDU:  
 # EDU: config.env is generated with setup_config.py script (to be executed in the jarvis directory).
 # EDU: 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 # EDU: 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
@@ -15,7 +15,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: 4. core.application calls config.initialization.init_jarvis() with all configuration
 # EDU: 5. init_jarvis() uses the general init_module() function to set global variables in this module
 # EDU: 6. This module stores them in global variables for use by action functions
-
+# EDU:              
 # EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 # EDU: 
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.

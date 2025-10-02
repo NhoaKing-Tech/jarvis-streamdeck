@@ -24,13 +24,6 @@ config.env is generated with setup_config.py script (to be executed in the jarvi
 4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
-
-*[Source: actions.py:7]*
-
----
-
-<a id="general-2"></a>
-
 Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 This uses a Global Configuration with Dynamic Initialization pattern.
 ### Why not read environment variables directly in this module?
@@ -40,11 +33,11 @@ We could have each action function call os.getenv() directly, but I chose centra
 - Better separation of concerns (core.application handles config, this module handles actions)
 The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
-*[Source: actions.py:19]*
+*[Source: actions.py:7]*
 
 ---
 
-<a id="general-3"></a>
+<a id="general-2"></a>
 
 Module Functionality Overview
 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
@@ -79,7 +72,7 @@ I do not discard in the future to TRY to implement jarvis in wayland.
 
 ---
 
-<a id="general-4"></a>
+<a id="general-3"></a>
 
 The config.initialization.init_module() function uses hasattr() to check if each variable
 exists in this module's namespace before attempting to set its value with setattr().
@@ -95,7 +88,7 @@ Initialization flow:
 
 ---
 
-<a id="general-5"></a>
+<a id="general-4"></a>
 
 ## DESIGN PATTERNS COMPARISON
 We are using Global Configuration with Dynamic Initialization
@@ -115,7 +108,7 @@ HOW OUR PATTERN WORKS:
 
 ---
 
-<a id="general-6"></a>
+<a id="general-5"></a>
 
 ## What is true dependency injection?
 Dependency Injection (DI) is a design pattern where an object's dependencies
@@ -192,7 +185,7 @@ return hot_keys
 
 ---
 
-<a id="general-7"></a>
+<a id="general-6"></a>
 
 =====================================================================================
 WRAPPER FUNCTION PATTERNS: return wrapper vs return wrapper()
@@ -263,7 +256,7 @@ causing the microphone toggle functionality to fail.
 
 ---
 
-<a id="general-8"></a>
+<a id="general-7"></a>
 
 DESIGN PATTERN: Module-level Configuration with General Initialization
 =======================================================================
@@ -290,7 +283,7 @@ by calling setattr(module, key, value) for each configuration parameter.
 
 ---
 
-<a id="general-9"></a>
+<a id="general-8"></a>
 
 URL Functions - Browser Integration
 ======================================
@@ -330,7 +323,7 @@ SECURITY CONSIDERATIONS:
 
 ---
 
-<a id="general-10"></a>
+<a id="general-9"></a>
 
 SPOTIFY LAUNCH ALTERNATIVES:
 - Flatpak: flatpak run com.spotify.Client
@@ -343,7 +336,7 @@ as they typically create a symlink in PATH
 
 ---
 
-<a id="general-11"></a>
+<a id="general-10"></a>
 
 ERROR HANDLING CONSIDERATIONS:
 - pgrep might fail if procfs is not available
