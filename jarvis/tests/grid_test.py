@@ -1,6 +1,6 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: grid_test.py
 -- DESCRIPTION --

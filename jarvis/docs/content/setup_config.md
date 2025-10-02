@@ -10,7 +10,7 @@ date: 2025-09-21
 # setup_config
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: setup_config.py
 -- DESCRIPTION --

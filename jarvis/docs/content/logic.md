@@ -10,7 +10,7 @@ date: 2025-09-21
 # logic
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: logic.py
 -- DESCRIPTION -- 
@@ -129,17 +129,17 @@ the corresponding StreamDeck key is pressed.
 
 Other contextual comments from the codebase:
 
-- **Line 32:** CIRCULAR IMPORT ANALYSIS:
-- **Line 33:** This module imports from render, and render imports from logic (for switch_layout)
-- **Line 34:** This creates a circular dependency:
-- **Line 35:** logic.py -> render.py -> logic.py
-- **Line 37:** WHY THIS WORKS:
-- **Line 38:** - Python handles circular imports if done at module level
-- **Line 39:** - render.py imports switch_layout function, which is defined after this import
-- **Line 40:** - Functions are only called at runtime, not import time
-- **Line 41:** - No circular execution during module initialization
-- **Line 43:** ALTERNATIVES TO AVOID CIRCULAR IMPORTS:
-- **Line 44:** 1. Move switch_layout to separate module (utils.py)
-- **Line 45:** 2. Use late imports (import inside functions)
-- **Line 46:** 3. Restructure modules to eliminate circular dependency
+- **Line 28:** CIRCULAR IMPORT ANALYSIS:
+- **Line 29:** This module imports from render, and render imports from logic (for switch_layout)
+- **Line 30:** This creates a circular dependency:
+- **Line 31:** logic.py -> render.py -> logic.py
+- **Line 33:** WHY THIS WORKS:
+- **Line 34:** - Python handles circular imports if done at module level
+- **Line 35:** - render.py imports switch_layout function, which is defined after this import
+- **Line 36:** - Functions are only called at runtime, not import time
+- **Line 37:** - No circular execution during module initialization
+- **Line 39:** ALTERNATIVES TO AVOID CIRCULAR IMPORTS:
+- **Line 40:** 1. Move switch_layout to separate module (utils.py)
+- **Line 41:** 2. Use late imports (import inside functions)
+- **Line 42:** 3. Restructure modules to eliminate circular dependency
 - ... and 106 more contextual comments

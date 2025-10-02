@@ -1,6 +1,6 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: actions.py
 -- DESCRIPTION -- 
@@ -9,11 +9,13 @@ This module bridges key events (key presses) with system operations.
 
 How environment variables in config.env reach this module:
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
-2. jarvis.service starts main.sh: this script activates the venv and runs main.py
-3. main.py delegates to core.application which reads environment variables using os.getenv()
+2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
+3. __main__.py delegates to core.application which reads environment variables using os.getenv()
 4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
+
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 
 This uses a Global Configuration with Dynamic Initialization pattern.
 
@@ -25,7 +27,7 @@ centralized global configuration instead because:
 - Better separation of concerns (core.application handles config, this module handles actions)
 
 The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
-Configuration flows: config.env -> systemd -> main.sh -> main.py -> core.application -> config.initialization -> actions.py
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 
 This module handles so far the following topics. Function names are listed for each.
 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
@@ -62,7 +64,7 @@ This was the trigger to change to X11 from Wayland, as Wayland does not support 
 
 -- TO DO --
 - Generalize nautilus_path function to work with other applications too (for obsidian is already done)
-- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized... >_<
+- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized.
 """
 
 # Standard library imports for system interaction
@@ -122,71 +124,71 @@ KEYRING_PW: Optional[str] = None       # Set by init_module() to password for ke
 # EDU: 2. At startup, init_module() uses setattr() to set real values
 # EDU: 3. Functions access these globals directly: if YDOTOOL_PATH is None: ...
 # EDU: 4. Configuration is "injected" into the module, not into individual functions
+
+# EDU: WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
+# EDU: ================================================================
+# EDU: Dependency Injection (DI) is a design pattern where an object's dependencies
+# EDU: are provided (injected) to it from external sources rather than the object
+# EDU: creating or finding them itself.
 #
-# WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
-# ================================================================
-# Dependency Injection (DI) is a design pattern where an object's dependencies
-# are provided (injected) to it from external sources rather than the object
-# creating or finding them itself.
+# EDU: KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
+# EDU: - Dependencies are PASSED IN as parameters to functions/constructors
+# EDU: - The function/object doesn't know HOW to create its dependencies
+# EDU: - An external "injector" provides the dependencies
 #
-# KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
-# - Dependencies are PASSED IN as parameters to functions/constructors
-# - The function/object doesn't know HOW to create its dependencies
-# - An external "injector" provides the dependencies
+# EDU: TRUE DEPENDENCY INJECTION EXAMPLE:
+# EDU: def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
+# EDU:     """Dependencies are INJECTED as parameters - this is true DI"""
+# EDU:     sequence = []
+# EDU:     for key in keys:
+# EDU:         if key not in keycodes:  # EDU: Uses injected dependency
+# EDU:             raise ValueError(f"Unknown key: {key}")
+# EDU:         sequence.append(f"{keycodes[key]}:1")
+# EDU:     subprocess.run([ydotool_path, "key"] + sequence)  # EDU: Uses injected dependency
 #
-# TRUE DEPENDENCY INJECTION EXAMPLE:
-# def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
-#     """Dependencies are INJECTED as parameters - this is true DI"""
-#     sequence = []
-#     for key in keys:
-#         if key not in keycodes:  # Uses injected dependency
-#             raise ValueError(f"Unknown key: {key}")
-#         sequence.append(f"{keycodes[key]}:1")
-#     subprocess.run([ydotool_path, "key"] + sequence)  # Uses injected dependency
+# EDU: HOW YOU WOULD CALL IT:
+# EDU: hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # EDU: Dependencies passed in
 #
-# HOW YOU WOULD CALL IT:
-# hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # Dependencies passed in
+# EDU: OUR CURRENT APPROACH (Global Configuration):
+# EDU: def hot_keys(*keys: str) -> None:
+# EDU:     """Dependencies accessed from global state - NOT dependency injection"""
+# EDU:     if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
+# EDU:         raise RuntimeError("Module not initialized")
+# EDU:     sequence = []
+# EDU:     for key in keys:
+# EDU:         if key not in KEYCODES:  # EDU: Uses global variable
+# EDU:             raise ValueError(f"Unknown key: {key}")
+# EDU:         sequence.append(f"{KEYCODES[key]}:1")
+# EDU:     subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
 #
-# OUR CURRENT APPROACH (Global Configuration):
-# def hot_keys(*keys: str) -> None:
-#     """Dependencies accessed from global state - NOT dependency injection"""
-#     if KEYCODES is None or YDOTOOL_PATH is None:  # Accesses global variables
-#         raise RuntimeError("Module not initialized")
-#     sequence = []
-#     for key in keys:
-#         if key not in KEYCODES:  # Uses global variable
-#             raise ValueError(f"Unknown key: {key}")
-#         sequence.append(f"{KEYCODES[key]}:1")
-#     subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # Uses global variable
+# EDU: HOW YOU CALL IT:
+# EDU: hot_keys("CTRL", "C")  # EDU: No dependencies passed - function finds them globally
 #
-# HOW YOU CALL IT:
-# hot_keys("CTRL", "C")  # No dependencies passed - function finds them globally
+# EDU: KEY DIFFERENCES EXPLAINED:
+# EDU: ==========================
 #
-# KEY DIFFERENCES EXPLAINED:
-# ==========================
+# EDU: 1. WHERE DEPENDENCIES COME FROM:
+# EDU:    - TRUE DI: Dependencies passed as function parameters
+# EDU:    - OUR APPROACH: Dependencies accessed from module-level globals
 #
-# 1. WHERE DEPENDENCIES COME FROM:
-#    - TRUE DI: Dependencies passed as function parameters
-#    - OUR APPROACH: Dependencies accessed from module-level globals
+# EDU: 2. FUNCTION SIGNATURES:
+# EDU:    - TRUE DI: Functions declare what they need as parameters
+# EDU:    - OUR APPROACH: Functions have simpler signatures, find dependencies internally
 #
-# 2. FUNCTION SIGNATURES:
-#    - TRUE DI: Functions declare what they need as parameters
-#    - OUR APPROACH: Functions have simpler signatures, find dependencies internally
+# EDU: 3. CALLER RESPONSIBILITY:
+# EDU:    - TRUE DI: Caller must provide all dependencies when calling function
+# EDU:    - OUR APPROACH: Caller just calls function, dependencies already available globally
 #
-# 3. CALLER RESPONSIBILITY:
-#    - TRUE DI: Caller must provide all dependencies when calling function
-#    - OUR APPROACH: Caller just calls function, dependencies already available globally
+# EDU: 4. COUPLING:
+# EDU:    - TRUE DI: Functions are decoupled from specific dependency sources
+# EDU:    - OUR APPROACH: Functions are coupled to specific global variable names
 #
-# 4. COUPLING:
-#    - TRUE DI: Functions are decoupled from specific dependency sources
-#    - OUR APPROACH: Functions are coupled to specific global variable names
+# EDU: 5. TESTING:
+# EDU:    - TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
+# EDU:    - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
 #
-# 5. TESTING:
-#    - TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
-#    - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
-#
-# WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
-# ==============================================================
+# DEV: WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
+# DEV: ==============================================================
 # 1. STREAMDECK CONSTRAINT: StreamDeck library calls our functions with fixed signatures
 #    - StreamDeck expects: key_pressed(deck, key_number)
 #    - Can't change to: key_pressed(deck, key_number, ydotool_path, keycodes, ...)
@@ -329,6 +331,42 @@ KEYRING_PW: Optional[str] = None       # Set by init_module() to password for ke
 # by calling setattr(module, key, value) for each configuration parameter.
 
 # 1. URLs:
+# BROWSER INTEGRATION DECISIONS:
+#    Originally considered checking for existing browser tabs and focusing them
+#    instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
+#    or similar browser automation tools.
+#
+#    WHY SIMPLE APPROACH WAS CHOSEN:
+#    - CDP is complex and overkill for simple URL opening
+#    - Security risks with browser automation protocols
+#    - xdg-open is simpler, safer, and more reliable
+#    - Works with any browser (Chrome, Firefox, Edge, etc.)
+#    - Respects user's default browser preference
+#
+#    TECHNICAL DETAILS:
+#    - xdg-open delegates to desktop environment's URL handler
+#    - Most browsers will reuse existing windows when possible
+#    - URL opening is non-blocking (doesn't freeze jarvis)
+#
+#    ALTERNATIVE METHODS CONSIDERED:
+#    - webbrowser.open(): Python standard library, but less robust on Linux
+#    - Direct browser commands: Browser-specific, not portable
+#    - CDP/WebDriver: Overkill and security risks for simple URL opening
+    # BROWSER COMPATIBILITY:
+    # xdg-open works with all major browsers:
+    # - Chrome/Chromium: google-chrome
+    # - Firefox: firefox
+    # - Edge: microsoft-edge
+    # - Safari: (not available on Linux)
+    # - Brave: brave-browser
+    # - Opera: opera
+
+    # SECURITY CONSIDERATIONS:
+    # - URL is hardcoded and safe (no user input injection)
+    # - xdg-open is a trusted system utility
+    # - No browser automation or remote control involved
+    # - Browser handles HTTPS validation and security
+
 def url_freecodecamp() -> None:
     """Open freeCodeCamp website in the default web browser.
 
@@ -361,47 +399,10 @@ def url_github() -> None:
     This function opens the GitHub profile page using the system's default web browser.
     It uses xdg-open which is the standard Linux way to open URLs and files with
     their associated default applications.
-
-    BROWSER INTEGRATION DECISIONS:
-    Originally considered checking for existing browser tabs and focusing them
-    instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
-    or similar browser automation tools.
-
-    WHY SIMPLE APPROACH WAS CHOSEN:
-    - CDP is complex and overkill for simple URL opening
-    - Security risks with browser automation protocols
-    - xdg-open is simpler, safer, and more reliable
-    - Works with any browser (Chrome, Firefox, Edge, etc.)
-    - Respects user's default browser preference
-
-    TECHNICAL DETAILS:
-    - xdg-open delegates to desktop environment's URL handler
-    - Most browsers will reuse existing windows when possible
-    - URL opening is non-blocking (doesn't freeze jarvis)
-
-    ALTERNATIVE METHODS CONSIDERED:
-    - webbrowser.open(): Python standard library, but less robust on Linux
-    - Direct browser commands: Browser-specific, not portable
-    - CDP/WebDriver: Overkill and security risks for simple URL opening
     """
     # Use xdg-open to open URL with system default browser
     # xdg-open is the freedesktop.org standard for opening files/URLs
     subprocess.Popen(["xdg-open", "https://github.com/NhoaKing-Tech"])
-
-    # BROWSER COMPATIBILITY:
-    # xdg-open works with all major browsers:
-    # - Chrome/Chromium: google-chrome
-    # - Firefox: firefox
-    # - Edge: microsoft-edge
-    # - Safari: (not available on Linux)
-    # - Brave: brave-browser
-    # - Opera: opera
-
-    # SECURITY CONSIDERATIONS:
-    # - URL is hardcoded and safe (no user input injection)
-    # - xdg-open is a trusted system utility
-    # - No browser automation or remote control involved
-    # - Browser handles HTTPS validation and security
 
 def url_claude() -> None:
     """Open Claude AI in the default web browser.
@@ -542,7 +543,7 @@ def toggle_mic(deck: Any, key: int):
     """
     def wrapper():
         # Import render_keys here to avoid circular import
-        from ui.render import render_keys
+        from jarvis.ui.render import render_keys
 
         subprocess.run(["amixer", "set", "Capture", "toggle"])
         muted = is_mic_muted()
@@ -1041,101 +1042,122 @@ def defaultbranch_commit() -> None:
     execute_bash("git_commit_workflow.sh", str(PROJECTS_DIR), in_terminal=False)
 
 # 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path..... which happens often if this check is not in place before opening the window
-def nautilus_path(target_dir: str) -> None:
+def nautilus_path(target_dir: str) -> Callable[[], None]:
     """
-    I want this function to open file manager windows or raise them if there is
-    already one open with my target directory. Instead of always opening a new Nautilus window,
-    I will first check if there is already one open with my target directory.
-    If there is, I will just bring it to the front (raise it).
-    This prevents window clutter and gives me a better user experience. :)
+    Create a function that opens Nautilus file manager with a specific directory.
+
+    This function implements smart window management - it first checks if Nautilus
+    is already open with the target directory, and if so, brings it to focus instead
+    of opening a new instance. This prevents window clutter and improves UX.
+
+    Args:
+        target_dir (str): Path to the directory to open in Nautilus
+
+    Returns:
+        callable: A function that opens/focuses Nautilus window when called
+
+    WINDOW MANAGEMENT STRATEGY:
+    1. Check if Nautilus is already open with target directory
+    2. If found, activate the existing window (bring to front)
+    3. If not found, launch new Nautilus instance with the directory
+
+    This prevents multiple windows for the same directory and provides seamless UX.
     """
+    def wrapper():
+        # I need to convert the target directory to an absolute path because:
+        # 1. Relative paths like "../folder" or "./folder" can be ambiguous
+        # 2. Path.resolve() converts these to full paths like "/home/user/folder"
+        # 3. This ensures I am comparing the same format when checking window titles later
+        # 4. It also resolves any symbolic links to their actual paths
+        #    (Symbolic links are like shortcuts - they point to another file/directory.
+        #     Path.resolve() follows the shortcut to get the real location)
+        resolved_dir = str(Path(target_dir).resolve())
 
-    # I need to convert the target directory to an absolute path because:
-    # 1. Relative paths like "../folder" or "./folder" can be ambiguous
-    # 2. Path.resolve() converts these to full paths like "/home/user/folder"
-    # 3. This ensures I am comparing the same format when checking window titles later
-    # 4. It also resolves any symbolic links to their actual paths
-    #    (Symbolic links are like shortcuts - they point to another file/directory.
-    #     Path.resolve() follows the shortcut to get the real location)
-    target_dir = str(Path(target_dir).resolve())
+        # STEP 1: I need to check if Nautilus is already open with my target directory
 
-    # STEP 1: I need to check if Nautilus is already open with my target directory
+        # wmctrl is a command-line tool that lets me interact with X11 windows in Linux
+        # The "-lx" flags mean:
+        # -l: list all windows
+        # -x: include the WM_CLASS property (this helps me identify the application type)
+        #
+        # subprocess.check_output() runs this command and captures its text output
+        # text=True ensures I get a string back instead of bytes
+        try:
+            wmctrl_output = subprocess.check_output(["wmctrl", "-lx"], text=True)
 
-    # wmctrl is a command-line tool that lets me interact with X11 windows in Linux
-    # The "-lx" flags mean:
-    # -l: list all windows
-    # -x: include the WM_CLASS property (this helps me identify the application type)
-    #
-    # subprocess.check_output() runs this command and captures its text output
-    # text=True ensures I get a string back instead of bytes
-    wmctrl_output = subprocess.check_output(["wmctrl", "-lx"], text=True)
+            # The wmctrl output looks like this (one line per window):
+            # 0x02400003  0 org.gnome.Nautilus.org.gnome.Nautilus desktop file-browser - /home/user/Documents
+            # 0x02600004  0 firefox.Firefox          desktop Firefox
+            #
+            # Each line contains: window_id, desktop_number, WM_CLASS, hostname, window_title
+            # I need to parse each line to extract the information I need
+            for line in wmctrl_output.splitlines():
+                # I only care about Nautilus windows, so I check if "org.gnome.Nautilus"
+                # is in the line. This is the WM_CLASS identifier for Nautilus windows.
+                if "org.gnome.Nautilus" in line:
 
-    # The wmctrl output looks like this (one line per window):
-    # 0x02400003  0 org.gnome.Nautilus.org.gnome.Nautilus desktop file-browser - /home/user/Documents
-    # 0x02600004  0 firefox.Firefox          desktop Firefox
-    #
-    # Each line contains: window_id, desktop_number, WM_CLASS, hostname, window_title
-    # I need to parse each line to extract the information I need
-    for line in wmctrl_output.splitlines():
-        # I only care about Nautilus windows, so I check if "org.gnome.Nautilus"
-        # is in the line. This is the WM_CLASS identifier for Nautilus windows.
-        if "org.gnome.Nautilus" in line:
+                    # Now I need to extract the window ID and title from this line
+                    # line.split() breaks the line into parts separated by whitespace
+                    # The window ID is always the first part (index 0)
+                    # Example: "0x02400003" from the line above
+                    window_id = line.split()[0]
 
-            # Now I need to extract the window ID and title from this line
-            # line.split() breaks the line into parts separated by whitespace
-            # The window ID is always the first part (index 0)
-            # Example: "0x02400003" from the line above
-            window_id = line.split()[0]
+                    # The window title starts from the 4th element (index 3) onwards
+                    # I use " ".join() to put the title back together with spaces
+                    # because the title might contain spaces that were split apart
+                    # Example: from "desktop file-browser - /home/user/Documents"
+                    # I want "file-browser - /home/user/Documents"
+                    window_title = " ".join(line.split()[3:])
 
-            # The window title starts from the 4th element (index 3) onwards
-            # I use " ".join() to put the title back together with spaces
-            # because the title might contain spaces that were split apart
-            # Example: from "desktop file-browser - /home/user/Documents"
-            # I want "file-browser - /home/user/Documents"
-            window_title = " ".join(line.split()[3:])
+                    # Now I need to check if this Nautilus window is showing my target directory
+                    # There are different ways the directory might appear in the window title:
 
-            # Now I need to check if this Nautilus window is showing my target directory
-            # There are different ways the directory might appear in the window title:
+                    # First, I get just the folder name (last part of the path)
+                    # Path(path).name returns "Documents" from "/home/user/Documents"
+                    # This helps me match windows that might not show the full path
+                    folder_name = Path(resolved_dir).name
 
-            # First, I get just the folder name (last part of the path)
-            # Path(path).name returns "Documents" from "/home/user/Documents"
-            # This helps me match windows that might not show the full path
-            folder_name = Path(target_dir).name
+                    # I check three conditions to see if this window matches my target:
+                    if (resolved_dir in window_title or          # Full path is in title
+                        folder_name in window_title or        # Just folder name is in title
+                        window_title.endswith(folder_name)):  # Title ends with folder name
 
-            # I check three conditions to see if this window matches my target:
-            if (target_dir in window_title or          # Full path is in title
-                folder_name in window_title or        # Just folder name is in title
-                window_title.endswith(folder_name)):  # Title ends with folder name
+                        # I found a matching window! Instead of opening a new one,
+                        # I will bring this existing window to the front (raise it)
+                        # print(f"Raising existing Nautilus window for {resolved_dir}")
 
-                # I found a matching window! Instead of opening a new one,
-                # I will bring this existing window to the front (raise it)
-                # print(f"Raising existing Nautilus window for {target_dir}")
+                        # wmctrl can also control windows, not just list them
+                        # -i: "use window ID" - I am giving it a window ID number (0x02400003)
+                        # instead of a window title/name (more reliable than titles)
+                        # -a: "activate window" - bring the window to front and give it focus
+                        # (like clicking on it in the taskbar)
+                        # window_id: the window ID I extracted earlier (like 0x02400003)
+                        subprocess.run(["wmctrl", "-i", "-a", window_id])
 
-                # wmctrl can also control windows, not just list them
-                # -i: "use window ID" - I am giving it a window ID number (0x02400003)
-                # instead of a window title/name (more reliable than titles)
-                # -a: "activate window" - bring the window to front and give it focus
-                # (like clicking on it in the taskbar)
-                # window_id: the window ID I extracted earlier (like 0x02400003)
-                subprocess.run(["wmctrl", "-i", "-a", window_id])
+                        # I found and raised the window, so I am done - return early
+                        # This prevents the function from continuing to Step 2
+                        return
 
-                # I found and raised the window, so I am done - return early
-                # This prevents the function from continuing to Step 2
-                return
+        except subprocess.CalledProcessError:
+            # wmctrl command failed (maybe not installed, or no X11 session)
+            # Continue to launch new instance - this is not a critical error
+            pass
 
-    # STEP 2: If I get here, it means I did not find any existing Nautilus window
-    # with my target directory, so I need to open a new one
+        # STEP 2: If I get here, it means I did not find any existing Nautilus window
+        # with my target directory, so I need to open a new one
 
-    # print(f"Opening new Nautilus at {target_dir}")
+        # print(f"Opening new Nautilus at {resolved_dir}")
 
-    # subprocess.Popen() starts a new process without waiting for it to finish
-    # This is perfect for GUI applications because:
-    # 1. I don't want my Python script to hang waiting for Nautilus to close
-    # 2. The user should be able to use Nautilus independently
-    # 3. My script can continue with other tasks
-    #
-    # I pass the target directory as an argument to nautilus so it opens there
-    subprocess.Popen(["nautilus", target_dir])
+        # subprocess.Popen() starts a new process without waiting for it to finish
+        # This is perfect for GUI applications because:
+        # 1. I don't want my Python script to hang waiting for Nautilus to close
+        # 2. The user should be able to use Nautilus independently
+        # 3. My script can continue with other tasks
+        #
+        # I pass the target directory as an argument to nautilus so it opens there
+        subprocess.Popen(["nautilus", resolved_dir])
+
+    return wrapper  # Return the wrapper function for later execution
 
 
 

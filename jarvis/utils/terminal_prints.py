@@ -1,16 +1,17 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: terminal_prints.py
 -- DESCRIPTION --
 This script provides functions for printing styled messages to the terminal to enhance console formatting.
+This is used in the setup_config.py script. I will likely use it in other scripts as well, for example in the git_commit_workflow.sh script.
 """
 
 class TerminalStyles:
     """ANSI color codes and styles for terminal output styling."""
 
-    # Colors (a bunch I will likely never use but whatever)
+    # Colors (a bunch I will likely never use, but still nice to have them here)
     RED = '\033[91m'
     BLUE = '\033[94m'
     GREEN = '\033[92m'
@@ -32,20 +33,21 @@ class TerminalStyles:
     RESET = '\033[0m'
 
 def print_information_type(info_type: str, message: str, **kwargs) -> None:
-    """Print information with styling based on the type specified.
+    """Print information with styling based on the information type specified.
 
     Args:
-        info_type: Type of information ("error", "warning", "success", "info",
-                  "title", "step", "progress", "detail")
-        message: The message to print
-        **kwargs: Additional (optional) argument box to provide parameters 
-        (that are specific to certain informaiton types) like:
-                    - color: Custom color for all message types (overrides default colors)
-                    - step_number: Step number for "step" type
-                    - prefix: Custom prefix for "progress" and "detail" types
-                    - border_char: Border character for "title" type
-                    - width: Border width for "title" type
-    Returns: None (it prints directly to the terminal as the function executes)
+        info_type: Type of information ("error", "warning", "success", "info", "title", "step", "progress", "detail").
+            If the info_type is not recognized, it defaults to plain text output with no special styling.
+        message: The message to print.
+        **kwargs: Additional (optional) argument box to provide parameters (that are specific to certain information types) like:
+                    - color: Custom color for all message types (in case we want to override the default color for an information type).
+                    - step_number: Step number for "step" type. If not provided, defaults to 1.
+                    - prefix: Custom prefix for "progress" and "detail" types. If not provided, defaults to '+' for "progress" and '-' for "detail".
+                    - border_char: Border character for "title" type. If not provided, defaults to '='.
+                    - width: Border width for "title" type. If not provided, defaults to 70 characters.
+
+    Returns: 
+        None (it prints directly to the terminal as the function executes)
     """
     info_type = info_type.lower() # Normalize to lowercase for consistency, in case I mess up the info_type label
 
@@ -56,9 +58,11 @@ def print_information_type(info_type: str, message: str, **kwargs) -> None:
         width = kwargs.get('width', 70) # Default width of 70 characters
         border = border_char * width
         print(f"{color}{TerminalStyles.BOLD}")
+        print("")
         print(border)
         print(message)
         print(border)
+        print("")
         print(f"{TerminalStyles.RESET}")
 
     # ERROR label: includes borders for emphasis, it is displayed in red and includes the "ERROR" keyword at the start of the print

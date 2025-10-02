@@ -1,19 +1,28 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: application.py
--- DESCRIPTION -- 
-Python script to run my stream deck XL with custom icons and actions.
+-- DESCRIPTION --
+Core application logic for the jarvis StreamDeck system.
 
--- NOTE -- 
-IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, 
-AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. 
-IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN 
+-- NOTE --
+IMPORTANT TO EXECUTE FROM LINUX TERMINAL, NOT FROM VSCODE TERMINAL,
+AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) DON'T WORK PROPERLY IN VSCODE.
+IF IT WORKS FROM A LINUX TERMINAL, IT WILL WORK THE SAME WHEN
 EXECUTED FROM THE SYSTEM SERVICE.
 
+ENTRY POINT:
+This module is executed via jarvis/__main__.py when running:
+    python -m jarvis
+
+The application is started by:
+    - Command line: python -m jarvis (from project root)
+    - Systemd service: main.sh calls python -m jarvis
+    - Alias: jarvis-test uses python -m jarvis
+
 ARCHITECTURE OVERVIEW:
-This is the main entry point for the jarvis StreamDeck application. It:
+This is the core application logic for the jarvis StreamDeck system. It:
 1. Loads configuration from config.env
 2. Uses config.initialization.init_jarvis() for centralized module initialization
 3. Discovers and connects to StreamDeck hardware
@@ -49,16 +58,12 @@ from pathlib import Path  # Object-oriented filesystem paths, more robust than o
 # Another example: Path(__file__).parent / "config.env" vs os.path.join(os.path.dirname(__file__), "config.env")
 
 # Local jarvis module imports. These are my custom modules
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-from actions import actions # Action functions that we can assign to keys in the layout definitions
-from ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
-from core.logic import key_change # Event handling and layout switching logic
-from core.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
-from config.initialization import init_jarvis # Centralized initialization for all modules
-from utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
+from jarvis.actions import actions # Action functions that we can assign to keys in the layout definitions
+from jarvis.ui.render import create_layouts, render_layout # Visual rendering of keys and layout management
+from jarvis.core.logic import key_change # Event handling and layout switching logic
+from jarvis.core.lifecycle import cleanup, safe_exit # Resource cleanup and graceful shutdown
+from jarvis.config.initialization import init_jarvis # Centralized initialization for all modules
+from jarvis.utils.terminal_prints import print_information_type # Terminal output decorators for enhanced console formatting
 # I had to write this module to release the keys that were pressed via ydotool. When the program exits unexpectedly, 
 # it ensures all keys are released properly. This is so I do not get a weird keyboard behavior after the script crashes, 
 # which happened often during development.

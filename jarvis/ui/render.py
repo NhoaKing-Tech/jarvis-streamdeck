@@ -1,6 +1,6 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: render.py
 -- DESCRIPTION --
@@ -44,7 +44,7 @@ import os
 from StreamDeck.ImageHelpers import PILHelper # Functions from PILHelper from the original repo
 from PIL import Image, ImageDraw, ImageFont # PIL modules
 import textwrap
-from actions import actions
+from jarvis.actions import actions
 from typing import Optional, Dict, Any
 from pathlib import Path
 

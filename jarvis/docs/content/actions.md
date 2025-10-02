@@ -10,7 +10,7 @@ date: 2025-09-21
 # actions
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: actions.py
 -- DESCRIPTION -- 
@@ -19,11 +19,13 @@ This module bridges key events (key presses) with system operations.
 
 How environment variables in config.env reach this module:
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
-2. jarvis.service starts main.sh: this script activates the venv and runs main.py
-3. main.py delegates to core.application which reads environment variables using os.getenv()
+2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
+3. __main__.py delegates to core.application which reads environment variables using os.getenv()
 4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
+
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 
 This uses a Global Configuration with Dynamic Initialization pattern.
 
@@ -35,7 +37,7 @@ centralized global configuration instead because:
 - Better separation of concerns (core.application handles config, this module handles actions)
 
 The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
-Configuration flows: config.env -> systemd -> main.sh -> main.py -> core.application -> config.initialization -> actions.py
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 
 This module handles so far the following topics. Function names are listed for each.
 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
@@ -72,21 +74,21 @@ This was the trigger to change to X11 from Wayland, as Wayland does not support 
 
 -- TO DO --
 - Generalize nautilus_path function to work with other applications too (for obsidian is already done)
-- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized... >_<
+- Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized.
 
 ## Architecture & Design Decisions
 
-**Line 86:** Initialization flow:
+**Line 88:** Initialization flow:
 
-**Line 87:** 1. These variables are declared as None (creates the module attributes)
+**Line 89:** 1. These variables are declared as None (creates the module attributes)
 
-**Line 88:** 2. core.application calls init_jarvis() which internally calls init_module(actions, ...)
+**Line 90:** 2. core.application calls init_jarvis() which internally calls init_module(actions, ...)
 
-**Line 89:** 3. init_module() uses hasattr(actions, 'YDOTOOL_PATH') to verify attribute exists
+**Line 91:** 3. init_module() uses hasattr(actions, 'YDOTOOL_PATH') to verify attribute exists
 
-**Line 90:** 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
+**Line 92:** 4. init_module() uses setattr(actions, 'YDOTOOL_PATH', actual_value) to set real values
 
-**Line 91:** 5. Action functions check if variables are still None to detect initialization failures
+**Line 93:** 5. Action functions check if variables are still None to detect initialization failures
 
 ## Educational Notes & Computer Science Concepts
 
@@ -121,13 +123,125 @@ HOW OUR PATTERN WORKS:
 4. Configuration is "injected" into the module, not into individual functions
 ```
 
+### WHAT IS TRUE DEPENDENCY INJECTION? (Computer Scien...
+
+```
+WHAT IS TRUE DEPENDENCY INJECTION? (Computer Science Definition)
+================================================================
+Dependency Injection (DI) is a design pattern where an object's dependencies
+are provided (injected) to it from external sources rather than the object
+creating or finding them itself.
+```
+
+### KEY PRINCIPLE: "Don't call us, we'll call you" (In...
+
+```
+KEY PRINCIPLE: "Don't call us, we'll call you" (Inversion of Control)
+- Dependencies are PASSED IN as parameters to functions/constructors
+- The function/object doesn't know HOW to create its dependencies
+- An external "injector" provides the dependencies
+```
+
+### TRUE DEPENDENCY INJECTION EXAMPLE:
+
+```
+TRUE DEPENDENCY INJECTION EXAMPLE:
+def hot_keys(ydotool_path: str, keycodes: Dict, *keys: str) -> None:
+"""Dependencies are INJECTED as parameters - this is true DI"""
+sequence = []
+for key in keys:
+if key not in keycodes:  # EDU: Uses injected dependency
+raise ValueError(f"Unknown key: {key}")
+sequence.append(f"{keycodes[key]}:1")
+subprocess.run([ydotool_path, "key"] + sequence)  # EDU: Uses injected dependency
+```
+
+### HOW YOU WOULD CALL IT:
+
+```
+HOW YOU WOULD CALL IT:
+hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")  # EDU: Dependencies passed in
+```
+
+### OUR CURRENT APPROACH (Global Configuration):
+
+```
+OUR CURRENT APPROACH (Global Configuration):
+def hot_keys(*keys: str) -> None:
+"""Dependencies accessed from global state - NOT dependency injection"""
+if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
+raise RuntimeError("Module not initialized")
+sequence = []
+for key in keys:
+if key not in KEYCODES:  # EDU: Uses global variable
+raise ValueError(f"Unknown key: {key}")
+sequence.append(f"{KEYCODES[key]}:1")
+subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
+```
+
+### HOW YOU CALL IT:
+
+```
+HOW YOU CALL IT:
+hot_keys("CTRL", "C")  # EDU: No dependencies passed - function finds them globally
+```
+
+### KEY DIFFERENCES EXPLAINED:
+
+```
+KEY DIFFERENCES EXPLAINED:
+==========================
+```
+
+### 1. WHERE DEPENDENCIES COME FROM:
+
+```
+1. WHERE DEPENDENCIES COME FROM:
+- TRUE DI: Dependencies passed as function parameters
+- OUR APPROACH: Dependencies accessed from module-level globals
+```
+
+### 2. FUNCTION SIGNATURES:
+
+```
+2. FUNCTION SIGNATURES:
+- TRUE DI: Functions declare what they need as parameters
+- OUR APPROACH: Functions have simpler signatures, find dependencies internally
+```
+
+### 3. CALLER RESPONSIBILITY:
+
+```
+3. CALLER RESPONSIBILITY:
+- TRUE DI: Caller must provide all dependencies when calling function
+- OUR APPROACH: Caller just calls function, dependencies already available globally
+```
+
+### 4. COUPLING:
+
+```
+4. COUPLING:
+- TRUE DI: Functions are decoupled from specific dependency sources
+- OUR APPROACH: Functions are coupled to specific global variable names
+```
+
+### 5. TESTING:
+
+```
+5. TESTING:
+- TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
+- OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
+```
+
 
 ## Development Notes & Implementation Details
 
-- **Line 81:** These global variable declarations are MANDATORY for the init_module() pattern to work.
-- **Line 82:** The config.initialization.init_module() function uses hasattr() to check if each variable
-- **Line 83:** exists in this module's namespace before attempting to set its value with setattr().
-- **Line 84:** Without these declarations, hasattr() returns False and initialization silently fails.
+- **Line 83:** These global variable declarations are MANDATORY for the init_module() pattern to work.
+- **Line 84:** The config.initialization.init_module() function uses hasattr() to check if each variable
+- **Line 85:** exists in this module's namespace before attempting to set its value with setattr().
+- **Line 86:** Without these declarations, hasattr() returns False and initialization silently fails.
+- **Line 190:** WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
+- **Line 191:** ==============================================================
 
 ## Functions
 
@@ -154,6 +268,7 @@ HOW OUR PATTERN WORKS:
 - [[#nautilus_path|nautilus_path()]]
 - [[#wrapper|wrapper()]]
 - [[#execute|execute()]]
+- [[#wrapper|wrapper()]]
 - [[#wrapper|wrapper()]]
 - [[#wrapper|wrapper()]]
 - [[#wrapper|wrapper()]]
@@ -200,28 +315,6 @@ Open GitHub profile in the default web browser.
 This function opens the GitHub profile page using the system's default web browser.
 It uses xdg-open which is the standard Linux way to open URLs and files with
 their associated default applications.
-
-BROWSER INTEGRATION DECISIONS:
-Originally considered checking for existing browser tabs and focusing them
-instead of opening new tabs. This would involve Chrome DevTools Protocol (CDP)
-or similar browser automation tools.
-
-WHY SIMPLE APPROACH WAS CHOSEN:
-- CDP is complex and overkill for simple URL opening
-- Security risks with browser automation protocols
-- xdg-open is simpler, safer, and more reliable
-- Works with any browser (Chrome, Firefox, Edge, etc.)
-- Respects user's default browser preference
-
-TECHNICAL DETAILS:
-- xdg-open delegates to desktop environment's URL handler
-- Most browsers will reuse existing windows when possible
-- URL opening is non-blocking (doesn't freeze jarvis)
-
-ALTERNATIVE METHODS CONSIDERED:
-- webbrowser.open(): Python standard library, but less robust on Linux
-- Direct browser commands: Browser-specific, not portable
-- CDP/WebDriver: Overkill and security risks for simple URL opening
 
 ## url_claude
 
@@ -638,11 +731,24 @@ commit title and description can extend to, so this is nice.
 def nautilus_path():
 ```
 
-I want this function to open file manager windows or raise them if there is
-already one open with my target directory. Instead of always opening a new Nautilus window,
-I will first check if there is already one open with my target directory.
-If there is, I will just bring it to the front (raise it).
-This prevents window clutter and gives me a better user experience. :)
+Create a function that opens Nautilus file manager with a specific directory.
+
+This function implements smart window management - it first checks if Nautilus
+is already open with the target directory, and if so, brings it to focus instead
+of opening a new instance. This prevents window clutter and improves UX.
+
+**Args:**
+    target_dir (str): Path to the directory to open in Nautilus
+
+**Returns:**
+    callable: A function that opens/focuses Nautilus window when called
+
+WINDOW MANAGEMENT STRATEGY:
+1. Check if Nautilus is already open with target directory
+2. If found, activate the existing window (bring to front)
+3. If not found, launch new Nautilus instance with the directory
+
+This prevents multiple windows for the same directory and provides seamless UX.
 
 ## wrapper
 
@@ -680,28 +786,34 @@ def wrapper():
 def wrapper():
 ```
 
+## wrapper
+
+```python
+def wrapper():
+```
+
 ## Production Code Comments
 
 Essential comments that remain in the production codebase:
 
-- **Line 80:** Required placeholders for dynamic initialization system
+- **Line 82:** Required placeholders for dynamic initialization system
 
 ## Additional Code Context
 
 Other contextual comments from the codebase:
 
-- **Line 68:** Standard library imports for system interaction
-- **Line 69:** Execute external commands like ydotool, wmctrl, applications
-- **Line 70:** Time delays for application startup coordination
-- **Line 71:** File system operations and path manipulation
-- **Line 72:** Object-oriented filesystem paths
-- **Line 75:** Import from our UI module for dynamic key rendering
-- **Line 76:** Note: render_keys import moved inside toggle_mic function to avoid circular import
-- **Line 77:** This was: actions -> ui.render -> core.logic -> actions
-- **Line 78:** Now render_keys is imported only when needed, breaking the cycle
-- **Line 93:** Path to ydotool executable for keyboard/mouse input simulation
-- **Line 94:** Set by init_module() to system ydotool path or custom config path
-- **Line 96:** Directory paths for various asset types
-- **Line 97:** Set by init_module() to directory containing code snippet text files
-- **Line 98:** Set by init_module() to directory containing executable bash scripts
-- ... and 445 more contextual comments
+- **Line 70:** Standard library imports for system interaction
+- **Line 71:** Execute external commands like ydotool, wmctrl, applications
+- **Line 72:** Time delays for application startup coordination
+- **Line 73:** File system operations and path manipulation
+- **Line 74:** Object-oriented filesystem paths
+- **Line 77:** Import from our UI module for dynamic key rendering
+- **Line 78:** Note: render_keys import moved inside toggle_mic function to avoid circular import
+- **Line 79:** This was: actions -> ui.render -> core.logic -> actions
+- **Line 80:** Now render_keys is imported only when needed, breaking the cycle
+- **Line 95:** Path to ydotool executable for keyboard/mouse input simulation
+- **Line 96:** Set by init_module() to system ydotool path or custom config path
+- **Line 98:** Directory paths for various asset types
+- **Line 99:** Set by init_module() to directory containing code snippet text files
+- **Line 100:** Set by init_module() to directory containing executable bash scripts
+- ... and 416 more contextual comments

@@ -1,6 +1,6 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: layouts.py
 -- DESCRIPTION --
@@ -13,7 +13,7 @@ Extracted from render.py to improve separation of concerns and maintainability.
 
 from typing import Dict, Any
 from pathlib import Path
-from actions import actions
+from jarvis.actions import actions
 
 
 def create_layouts(
@@ -67,11 +67,7 @@ def create_layouts(
         - User-specific directories and tools
     """
     # Import here to avoid circular imports - layouts depend on logic for switch_layout
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-    from core.logic import switch_layout
+    from jarvis.core.logic import switch_layout
 
     # =====================================================================================
     # STREAMDECK KEY LAYOUT GRID (32 keys total)
@@ -114,13 +110,8 @@ def create_layouts(
     # What happens: Function reference stored directly in layout
     # When key pressed: StreamDeck calls function → function executes immediately
     #
-    # SPECIAL CASE: Lambda functions for inline argument passing
-    # =========================================================
-    # Sometimes we use lambda to pass arguments to functions that don't use wrapper pattern:
-    #
-    #   "action": lambda: actions.nautilus_path(str(projects_path))  # Lambda provides arguments
-    #
-    # This is used when the target function doesn't implement the factory pattern but needs arguments.
+    # Note: The nautilus_path function now follows Pattern 1 (factory pattern) like other functions
+    # with arguments, so no lambda is needed anymore.
     #
     # DEBUGGING TIPS:
     # ===============
@@ -154,9 +145,9 @@ def create_layouts(
         8: {"icon": "quartz.png", "action": actions.open_obsidian(obsidian_vaults.get('quartz', ''))},     # Factory pattern: needs vault path
         12: {"icon": "journal.png", "action": actions.open_obsidian(obsidian_vaults.get('journal', ''))}, # Factory pattern: needs vault path
 
-        # SPECIAL CASE: Lambda functions to pass arguments to non-factory functions
-        13: {"label": "Zenith", "icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path))},           # Lambda wraps function that needs arguments
-        14: {"label": "Busybee", "icon": "nautilus.png", "action": lambda: actions.nautilus_path(str(projects_path / 'busybee'))}, # Lambda wraps function that needs arguments
+        # PATTERN 1 EXAMPLES: Nautilus file manager with paths
+        13: {"label": "Zenith", "labelcolor": "#000000", "icon": "nautilus.png", "color": "#bbbbbb", "action": actions.nautilus_path(str(projects_path))},           # Factory pattern: needs path argument
+        14: {"label": "Busybee", "labelcolor": "#0000FF", "icon": "nautilus.png", "color": "#fdff8a", "action": actions.nautilus_path(str(projects_path / 'busybee'))}, # Factory pattern: needs path argument
 
         # PATTERN 2 EXAMPLES: Terminal and application functions without arguments
         15: {"icon": "terminal_default.png", "action": actions.hk_terminal},      # Direct reference: no arguments needed

@@ -1,6 +1,6 @@
 """
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: initialization.py
 -- DESCRIPTION --
@@ -29,17 +29,17 @@ init_jarvis(ydotool_path=..., projects_dir=..., ...)
 This replaces the previous pattern of calling separate initialization functions
 for each module (actions.initialize_actions, render.initialize_render, etc.).
 
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 """
 
 from pathlib import Path
 from typing import Dict, Optional, Any
 
 # Import the modules that need initialization
-from actions import actions
-import ui.render as render_module
-import core.logic as logic_module
-import core.lifecycle as lifecycle_module
+from jarvis.actions import actions
+import jarvis.ui.render as render_module
+import jarvis.core.logic as logic_module
+import jarvis.core.lifecycle as lifecycle_module
 
 # Linux input event keycode mapping for ydotool
 # These are the raw Linux input event keycodes that ydotool uses to simulate key presses

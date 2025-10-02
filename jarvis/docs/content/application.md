@@ -10,20 +10,29 @@ date: 2025-09-21
 # application
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: application.py
--- DESCRIPTION -- 
-Python script to run my stream deck XL with custom icons and actions.
+-- DESCRIPTION --
+Core application logic for the jarvis StreamDeck system.
 
--- NOTE -- 
-IMPORTANT TO EXECUTE THIS SCRIPT FROM LINUX TERMINAL, AND NOT FROM THE VSCODE TERMINAL, 
-AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) ARE NOT WORKING PROPERLY WHEN EXECUTED FROM VSCODE TERMINAL. 
-IF WHEN TESTED FROM LINUX TERMINAL THE SCRIPT WORKS AS EXPECTED, THEN IT WILL WORK THE SAME WHEN 
+-- NOTE --
+IMPORTANT TO EXECUTE FROM LINUX TERMINAL, NOT FROM VSCODE TERMINAL,
+AS THE SYSTEM CALLS (ydotool, wmctrl, etc.) DON'T WORK PROPERLY IN VSCODE.
+IF IT WORKS FROM A LINUX TERMINAL, IT WILL WORK THE SAME WHEN
 EXECUTED FROM THE SYSTEM SERVICE.
 
+ENTRY POINT:
+This module is executed via jarvis/__main__.py when running:
+    python -m jarvis
+
+The application is started by:
+    - Command line: python -m jarvis (from project root)
+    - Systemd service: main.sh calls python -m jarvis
+    - Alias: jarvis-test uses python -m jarvis
+
 ARCHITECTURE OVERVIEW:
-This is the main entry point for the jarvis StreamDeck application. It:
+This is the core application logic for the jarvis StreamDeck system. It:
 1. Loads configuration from config.env
 2. Uses config.initialization.init_jarvis() for centralized module initialization
 3. Discovers and connects to StreamDeck hardware
@@ -101,19 +110,19 @@ Signal Handling:
 
 Other contextual comments from the codebase:
 
-- **Line 27:** Standard library imports for system interaction and typing
-- **Line 28:** Registers functions to be called upon normal program termination
-- **Line 29:** Provides time-related functions like sleep() for delays
-- **Line 30:** Import os module for interacting with the operating system: file paths, env variables, etc.
-- **Line 31:** Handles asynchronous events and signals from the OS, like SIGINT (Ctrl+C)
-- **Line 32:** Provides access to system-specific parameters and functions, used for system exit to terminate the program
-- **Line 33:** Type hints for dictionaries and generic types
-- **Line 35:** Third-party StreamDeck library imports
-- **Line 36:** NOTE: This imports from the original Elgato StreamDeck repository in ../src/
-- **Line 37:** The StreamDeck library provides hardware abstraction for StreamDeck devices
-- **Line 38:** Original repository. The StreamDeck library provides hardware abstraction for StreamDeck devices.
-- **Line 39:** Installed inside my virtual environment in developer mode (pip install -e .). This ensures latest
-- **Line 40:** local changes are always used. Execute "pip install -e ." inside the repo directory to install
-- **Line 41:** in developer mode.
-- **Line 42:** Class for the original repo to discover connected StreamDeck devices
+- **Line 36:** Standard library imports for system interaction and typing
+- **Line 37:** Registers functions to be called upon normal program termination
+- **Line 38:** Provides time-related functions like sleep() for delays
+- **Line 39:** Import os module for interacting with the operating system: file paths, env variables, etc.
+- **Line 40:** Handles asynchronous events and signals from the OS, like SIGINT (Ctrl+C)
+- **Line 41:** Provides access to system-specific parameters and functions, used for system exit to terminate the program
+- **Line 42:** Type hints for dictionaries and generic types
+- **Line 44:** Third-party StreamDeck library imports
+- **Line 45:** NOTE: This imports from the original Elgato StreamDeck repository in ../src/
+- **Line 46:** The StreamDeck library provides hardware abstraction for StreamDeck devices
+- **Line 47:** Original repository. The StreamDeck library provides hardware abstraction for StreamDeck devices.
+- **Line 48:** Installed inside my virtual environment in developer mode (pip install -e .). This ensures latest
+- **Line 49:** local changes are always used. Execute "pip install -e ." inside the repo directory to install
+- **Line 50:** in developer mode.
+- **Line 51:** Class for the original repo to discover connected StreamDeck devices
 - ... and 198 more contextual comments

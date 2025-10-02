@@ -10,7 +10,7 @@ date: 2025-09-21
 # layouts
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: layouts.py
 -- DESCRIPTION --
@@ -80,16 +80,16 @@ Dynamic Elements:
 Other contextual comments from the codebase:
 
 - **Line 69:** Import here to avoid circular imports - layouts depend on logic for switch_layout
-- **Line 76:** =====================================================================================
-- **Line 77:** STREAMDECK KEY LAYOUT GRID (32 keys total)
-- **Line 78:** =====================================================================================
-- **Line 79:** 0,     1,    2,   3,     4,    5,    6,    7
-- **Line 80:** 8,     9,   10,   11,   12,   13,   14,   15
-- **Line 81:** 16,   17,   18,   19,   20,   21,   22,   23
-- **Line 82:** 24,   25,   26,   27,   28,   29,   30,   31
-- **Line 84:** =====================================================================================
-- **Line 85:** ACTION FUNCTION PATTERNS: Understanding how functions are called vs referenced
-- **Line 86:** =====================================================================================
-- **Line 88:** This file demonstrates the two wrapper patterns explained in actions.py.
-- **Line 89:** Pay attention to the presence or absence of parentheses in function calls:
-- ... and 113 more contextual comments
+- **Line 72:** =====================================================================================
+- **Line 73:** STREAMDECK KEY LAYOUT GRID (32 keys total)
+- **Line 74:** =====================================================================================
+- **Line 75:** 0,     1,    2,   3,     4,    5,    6,    7
+- **Line 76:** 8,     9,   10,   11,   12,   13,   14,   15
+- **Line 77:** 16,   17,   18,   19,   20,   21,   22,   23
+- **Line 78:** 24,   25,   26,   27,   28,   29,   30,   31
+- **Line 80:** =====================================================================================
+- **Line 81:** ACTION FUNCTION PATTERNS: Understanding how functions are called vs referenced
+- **Line 82:** =====================================================================================
+- **Line 84:** This file demonstrates the two wrapper patterns explained in actions.py.
+- **Line 85:** Pay attention to the presence or absence of parentheses in function calls:
+- ... and 108 more contextual comments

@@ -10,7 +10,7 @@ date: 2025-09-21
 # initialization
 
 -- GENERAL INFORMATION --
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
 NAME: initialization.py
 -- DESCRIPTION --
@@ -39,7 +39,7 @@ init_jarvis(ydotool_path=..., projects_dir=..., ...)
 This replaces the previous pattern of calling separate initialization functions
 for each module (actions.initialize_actions, render.initialize_render, etc.).
 
-AUTHOR: NhoaKing (pseudonym for privacy)
+AUTHOR: NhoaKing
 
 ## Functions
 
