@@ -17,7 +17,7 @@ date: 2025-10-03
 
 Global variable declarations are MANDATORY for the init_module() pattern to work
 
-*[Source: actions.py:75]*
+*[Source: actions.py:76]*
 
 ---
 
@@ -27,6 +27,6 @@ Global variable declarations are MANDATORY for the init_module() pattern to work
 
 Release keys in reverse order (essential for proper modifier key handling)
 
-*[Source: actions.py:558]*
+*[Source: actions.py:559]*
 
 ---

@@ -18,7 +18,7 @@ date: 2025-10-03
 Generalize nautilus_path function to work with other applications too (for obsidian is already done)
 Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized.
 
-*[Source: actions.py:62]*
+*[Source: actions.py:63]*
 
 ---
 
@@ -26,7 +26,7 @@ Handle positioning and sizing of windows, at the moment everything opens correct
 
 Add visual feedback on StreamDeck key for current state
 
-*[Source: actions.py:458]*
+*[Source: actions.py:459]*
 
 ---
 
@@ -36,6 +36,6 @@ Add visual feedback on StreamDeck key for current state
 
 Check if VSCode already has project open before launching
 
-*[Source: actions.py:630]*
+*[Source: actions.py:631]*
 
 ---
