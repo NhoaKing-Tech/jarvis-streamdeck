@@ -19,7 +19,7 @@ date: 2025-10-03
 
 The nautilus_path function now follows Pattern 1 (factory pattern) like other functions
 
-with arguments, so no lambda is needed anymore.
+ with arguments, so no lambda is needed anymore.
 
 *[Source: layouts.py:113]*
 

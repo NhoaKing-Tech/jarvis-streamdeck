@@ -17,13 +17,13 @@ date: 2025-10-03
 
 GING AID:
 
-Uncomment for development/debugging:
+ Uncomment for development/debugging:
 
-print(f"Error executing action for key {key}: {e}")
+ print(f"Error executing action for key {key}: {e}")
 
-import traceback
+ import traceback
 
-traceback.print_exc()
+ traceback.print_exc()
 
 *[Source: logic.py:243]*
 

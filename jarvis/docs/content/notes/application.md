@@ -17,15 +17,15 @@ date: 2025-10-03
 
 This imports from the original Elgato StreamDeck repository in ../src/
 
-The StreamDeck library provides hardware abstraction for StreamDeck devices
+ The StreamDeck library provides hardware abstraction for StreamDeck devices
 
-Original repository. The StreamDeck library provides hardware abstraction for StreamDeck devices.
+ Original repository. The StreamDeck library provides hardware abstraction for StreamDeck devices.
 
-Installed inside my virtual environment in developer mode (pip install -e .). This ensures latest
+ Installed inside my virtual environment in developer mode (pip install -e .). This ensures latest
 
-local changes are always used. Execute "pip install -e ." inside the repo directory to install
+ local changes are always used. Execute "pip install -e ." inside the repo directory to install
 
-in developer mode.
+ in developer mode.
 
 *[Source: application.py:45]*
 
@@ -35,7 +35,7 @@ in developer mode.
 
 KEYCODES dictionary has been moved to config/initialization.py
 
-for centralized configuration management
+ for centralized configuration management
 
 *[Source: application.py:216]*
 
@@ -47,7 +47,7 @@ for centralized configuration management
 
 This assumes only one StreamDeck is connected. For multiple devices,
 
-we would need to identify them by serial number or model
+ we would need to identify them by serial number or model
 
 *[Source: application.py:301]*
 

@@ -17,11 +17,11 @@ date: 2025-10-03
 
 Global Configuration with Dynamic Initialization chosen for:
 
-- Simple and straightforward for this hardware integration use case
+ - Simple and straightforward for this hardware integration use case
 
-- Balances testability with StreamDeck API constraints
+ - Balances testability with StreamDeck API constraints
 
-- Provides clear error handling and initialization validation
+ - Provides clear error handling and initialization validation
 
 *[Source: actions.py:203]*
 
@@ -33,9 +33,9 @@ Global Configuration with Dynamic Initialization chosen for:
 
 This is preferred over direct terminal commands because it uses the
 
-desktop environment's configured default rather than hardcoding a
+ desktop environment's configured default rather than hardcoding a
 
-specific terminal emulator.
+ specific terminal emulator.
 
 *[Source: actions.py:601]*
 
@@ -57,7 +57,7 @@ Press keys in forward order
 
 No lambda wrapper needed - this function doesn't take parameters and executes immediately,
 
-so it doesn't need the factory pattern used by parameterized functions.
+ so it doesn't need the factory pattern used by parameterized functions.
 
 *[Source: actions.py:417]*
 

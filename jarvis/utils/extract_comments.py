@@ -367,7 +367,7 @@ class CommentExtractor:
 
             if match:
                 tag = match.group(1).upper()
-                content = match.group(2).strip()
+                content = match.group(2).rstrip()  # Only strip trailing whitespace, preserve leading
 
                 # If starting a new tag block
                 if current_tag != tag:
@@ -395,8 +395,8 @@ class CommentExtractor:
                 # Comment line without tag, but we're in a tagged block
                 # Check if it's a continuation (starts with #)
                 if stripped.startswith('#'):
-                    # Remove # and any leading/trailing whitespace
-                    content = stripped[1:].strip()
+                    # Remove # but preserve leading whitespace for indentation
+                    content = stripped[1:].rstrip()  # Only strip trailing whitespace
                     if content or not current_block.lines:  # Allow empty lines in blocks
                         current_block.lines.append(content)
                 else:
