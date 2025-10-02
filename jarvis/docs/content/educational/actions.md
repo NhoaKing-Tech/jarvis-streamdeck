@@ -20,12 +20,12 @@ How environment variables in config.env reach this module:
 config.env is generated with setup_config.py script (to be executed in the jarvis directory).
 1. systemd jarvis.service loads config.env via 'EnvironmentFile'.
 2. jarvis.service starts main.sh: this script activates the venv and runs python -m jarvis
-3. __main__.py delegates to core.application which reads environment variables using os.getenv()
+3. \_\_main\_\_.py delegates to core.application which reads environment variables using os.getenv()
 4. core.application calls config.initialization.init_jarvis() with all configuration
 5. init_jarvis() uses the general init_module() function to set global variables in this module
 6. This module stores them in global variables for use by action functions
 ### Configuration Flow
-Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
+Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> \_\_main\_\_.py -> core.application -> config.initialization -> actions.py
 ###
 This uses a Global Configuration with Dynamic Initialization pattern.
 ### Why not read environment variables directly in this module?
