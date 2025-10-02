@@ -18,7 +18,7 @@ date: 2025-10-03
 render_keys import moved inside toggle_mic function to avoid circular import
 This breaks the cycle: actions -> ui.render -> core.logic -> actions
 
-*[Source: actions.py:67]*
+*[Source: actions.py:72]*
 
 ---
 
@@ -29,7 +29,7 @@ Global Configuration with Dynamic Initialization chosen for:
 - Balances testability with StreamDeck API constraints
 - Provides clear error handling and initialization validation
 
-*[Source: actions.py:199]*
+*[Source: actions.py:204]*
 
 ---
 
@@ -39,7 +39,7 @@ Global Configuration with Dynamic Initialization chosen for:
 
 VSCode needs time to initialize
 
-*[Source: actions.py:665]*
+*[Source: actions.py:663]*
 
 ---
 
@@ -51,7 +51,7 @@ This is preferred over direct terminal commands because it uses the
 desktop environment's configured default rather than hardcoding a
 specific terminal emulator.
 
-*[Source: actions.py:600]*
+*[Source: actions.py:598]*
 
 ---
 
@@ -61,7 +61,7 @@ specific terminal emulator.
 
 Press keys in forward order
 
-*[Source: actions.py:552]*
+*[Source: actions.py:550]*
 
 ---
 
@@ -72,7 +72,7 @@ Press keys in forward order
 No lambda wrapper needed - this function doesn't take parameters and executes immediately,
 so it doesn't need the factory pattern used by parameterized functions.
 
-*[Source: actions.py:423]*
+*[Source: actions.py:421]*
 
 ---
 
@@ -82,7 +82,7 @@ so it doesn't need the factory pattern used by parameterized functions.
 
 Import render_keys here to avoid circular import
 
-*[Source: actions.py:511]*
+*[Source: actions.py:509]*
 
 ---
 
@@ -90,7 +90,7 @@ Import render_keys here to avoid circular import
 
 "--" prevents text starting with "-" being interpreted as flags
 
-*[Source: actions.py:715]*
+*[Source: actions.py:713]*
 
 ---
 
@@ -98,7 +98,7 @@ Import render_keys here to avoid circular import
 
 Auto-fix permissions if not executable
 
-*[Source: actions.py:923]*
+*[Source: actions.py:921]*
 
 ---
 
@@ -106,7 +106,7 @@ Auto-fix permissions if not executable
 
 Resolve to absolute path for consistent window title matching
 
-*[Source: actions.py:1033]*
+*[Source: actions.py:1031]*
 
 ---
 
@@ -114,6 +114,6 @@ Resolve to absolute path for consistent window title matching
 
 Check multiple title formats for matching
 
-*[Source: actions.py:1087]*
+*[Source: actions.py:1085]*
 
 ---

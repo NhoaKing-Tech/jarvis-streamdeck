@@ -15,7 +15,7 @@ Configuration initialized via config.initialization.init_module().
 # EDU: 4. core.application calls config.initialization.init_jarvis() with all configuration
 # EDU: 5. init_jarvis() uses the general init_module() function to set global variables in this module
 # EDU: 6. This module stores them in global variables for use by action functions
-# EDU: 
+
 # EDU: Configuration flows: config.env -> systemd -> main.sh -> python -m jarvis -> __main__.py -> core.application -> config.initialization -> actions.py
 # EDU: 
 # EDU: This uses a Global Configuration with Dynamic Initialization pattern.
@@ -30,9 +30,14 @@ Configuration initialized via config.initialization.init_module().
 # EDU: The .env file provides the configuration, not the logic itself. The logic is provided through initialization.py and core.application.py
 
 # EDU: Module Functionality Overview
-# EDU: ===============================
+# EDU: 
 # EDU: 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
-# EDU:    - url_freecodecamp, url_youtube, url_github, url_claude, url_chatgpt
+# EDU:    - url_freecodecamp
+# EDU:    - url_youtube
+# EDU:    - url_github
+# EDU:    - url_claude
+# EDU:    - url_chatgpt
+# EDU:    - url_gemini
 # EDU: 2. Open spotify or trigger play/pause: spotify
 # EDU: 3. Microphone ON/OFF toggle: is_mic_muted, toggle_mic
 # EDU: 4. Trigger hotkeys/shortcuts: hot_keys (example usage in hk_terminal and copy)
@@ -376,24 +381,17 @@ def url_github() -> None:
     # EDU: xdg-open is the freedesktop.org standard for opening files/URLs
     subprocess.Popen(["xdg-open", "https://github.com/NhoaKing-Tech"])
 
+def url_gemini() -> None:
+    """Open Gemini AI in default browser."""
+    subprocess.Popen(["xdg-open", "https://gemini.google.com/"])
 
 def url_claude() -> None:
     """Open Claude AI in default browser."""
-    # EDU: Provides quick access to Anthropic's Claude AI assistant for coding help,
-    # EDU: analysis, and development support.
-    # EDU: AI WORKFLOW INTEGRATION:
-    # EDU: Having multiple AI assistants available allows choosing the best tool
-    # EDU: for specific tasks (Claude for analysis, ChatGPT for coding, etc.).
     subprocess.Popen(["xdg-open", "https://claude.ai/"])
 
 
 def url_chatgpt() -> None:
     """Open ChatGPT in default browser."""
-    # EDU: Provides quick access to ChatGPT for coding assistance, problem-solving,
-    # EDU: and AI-powered development support during coding sessions.
-    # EDU: AI INTEGRATION WORKFLOW:
-    # EDU: Quick access to AI assistants supports modern development practices
-    # EDU: where AI tools are used for code review, debugging, and learning.
     subprocess.Popen(["xdg-open", "https://chatgpt.com/"])
 
 # 2. Spotify

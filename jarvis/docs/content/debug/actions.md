@@ -19,6 +19,6 @@ If hotkeys aren't working, try running this manually:
 ydotool key 29:1 46:1 46:0 29:0  # Ctrl+C example
 This helps verify that ydotool is working and the keycodes are correct
 
-*[Source: actions.py:572]*
+*[Source: actions.py:570]*
 
 ---
