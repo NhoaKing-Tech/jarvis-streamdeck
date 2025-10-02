@@ -32,33 +32,26 @@ Configuration initialized via config.initialization.init_module().
 
 # EDU: ## Module Functionality Overview
 # EDU: 
-# EDU: 1. Opening of URLs in default browser. In my case, Google Chrome. Functions here are:
-# EDU:      - url_freecodecamp
-# EDU:      - url_youtube
-# EDU:      - url_github
-# EDU:      - url_claude
-# EDU:      - url_chatgpt
-# EDU:      - url_gemini
-# EDU: 1. Open spotify or trigger play/pause: spotify
-# EDU: 1. Microphone ON/OFF toggle: is_mic_muted, toggle_mic
-# EDU: 1. Trigger hotkeys/shortcuts: hot_keys (example usage in hk_terminal and copy)
-# EDU: 1. Open VSCode with a given project path: open_vscode
-# EDU:    Control of vscode appearance for each project is done through the
-# EDU:    hidden .vscode folder inside the project directory and the file settings.json
-# EDU: 1. Type text and text blocks or snippets:
+# EDU: 1. Opening of **URLs** in default browser. In my case, Google Chrome. Functions here are:
+# EDU: - url_freecodecamp
+# EDU: - url_youtube
+# EDU: - url_github
+# EDU: - url_gemini
+# EDU: - url_claude
+# EDU: - url_chatgpt
+# EDU: 2. Open **Spotify** or trigger play/pause in the app
+# EDU: 3. **Microphone ON/OFF toggle** with is_mic_muted, toggle_mic
+# EDU: 4. Trigger **hotkeys/shortcuts**: hot_keys (example usage in hk_terminal and copy)
+# EDU: 5. Open **VSCode** with a given project path: open_vscode
+# EDU: - I like to control the vscode appearance for each project. I assign different color settings for the title and status bars so that I have a visual cue of which project I am working on on which window, when I have multiple vscode windows open, and I use ALT + TAB to switch between applications.
+# EDU: 6. Type text and text blocks or snippets:
 # EDU:    - type_text, type_snippet
-# EDU:    - type_keyring: Type and enter passwords without exposing them in your codebase. The password can be stored in config.env
-# EDU: 1. Open obsidian with a given vault path. It supports the possibility to open multiple vaults,
-# EDU:    so you can reuse the function in different keys for different vaults: open_obsidian
-# EDU: 1. Execute bash scripts: execute_bash
-# EDU:    Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
-# EDU:    Example of advanced usage with git_commit_workflow.sh
-# EDU: 1. Open nautilus windows with a target path. If that path is already open in another window,
-# EDU:    simply raise it, to avoid multiple nautilus windows with the same path (which happens often
-# EDU:    if this check is not in place before opening the window).
-# EDU:    This was the trigger to change to X11 from Wayland, as Wayland does not support window
-# EDU:    management in a straightforward way as X11 does, and it was giving me too many headaches.
-# EDU:    I do not discard in the future to TRY to implement jarvis in wayland.
+# EDU:    - type_keyring: Type and enter passwords. However, it is recommended to leave this function unused. I need to find a way to encrypt passwords. I leave this here as a placeholder for a future implementation, as I do not know at the moment how to do it securely. Therefore, in the config.env file it is recommended to leave the KEYRING_PW variable empty.
+# EDU: 7. Open **Obsidian** with a given vault path. It supports the possibility to open multiple vaults, so you can reuse the function in different keys for different vaults with open_obsidian. However, it is needed to specify the codename, and the path to the vault needs to be in the config.env file.
+# EDU: 8. **Execute bash** scripts: execute_bash
+# EDU: - Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
+# EDU: - Example of advanced usage with git_commit_workflow.sh
+# EDU: 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path (which happens often if this check is not in place before opening the window). This was the trigger to change to X11 from Wayland, as Wayland does not support window management in a straightforward way as X11 does, and it was giving me too many headaches. I do not discard in the future to ==TRY== to implement jarvis in wayland.
 
 # TODO: Generalize nautilus_path function to work with other applications too (for obsidian is already done)
 # TODO: Handle positioning and sizing of windows, at the moment everything opens correctly but super randomly placed and sized.
@@ -70,8 +63,12 @@ import os          # File system operations and path manipulation
 from pathlib import Path  # Object-oriented filesystem paths
 from typing import Dict, Optional, Callable, Any
 
-# NOTE: render_keys import moved inside toggle_mic function to avoid circular import
-# This breaks the cycle: actions -> ui.render -> core.logic -> actions
+# EDU: ## Circular import to avoid
+# EDU: I was importing render_keys from ui.render at the top of the file, but this was causing a circular import issue.
+# EDU: 
+# EDU: render_keys import moved inside toggle_mic function to avoid circular import
+# EDU: 
+# EDU: This breaks the cycle: actions -> ui.render -> core.logic -> actions
 
 # IMPORTANT: Global variable declarations are MANDATORY for the init_module() pattern to work
 # EDU: The config.initialization.init_module() function uses hasattr() to check if each variable
@@ -363,7 +360,6 @@ def url_freecodecamp() -> None:
     # EDU: and skill development during coding sessions.
     subprocess.Popen(["xdg-open", "https://www.freecodecamp.org/"])
 
-
 def url_youtube() -> None:
     """Open YouTube in default browser."""
     # EDU: Simple utility function to quickly access YouTube using the system's
@@ -372,7 +368,6 @@ def url_youtube() -> None:
     # EDU: Follows same pattern as other web-opening functions for consistency
     # EDU: and predictable behavior across all web-based StreamDeck actions.
     subprocess.Popen(["xdg-open", "https://www.youtube.com/"])
-
 
 def url_github() -> None:
     """Open GitHub profile in default browser."""
@@ -389,7 +384,6 @@ def url_gemini() -> None:
 def url_claude() -> None:
     """Open Claude AI in default browser."""
     subprocess.Popen(["xdg-open", "https://claude.ai/"])
-
 
 def url_chatgpt() -> None:
     """Open ChatGPT in default browser."""
@@ -656,7 +650,7 @@ def open_vscode(project_path: str) -> Callable[[], None]:
     # EDU: before accepting hotkeys. This delay works well for most hardware and
     # EDU: project sizes.
 
-    def execute():
+    def wrapper():
         # EDU: Launch VSCode with the project path as argument
         # EDU: VSCode will open the directory and load workspace settings
         subprocess.Popen(["code", project_path])
@@ -670,7 +664,7 @@ def open_vscode(project_path: str) -> Callable[[], None]:
         # EDU: This provides immediate access to command line in project context
         hot_keys("CTRL", "GRAVE")
 
-    return execute
+    return wrapper
 
 # 6. Type text and snippets
 def type_text(text: str) -> Callable[[], None]:

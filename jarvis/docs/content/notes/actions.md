@@ -15,16 +15,6 @@ date: 2025-10-03
 
 <a id="general-1"></a>
 
-render_keys import moved inside toggle_mic function to avoid circular import
-
-This breaks the cycle: actions -> ui.render -> core.logic -> actions
-
-*[Source: actions.py:73]*
-
----
-
-<a id="general-2"></a>
-
 Global Configuration with Dynamic Initialization chosen for:
 
 - Simple and straightforward for this hardware integration use case
@@ -33,17 +23,7 @@ Global Configuration with Dynamic Initialization chosen for:
 
 - Provides clear error handling and initialization validation
 
-*[Source: actions.py:205]*
-
----
-
-## function: execute
-
-<a id="function:-execute-1"></a>
-
-VSCode needs time to initialize
-
-*[Source: actions.py:664]*
+*[Source: actions.py:202]*
 
 ---
 
@@ -57,7 +37,7 @@ desktop environment's configured default rather than hardcoding a
 
 specific terminal emulator.
 
-*[Source: actions.py:599]*
+*[Source: actions.py:593]*
 
 ---
 
@@ -67,7 +47,7 @@ specific terminal emulator.
 
 Press keys in forward order
 
-*[Source: actions.py:551]*
+*[Source: actions.py:545]*
 
 ---
 
@@ -79,7 +59,7 @@ No lambda wrapper needed - this function doesn't take parameters and executes im
 
 so it doesn't need the factory pattern used by parameterized functions.
 
-*[Source: actions.py:422]*
+*[Source: actions.py:416]*
 
 ---
 
@@ -89,38 +69,46 @@ so it doesn't need the factory pattern used by parameterized functions.
 
 Import render_keys here to avoid circular import
 
-*[Source: actions.py:510]*
+*[Source: actions.py:504]*
 
 ---
 
 <a id="function:-wrapper-2"></a>
 
-"--" prevents text starting with "-" being interpreted as flags
+VSCode needs time to initialize
 
-*[Source: actions.py:714]*
+*[Source: actions.py:658]*
 
 ---
 
 <a id="function:-wrapper-3"></a>
 
-Auto-fix permissions if not executable
+"--" prevents text starting with "-" being interpreted as flags
 
-*[Source: actions.py:922]*
+*[Source: actions.py:708]*
 
 ---
 
 <a id="function:-wrapper-4"></a>
 
-Resolve to absolute path for consistent window title matching
+Auto-fix permissions if not executable
 
-*[Source: actions.py:1032]*
+*[Source: actions.py:916]*
 
 ---
 
 <a id="function:-wrapper-5"></a>
 
+Resolve to absolute path for consistent window title matching
+
+*[Source: actions.py:1026]*
+
+---
+
+<a id="function:-wrapper-6"></a>
+
 Check multiple title formats for matching
 
-*[Source: actions.py:1086]*
+*[Source: actions.py:1080]*
 
 ---
