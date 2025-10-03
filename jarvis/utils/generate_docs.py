@@ -380,7 +380,13 @@ class MarkdownGenerator:
         content.append("## Documentation Categories")
         content.append("")
 
-        for tag, files in sorted(files_by_category.items()):
+        # Sort by the numbered titles in the category mapping instead of tag names
+        sorted_categories = sorted(
+            files_by_category.items(),
+            key=lambda x: self.tag_categories.get(x[0], {'title': x[0]})['title']
+        )
+
+        for tag, files in sorted_categories:
             if not files:
                 continue
 
