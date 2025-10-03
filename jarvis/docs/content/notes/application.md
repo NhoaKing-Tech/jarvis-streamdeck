@@ -1,5 +1,5 @@
 ---
-title: "04_Implementation Notes: Application"
+title: "Application"
 tags: [note, auto-generated]
 description: "04_Implementation Notes from application.py"
 date: 2025-10-03

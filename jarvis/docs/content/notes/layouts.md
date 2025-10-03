@@ -1,5 +1,5 @@
 ---
-title: "04_Implementation Notes: Layouts"
+title: "Layouts"
 tags: [note, auto-generated]
 description: "04_Implementation Notes from layouts.py"
 date: 2025-10-03

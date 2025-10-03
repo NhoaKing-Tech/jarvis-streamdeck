@@ -1,5 +1,5 @@
 ---
-title: "08_Workarounds: Actions"
+title: "Actions"
 tags: [hack, auto-generated]
 description: "08_Workarounds from actions.py"
 date: 2025-10-03

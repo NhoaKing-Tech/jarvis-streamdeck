@@ -179,7 +179,7 @@ class MarkdownGenerator:
 
         # Add frontmatter
         content.append(self.generate_frontmatter(
-            title=f"{category['title']}: {file_title}",
+            title=f"{file_title}",
             tags=[tag.lower(), 'auto-generated'],
             description=f"{category['title']} from {file_path.name}"
         ))

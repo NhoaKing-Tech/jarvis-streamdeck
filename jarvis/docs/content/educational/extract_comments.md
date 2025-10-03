@@ -1,5 +1,5 @@
 ---
-title: "01_Learning notes: Extract Comments"
+title: "Extract Comments"
 tags: [edu, auto-generated]
 description: "01_Learning notes from extract_comments.py"
 date: 2025-10-03

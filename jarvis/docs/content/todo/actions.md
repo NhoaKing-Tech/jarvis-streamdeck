@@ -1,5 +1,5 @@
 ---
-title: "07_Future Improvements: Actions"
+title: "Actions"
 tags: [todo, auto-generated]
 description: "07_Future Improvements from actions.py"
 date: 2025-10-03

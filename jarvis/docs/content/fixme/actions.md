@@ -1,5 +1,5 @@
 ---
-title: "06_Known Issues: Actions"
+title: "Actions"
 tags: [fixme, auto-generated]
 description: "06_Known Issues from actions.py"
 date: 2025-10-03

@@ -1,5 +1,5 @@
 ---
-title: "09_Debug Information: Logic"
+title: "Logic"
 tags: [debug, auto-generated]
 description: "09_Debug Information from logic.py"
 date: 2025-10-03

@@ -1,5 +1,5 @@
 ---
-title: "01_Learning notes: Actions"
+title: "Actions"
 tags: [edu, auto-generated]
 description: "01_Learning notes from actions.py"
 date: 2025-10-03

@@ -1,5 +1,5 @@
 ---
-title: "09_Debug Information: Layouts"
+title: "Layouts"
 tags: [debug, auto-generated]
 description: "09_Debug Information from layouts.py"
 date: 2025-10-03

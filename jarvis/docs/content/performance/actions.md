@@ -1,5 +1,5 @@
 ---
-title: "10_Performance Notes: Actions"
+title: "Actions"
 tags: [optimize, auto-generated]
 description: "10_Performance Notes from actions.py"
 date: 2025-10-03

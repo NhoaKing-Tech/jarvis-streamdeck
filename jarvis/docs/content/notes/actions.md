@@ -1,5 +1,5 @@
 ---
-title: "04_Implementation Notes: Actions"
+title: "Actions"
 tags: [note, auto-generated]
 description: "04_Implementation Notes from actions.py"
 date: 2025-10-03

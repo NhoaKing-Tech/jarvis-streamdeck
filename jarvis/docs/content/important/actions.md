@@ -1,5 +1,5 @@
 ---
-title: "03_Important Information: Actions"
+title: "Actions"
 tags: [important, auto-generated]
 description: "03_Important Information from actions.py"
 date: 2025-10-03

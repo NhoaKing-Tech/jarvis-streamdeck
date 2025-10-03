@@ -1,5 +1,5 @@
 ---
-title: "09_Debug Information: Actions"
+title: "Actions"
 tags: [debug, auto-generated]
 description: "09_Debug Information from actions.py"
 date: 2025-10-03
