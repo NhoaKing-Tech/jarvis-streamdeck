@@ -124,30 +124,22 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: ```
 # EDU: You would call it like: `hot_keys("/usr/bin/ydotool", KEYCODES_DICT, "CTRL", "C")`  with dependencies passed in.
 # EDU:
-# EDU: CURRENT APPROACH (Global Configuration):
-# EDU:
+# EDU: **CURRENT APPROACH (Global Configuration)**
+# EDU:```python
 # EDU: def hot_keys(*keys: str) -> None:
-# EDU:
 # EDU:     """Dependencies accessed from global state - NOT dependency injection"""
-# EDU:
 # EDU:     if KEYCODES is None or YDOTOOL_PATH is None:  # EDU: Accesses global variables
-# EDU:
 # EDU:         raise RuntimeError("Module not initialized")
-# EDU:
 # EDU:     sequence = []
-# EDU:
 # EDU:     for key in keys:
-# EDU:
 # EDU:         if key not in KEYCODES:  # EDU: Uses global variable
-# EDU:
 # EDU:             raise ValueError(f"Unknown key: {key}")
-# EDU:
 # EDU:         sequence.append(f"{KEYCODES[key]}:1")
-# EDU:
 # EDU:     subprocess.run([YDOTOOL_PATH, "key"] + sequence)  # EDU: Uses global variable
 # EDU:
 # EDU: You call it like: `hot_keys("CTRL", "C")`  No dependencies passed, function finds them globally.
-# EDU: 
+# EDU: ```
+# EDU:
 # EDU: ### Key differences
 # EDU: 
 # EDU: 1. WHERE DEPENDENCIES COME FROM:

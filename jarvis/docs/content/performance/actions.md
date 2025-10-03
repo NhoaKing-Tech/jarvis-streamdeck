@@ -21,7 +21,7 @@ Use D-Bus to communicate directly with Spotify (more efficient)
 
 Implement timeout for Spotify launch detection
 
-*[Source: actions.py:451]*
+*[Source: actions.py:443]*
 
 ---
 
@@ -31,7 +31,7 @@ Hotkey simulation is faster than process discovery and launching
 
 The desktop environment handles terminal selection and configuration
 
-*[Source: actions.py:609]*
+*[Source: actions.py:601]*
 
 ---
 
@@ -43,7 +43,7 @@ wmctrl window search typically <10ms
 
 Could cache window list to avoid repeated wmctrl calls
 
-*[Source: actions.py:842]*
+*[Source: actions.py:834]*
 
 ---
 
@@ -53,7 +53,7 @@ Could cache window list to avoid repeated wmctrl calls
 
 Make delay configurable based on system performance
 
-*[Source: actions.py:634]*
+*[Source: actions.py:626]*
 
 ---
 
@@ -63,7 +63,7 @@ Make delay configurable based on system performance
 
 Could cache frequently used snippets in memory
 
-*[Source: actions.py:768]*
+*[Source: actions.py:760]*
 
 ---
 
@@ -73,6 +73,6 @@ Could cache frequently used snippets in memory
 
 For large text blocks, consider clipboard operations instead
 
-*[Source: actions.py:693]*
+*[Source: actions.py:685]*
 
 ---

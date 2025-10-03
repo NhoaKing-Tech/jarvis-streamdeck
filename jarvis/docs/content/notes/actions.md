@@ -23,7 +23,7 @@ Global Configuration with Dynamic Initialization chosen for:
 
  - Provides clear error handling and initialization validation
 
-*[Source: actions.py:203]*
+*[Source: actions.py:195]*
 
 ---
 
@@ -37,7 +37,7 @@ This is preferred over direct terminal commands because it uses the
 
  specific terminal emulator.
 
-*[Source: actions.py:601]*
+*[Source: actions.py:593]*
 
 ---
 
@@ -47,7 +47,7 @@ This is preferred over direct terminal commands because it uses the
 
 Press keys in forward order
 
-*[Source: actions.py:553]*
+*[Source: actions.py:545]*
 
 ---
 
@@ -59,7 +59,7 @@ No lambda wrapper needed - this function doesn't take parameters and executes im
 
  so it doesn't need the factory pattern used by parameterized functions.
 
-*[Source: actions.py:417]*
+*[Source: actions.py:409]*
 
 ---
 
@@ -69,7 +69,7 @@ No lambda wrapper needed - this function doesn't take parameters and executes im
 
 Import render_keys here to avoid circular import
 
-*[Source: actions.py:512]*
+*[Source: actions.py:504]*
 
 ---
 
@@ -77,7 +77,7 @@ Import render_keys here to avoid circular import
 
 VSCode needs time to initialize
 
-*[Source: actions.py:666]*
+*[Source: actions.py:658]*
 
 ---
 
@@ -85,7 +85,7 @@ VSCode needs time to initialize
 
 "--" prevents text starting with "-" being interpreted as flags
 
-*[Source: actions.py:716]*
+*[Source: actions.py:708]*
 
 ---
 
@@ -93,7 +93,7 @@ VSCode needs time to initialize
 
 Auto-fix permissions if not executable
 
-*[Source: actions.py:924]*
+*[Source: actions.py:916]*
 
 ---
 
@@ -101,7 +101,7 @@ Auto-fix permissions if not executable
 
 Resolve to absolute path for consistent window title matching
 
-*[Source: actions.py:1034]*
+*[Source: actions.py:1026]*
 
 ---
 
@@ -109,6 +109,6 @@ Resolve to absolute path for consistent window title matching
 
 Check multiple title formats for matching
 
-*[Source: actions.py:1088]*
+*[Source: actions.py:1080]*
 
 ---
