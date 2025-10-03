@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: terminal_prints.py
 -- DESCRIPTION --
 This script provides functions for printing styled messages to the terminal to enhance console formatting.

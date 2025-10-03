@@ -61,18 +61,18 @@ class MarkdownGenerator:
         # Category mapping for different tag types
         self.tag_categories = {
             'EDU': {
-                'title': 'Educational Content',
-                'description': 'Computer science concepts, design patterns, and learning material',
+                'title': 'Learning notes',
+                'description': 'Learning notes about computer science topics in general',
                 'dir': 'educational'
             },
             'NOTE': {
                 'title': 'Implementation Notes',
-                'description': 'Important implementation details and gotchas',
+                'description': 'Important implementation details and considerations',
                 'dir': 'notes'
             },
             'IMPORTANT': {
-                'title': 'Critical Information',
-                'description': 'Critical information for understanding and using the system',
+                'title': 'Important Information',
+                'description': 'Important information for understanding and using the system',
                 'dir': 'important'
             },
             'OPTIMIZE': {

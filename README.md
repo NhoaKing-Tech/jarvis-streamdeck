@@ -1,133 +1,208 @@
 # Jarvis StreamDeck Automation System
 
-[![Documentation](https://img.shields.io/badge/docs-comprehensive-blue.svg)](DOCUMENTATION.md)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-*Extended from [python-elgato-streamdeck](https://github.com/abcminiuser/python-elgato-streamdeck)*
-
-> **Technical Writing Portfolio:** I built this hardware integration system as both a productivity tool and a documentation showcase. The repository demonstrates API documentation, user guides, multi-audience content strategy, and automated documentation generation through git hooks.
-
-> [View Documentation System](#documentation-philosophy)
-
----
-## What is Jarvis?
-
-Jarvis is my personal automation system that transforms an Elgato StreamDeck XL into a powerful Linux productivity control center. I built this on top of the python-elgato-streamdeck library, extending it with custom workflow automation capabilities.
-
-### Why I Built This
-
-I wanted a physical control panel for my development workflow - launching projects, executing commands, managing applications - all at the press of a button. But beyond just making it work, I wanted to build it **the right way** with comprehensive documentation, clean architecture, and automated tooling.
-
-### Documentation Highlights (What Makes This Special)
-
-- 📚 **50+ Documented Functions** - Every function has detailed docstrings explaining what, why, and how
-- 📖 **Step-by-Step Guides** - Installation, configuration, and troubleshooting written for actual humans
-- 🏗️ **Architecture Documentation** - I explain my design decisions and the trade-offs I considered
-- 🤖 **Automated Doc Generation** - Git hooks + Python scripts keep docs synced with code automatically
-- 👥 **Tagged Comment System** - Organized comments (#EDU, #NOTE, #FIXME, etc.) for documentation extraction
-- ✅ **Production-Ready** - Runs as a systemd service with proper lifecycle management
-
-### Technical Features
-
-- **Custom Action System**: Programmable button actions for system control, application launching, and workflow automation
-- **Multi-Layout Support**: Dynamic layout switching for different contexts (git tools, conda commands, etc.)
-- **Deep Linux Integration**: Works with ydotool, wmctrl, playerctl, systemd, and other system tools
-- **Visual Customization**: Custom icon rendering with text overlays and dynamic button states
-- **Service Integration**: Designed to run as a systemd service from startup
-- **Configuration Management**: Environment-based config system that's actually easy to set up
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen.svg)](https://nhoaking-tech.github.io/jarvis-streamdeck)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg)](https://github.com/NhoaKing-Tech/jarvis-streamdeck/actions)
+[![Git Hooks](https://img.shields.io/badge/git%20hooks-automated-orange.svg)](#git-hooks-setup)
+[![StreamDeck](https://img.shields.io/badge/hardware-StreamDeck%20XL-9cf.svg)](https://www.digitec.ch/en/s1/product/elgato-stream-deck-xl-stream-deck-11054881)
+[![Platform](https://img.shields.io/badge/platform-Ubuntu%2024.04%20LTS-E95420.svg)](#system-requirements)
 
 ---
 
-## Project Status
+## OVERVIEW
 
-**🚧 Active Development** - This project is not considered finished. The core functionality works great, but I'm constantly adding features as new requirements emerge. Current implementation provides solid StreamDeck automation, but additional features are planned.
+<details>
+
+<summary>About This Project</summary>
+
+Forked from [python-elgato-streamdeck](https://github.com/abcminiuser/python-elgato-streamdeck).
+
+**Contributions:**
+- ✨ Rendering System: Custom text/icon rendering on buttons
+- 🪄 Custom Action Framework: Variety of actions included for key presses
+- ⚙️ Linux Integration: ydotool, wmctrl, udev rules, system controls
+- 🕮 Documentation System: Git hooks, automated generation of docs, automated deployment to github pages with Quartz
+- 🗝️ Configuration Management: Environment-based setup
+- ☑️ Service Integration: systemd, lifecycle management
+
+</details>
+
+> I built this automation and productivity workflow system as both a tool and a documentation showcase. The project integrates StreamDeck hardware with Linux system tools to create custom workflows. The repository demonstrates comprehensive internal API documentation with 70+ functions and classes featuring detailed docstrings, user guides, multi-audience content strategy, and fully automated documentation generation. Documentation is automatically extracted from tagged code comments (#EDU, #NOTE, #TODO, etc.) and docstrings in the codebase, then converted to markdown and deployed to GitHub Pages using Quartz. I implementing true single-sourcing principles. I use githooks and GitHub Actions to automate the entire documentation workflow, ensuring that documentation is always up-to-date with the codebase.
+
+## DOCUMENTATION LINKS
+
+> [Documentation System](#documentation-system) | [Static Site Documentation](https://nhoaking-tech.github.io/jarvis-streamdeck)
+
+---
+
+## README NAVIGATION
+
+- [OVERVIEW](#overview): Project description (Finished)
+- [DOCUMENTATION LINKS](#documentation-links): Related documentation and resources (Finished)
+- [WHAT IS JARVIS?](#what-is-jarvis): Motivation, documentation highlights, and features (Finished)
+- [PROJECT STATUS](#project-status): Current state and next steps (Finished)
+- [SYSTEM REQUIREMENTS](#system-requirements): OS, hardware, and software dependencies (Finished)
+- [QUICK LINKS](#quick-links): Navigation table by user type (Finished)
+- [QUICK START](#quick-start): 15-30 minute basic setup (Finished)
+- [PROJECT STRUCTURE](#project-structure): File organization and recent changes
+- [FULL SETUP](#full-set-up): Complete step-by-step setup
+- [CUSTOMIZATION](#customization): How to modify layouts, actions, and icons
+- [DOCUMENTATION SYSTEM](#documentation-system): Tagged comments and automated docs
+- [WORKFLOW SUMMARY](#workflow-summary): Development and documentation workflow
+- [DEPENDENCIES](#dependencies): Python packages and system tools
+- [TROUBLESHOOTING](#troubleshooting): Common issues and solutions
+- [CONTRIBUTING](#contributing): How to contribute to the project (Finished)
+- [LICENSE](#license): MIT license information (Finished)
+- [SOURCES](#sources): Credits for external resources (Finished)
+- [CREDITS](#credits): Project and upstream library acknowledgments (Finished)
+- [QUESTIONS?](#questions): Support and contact information (Finished)
+- [LAST UPDATE](#last-update): Date of last update (Finished)
+
+---
+
+## WHAT IS JARVIS?
+
+
+[⬇️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+Jarvis is my personal automation system that transforms an Elgato StreamDeck XL into a powerful Linux productivity control hub. 
+
+### Motivation
+
+I started this project because I envisioned having a cockpit for linux productivity. I wanted a physical control panel that could trigger complex multi-step workflows at the press of a button.
+
+Although still under active development, I built a strong base showcasing a variety of controls and custom actions to integrate with my Linux desktop environment.
+
+I wanted to build it with comprehensive documentation, as for me this is an integral part of any project. I wanted to include learning notes and educational content, very useful when one is learning new technologies.
+
+Furthermore, I wanted to automate as well not only my workflows but also the documentation process itself. I aimed to create a system where documentation could be easily generated and maintained alongside the code, with the capability to categorize the content by audience (users, contributors, technical writers). The documentation system is described in the [Documentation Style](#documentation-style) section below. The goal is to ensure that code and documentation remain in sync, reducing the risk of outdated or incorrect information.
+
+### Documentation Highlights
+
+- 📝 **70+ Documented Functions**: Every function and class has detailed docstrings explaining what, why, and how.
+- ➡️ **Step-by-Step Guides**: Installation, configuration, and troubleshooting written with plain English principles.
+- 🧩 **Architecture Documentation**: I explain my design decisions and the trade-offs I considered.
+- 🪄 **Automated Doc Generation**: Git hooks + Python scripts + GitHub workflows allow me to keep docs synced with the python files automatically.
+- 🎯 **Tagged Comment System**: Organized comments (#EDU, #NOTE, #DEV, #ARCH, #TODO, etc.) for documentation extraction to target multiple audiences.
+
+### Features
+
+- **Custom Action System**: Programmable button actions for system control, application launching, and workflow automation.
+- **Multi-Layout Support**: Dynamic layout switching for different contexts (git tools, conda commands, etc.).
+- **Deep Linux Integration**: Works with ydotool, wmctrl, playerctl, systemd, and other system tools.
+- **Visual Customization**: Custom icon rendering with text overlays and dynamic button states.
+- **Service Integration**: Designed to run as a systemd service from startup.
+- **Configuration Management**: Environment-based configuration easy to set up.
+
+---
+
+## PROJECT STATUS 
+
+[⬇️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+**Active Development**. This project is <mark>not considered finished</mark>. The core functionality works well, but I am constantly adding features as new requirements for my workflows emerge. Current implementation provides a solid base to customize your StreamDeck to your needs, but additional features are planned.
 
 **What works right now:**
-- All core StreamDeck functionality (buttons, layouts, actions)
-- Systemd service integration
-- Custom layouts and actions
-- Documentation automation system
-
-**Known Issues:**
-- Snippet typing adds extra indentation not present in source files (investigating ydotool behavior)
-
-**What I'm working on:**
-- Fixing snippet indentation bug
-- Other custom actions based on my workflow needs
-- Enhanced testing coverage
-- Better error handling
+- All core StreamDeck functionality (buttons, layouts, actions).
+- Systemd service integration.
+- Custom layouts and actions.
+- Documentation automation system.
 
 **Documentation Deployment:**
 - 📖 Documentation is automatically deployed to GitHub Pages using Quartz
 - 🔗 **View Live Documentation:** [https://nhoaking-tech.github.io/jarvis-streamdeck](https://nhoaking-tech.github.io/jarvis-streamdeck)
-- 🎨 Custom dark-mode-only theme with color-coded text (bold=blue, italic=green, links=pink)
-- 🤖 Fully automated via GitHub Actions on push to main
-- 🔄 Local preview available with `quartz-preview/` setup
+- 🎨 Custom dark-mode-only theme with color-coded text.
+- 🤖 Fully automated via GitHub Actions on push to main.
+- 🔄 Local preview available with `quartz-preview/` setup.
+
+**Known Issues:**
+- Snippet typing adds extra indentation not present in source files (investigating ydotool behavior)
+
+**Next Steps:**
+- Polishing comments and docstrings in all modules. Module actions.py is mostly done, but other modules need more work.
+- Fixing snippet indentation bug.
+- Other custom actions based on my workflow needs.
+- Enhanced testing coverage.
+- Better error handling.
 
 ---
 
-## Quick Links
+## SYSTEM REQUIREMENTS 
 
-| For Users | For Contributors | For Technical Writers |
-|-----------|-----------------|---------------------|
-| [Quick Start](#quick-start) | [Project Structure](#project-structure) | [Documentation System](#documentation-philosophy) |
-| [Full Setup](#detailed-installation) | [Complete Workflow](#complete-workflow-summary) | [Git Hooks Setup](#git-hooks-setup) |
-| [Troubleshooting](#troubleshooting) | [Git Workflow Guides](jarvis/git_docs/) | [Quartz Preview](#quartz-documentation-preview) |
-| [Customization](#customization) | [Install Hooks](INSTALL_HOOKS.md) | [GitHub Pages Deploy](#github-pages-deployment) |
-
----
-
-## System Requirements
+[⬇️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 **What I developed and tested on:**
-- **OS**: Ubuntu 24.04.3 LTS (Noble Numbat) - other Linux-based distros could work but I haven't tested them.
-- **Display Server**: X11 - Wayland is not supported because I had to switch to X11 due to limitations on permissions. It also has window management tool limitations, which I have not implemented yet, but will revisit soon.
-- **Python**: 3.11.4 - I use conda for environment management because I use this at work, but venv will work too.
-- **Hardware**: Elgato StreamDeck XL (32-key version) - other models might work but I only have the XL to test with.
+- **OS**: Ubuntu 24.04.3 LTS (Noble Numbat). Other Linux-based distros could work but I did not test on them.
+- **Display Server**: X11. Wayland is not supported. I initially started to develop the application for Wayland, but I had to switch to X11 due to limitations on permissions.
+- **Python**: 3.11.4 - I use conda for environment management because I use this at work, but other environment managers will work too.
+- **Hardware**: Elgato StreamDeck XL (32-key version) - other models will work too thanks to the upstream repo, but I only have the XL, so I tailored my development to it. I might consider supporting other streadm deck models in the future.
 
 **Why X11 instead of Wayland?**
+
 I originally started developing on Wayland, which is why I use ydotool (Wayland-compatible). However, I encountered one issue that made me switch to X11:
 - Window management tools (wmctrl) don't work on Wayland, limiting functionality like smart window focusing that I use in nautilus and Obsidian actions.
 
-Rather than rewrite everything, I switched to X11 and kept ydotool since it already worked. I might revisit Wayland support in the future when I have more experience...
+Rather than rewrite my functions, I switched to X11 and kept ydotool, since when I test it, it worked the same. 
+
+I might revisit Wayland support in the future when I have more experience.
 
 ---
 
-## Quick Start
+## QUICK LINKS
+
+| For Users | For Contributors | For Technical Writers |
+|--|--|--|
+| [Quick Start](#quick-start) | [Project Structure](#project-structure) | [Documentation System](#documentation-system) |
+| [Full Setup](#full-setup) | [Workflow Summary](#workflow-summary) | [Git Hooks Setup](#git-hooks-setup) |
+| [Troubleshooting](#troubleshooting) | [Install Hooks](#git-hooks-setup) | [Quartz Preview](#quartz-documentation-preview) |
+| [Customization](#customization) | Git Workflow Guides *(coming soon 🔜)* | [GitHub Pages Deployment](#github-pages-deployment) |
+| [Project Structure](#project-structure) | Contributing Guidelines *(coming soon 🔜)* |  |
+
+---
+
+## QUICK START
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 **Time needed:** 15-30 minutes for basic test of streamdeck connection.
 
 **What you'll need:**
 - Linux machine with X11. If you have Wayland per default, switch to X11 from the user login screen. You can check your current display server with:
+
   ```bash
   echo $XDG_SESSION_TYPE
   ```
   It should print `x11`. If it prints `wayland`, you need to log out and select X11 from the login screen options.
 - Python 3.11+.
 - Elgato StreamDeck XL.
-- Patience for the udev and systemd setup steps, they can be tricky the first time!
+- Set an udev rule to allow your user to access the StreamDeck without `sudo`.
 
 ### Minimal Setup (For Testing)
 
 Set up a udev rule to allow your user to access the StreamDeck without `sudo`, install the Python dependencies, and run a quick test script to verify the connection.
+
+To set up the udev rule you need to know your idProduct. You can find it with:
+
+**How to find your idProduct:**
+```bash
+lsusb | grep -i elgato
+# Example output: Bus 001 Device 005: ID 0fd9:008f Elgato Systems GmbH Stream Deck XL
+# ID idVendor:idProduct
+```
 
 ```bash
 # Create udev rule for StreamDeck access
 sudo nano /etc/udev/rules.d/60-jarvis.rules
 ```
 
-Add this content (adjust `idProduct` for your StreamDeck model):
+Add this content (adjust `idProduct` for your StreamDeck model if different):
 ```
 SUBSYSTEM=="usb", ATTR{idVendor}=="0fd9", ATTR{idProduct}=="008f", MODE="0666"
-```
-
-**How to find your idProduct:**
-```bash
-lsusb | grep -i elgato
-# Example output: Bus 001 Device 005: ID 0fd9:008f Elgato Systems GmbH Stream Deck XL
-#                                      ^^^^  ^^^^
-#                                    vendor product
 ```
 
 Reload udev rules:
@@ -142,24 +217,32 @@ sudo udevadm trigger
 git clone https://github.com/NhoaKing-Tech/jarvis-streamdeck.git
 cd jarvis-streamdeck
 
-# 2. Run configuration setup from the original repo. You do not need to have an environment in python to run this, as it is just a setup script that generates a config file. But you do need to have the ydotool path ready, so make sure you have built ydotool from source first, as described in the Detailed Installation section.
+# 2. Run configuration setup from the original repo.
+# You do not need to have an environment in python to run this, as it is just a setup script 
+# that generates a config file.
 cd jarvis && python3 config/setup_config.py
 
 # 3. Set up Python environment
-# I use conda because maybe I'll need this for data science workflows later. My environment is called jarvis-busybee, as it is paired with another project. If you want to name it differently, just remember to update the bash scripts later that use the jarvis-busybee environment.
+# I use conda because maybe I'll need this for data science workflows later. 
+# My environment is called jarvis-busybee, as it is paired with another project. 
+# If you want to name it differently, just remember to update the bash scripts later 
+# that use the jarvis-busybee environment.
 conda create -n jarvis-busybee python=3.11.4
 conda activate jarvis-busybee
 
-# You can also use venv if you prefer, but you will need to modify the bash scripts accordingly, as they assume conda, and are set up for an environment named "jarvis-busybee".
-# python3.11 -m venv jarvis-busybee
-# source jarvis-busybee/bin/activate
+# You can also use venv if you prefer. In any case you will need to modify the bash scripts accordingly, 
+# as they assume conda, and are set up for an environment named "jarvis-busybee".
 
-# 4. Install Python dependencies
+# 4. Install Python dependencies on the environment
 pip install -e .  # Install StreamDeck library in development mode
-pip install "pillow>=9.0.0" hidapi
+pip install "pillow>=9.0.0" hidapi # Required dependencies
 
-# 5. Install system dependencies
+# 5. Install system dependencies. 
+# These are system level libraries required for HID device access.
 sudo apt install libhidapi-libusb0 libhidapi-hidraw0
+
+# Note: Additional system tools (wmctrl, playerctl, alsa-utils, xdg-utils) are needed 
+# for full jarvis functionality. See FULL SETUP for complete setup.
 
 # 6. Test it out
 cd jarvis/tests
@@ -168,66 +251,114 @@ python grid_test.py
 
 **⚠️ Important:** This minimal setup lets you test that the connection to the streamdeck is working, but you'll need the [full setup](#detailed-installation) for custom actions and layouts.
 
+**⚠️ Important:** Do not execute any of the scripts from the VSCode terminal. Even though some of them will work with no issue, some of them require a full login shell environment to work properly (like the systemd service). ==Use a linux terminal for your tests==, so that the behaviour of the deck is the same with systemd service and while testing with python -m jarvis (see [Full Setup](#full-setup) for more information).
+
 **Next Steps:**
-- If it works → Continue to [Full Setup](#detailed-installation)
-- If it doesn't work → Check [Troubleshooting](#troubleshooting)
+- If it works -> Continue to [Full Setup](#detailed-installation)
+- If it doesn't work -> Check [Troubleshooting](#troubleshooting)
 
 ---
 
-## Project Structure
+## PROJECT STRUCTURE
 
-Here's how I organized everything:
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 ```
 jarvis-streamdeck/
-|-- jarvis/                         # Main application package
-|   |-- actions/                    # Action handlers for key presses
+|-- .bandit                         # ↩️ Upstream: Bandit security linter config
+|-- .drone.yml                      # ↩️ Upstream: Drone CI configuration
+|-- .flake8                         # ↩️ Upstream: Flake8 linter configuration
+|-- .gitignore                      # ↩️ Upstream: Git ignore rules
+|-- .readthedocs.yaml               # ↩️ Upstream: Read the Docs configuration
+|-- CHANGELOG                       # ↩️ Upstream: Project changelog
+|-- LICENSE                         # ↩️ Upstream: MIT license
+|-- MANIFEST.in                     # ↩️ Upstream: Package manifest
+|-- README.md                       # ✨ My contribution: This comprehensive guide
+|-- VERSION                         # ↩️ Upstream: Version file
+|-- requirements.txt                # ↩️ Upstream: Python dependencies
+|-- setup.py                        # ↩️ Upstream: Package setup
+|-- .github/                        # ✨ My contribution: GitHub workflow for automation of docs
+|   |-- workflows/
+|       |-- deploy-docs.yml         # ✨ My contribution: GitHub Pages deployment
+|-- doc/                            # ↩️ Upstream: Documentation
+|   |-- make.bat
+|   |-- Makefile
+|   |-- requirements.txt
+|   |-- source/
+|       |-- conf.py
+|-- docs_pipeline/                  # 📖 My contribution: Documentation workflow guides (coming soon 🔜)
+|-- jarvis/                         # ✨ My contribution: Main application package
+|   |-- actions/                    # ✨ My contribution: Action handlers for key presses
 |   |   |-- __init__.py
-|   |   |-- actions.py              # 50+ documented action functions
-|   |-- config/                     # Configuration management
+|   |   |-- actions.py              # ✨ My contribution: 50+ documented action functions
+|   |-- config/                     # ✨ My contribution: Configuration management
 |   |   |-- __init__.py
-|   |   |-- initialization.py       # Centralized module initialization
-|   |   |-- config.env              # Your personal config (generated by setup_config.py)
-|   |   |-- config_example.env      # Example configuration file
-|   |-- core/                       # Application core logic
+|   |   |-- initialization.py       # ✨ My contribution: Centralized module initialization
+|   |   |-- config.env              # ✨ My contribution: Your personal config (generated by setup_config.py)
+|   |   |-- config_example.env      # ✨ My contribution: Example configuration file
+|   |-- core/                       # ✨ My contribution: Application core logic
 |   |   |-- __init__.py
-|   |   |-- application.py          # Main application logic & lifecycle
-|   |   |-- logic.py                # Event handling & layout switching
-|   |   |-- lifecycle.py            # Resource cleanup & management
-|   |-- ui/                         # User interface layer
+|   |   |-- application.py          # ✨ My contribution: Main application logic & lifecycle
+|   |   |-- logic.py                # ✨ My contribution: Event handling & layout switching
+|   |   |-- lifecycle.py            # ✨ My contribution: Resource cleanup & management
+|   |-- ui/                         # ✨ My contribution: User interface layer
 |   |   |-- __init__.py
-|   |   |-- layouts.py              # StreamDeck layout definitions
-|   |   |-- render.py               # Visual rendering engine
-|   |-- utils/                      # Utility modules
+|   |   |-- layouts.py              # ✨ My contribution: StreamDeck layout definitions
+|   |   |-- render.py               # ✨ My contribution: Visual rendering engine
+|   |-- utils/                      # ✨ My contribution: Utility modules
 |   |   |-- __init__.py
-|   |   |-- reset_jarvis.py         # Deck reset utility (use if layout gets stuck)
-|   |   |-- terminal_prints.py      # Formatted console output
-|   |   |-- extract_comments.py     # ⭐ Extract tagged comments from code
-|   |   |-- generate_docs.py        # ⭐ Generate markdown from extracted comments
-|   |   |-- strip_comments.py       # ⭐ Strip tagged comments for production
-|   |   |-- pre-commit-hook.sh      # ⭐ Pre-commit git hook script
-|   |   |-- post-commit-hook.sh     # ⭐ Post-commit git hook script
-|   |-- assets/                     # Icons, fonts, scripts, snippets
-|   |   |-- jarvisicons/            # Custom StreamDeck button icons
-|   |   |-- bash_scripts/           # Executable bash scripts
-|   |   |-- snippets/               # Code snippet text files
-|   |   |-- font/                   # Font files for key rendering
-|   |-- tests/                      # Testing utilities
-|   |   |-- grid_test.py            # StreamDeck connection test
-|   |-- docs/                       # Auto-generated documentation
-|   |   |-- content/                # Markdown documentation files
-|   |-- git_docs/                   # Documentation workflow guides
-|   |   |-- README.md               # Documentation system overview
-|   |   |-- 00-11_*.md              # Detailed workflow guides
-|   |-- __init__.py                 # Package initialization
-|   |-- __main__.py                 # Module entry point (enables python -m jarvis)
-|   |-- main.sh                     # Shell entry point (for systemd service)
-|   |-- setup_config.py             # Interactive configuration setup
-|   |-- py.typed                    # PEP 561 type marker
-|-- src/                      # Forked StreamDeck library (python-elgato-streamdeck)
-|-- .git/hooks/               # Documentation automation hooks
-|-- README.md                 # This file - comprehensive setup guide
+|   |   |-- reset_jarvis.py         # ✨ My contribution: Deck reset utility (use if layout gets stuck)
+|   |   |-- terminal_prints.py      # ✨ My contribution: Formatted console output
+|   |   |-- extract_comments.py     # ⭐ My contribution: Extract tagged comments from code
+|   |   |-- generate_docs.py        # ⭐ My contribution: Generate markdown from extracted comments
+|   |   |-- strip_comments.py       # ⭐ My contribution: Strip tagged comments for production
+|   |   |-- pre-commit-hook.sh      # ⭐ My contribution: Pre-commit git hook script
+|   |   |-- post-commit-hook.sh     # ⭐ My contribution: Post-commit git hook script
+|   |-- docs/                       # ✨ My contribution: Auto-generated documentation
+|   |   |-- content/                # ✨ My contribution: Markdown documentation files
+|   |   |-- README.md               # ✨ My contribution: Documentation system overview
+|   |-- __init__.py                 # ✨ My contribution: Package initialization
+|   |-- __main__.py                 # ✨ My contribution: Module entry point (enables python -m jarvis)
+|   |-- main.sh                     # ✨ My contribution: Shell entry point (for systemd service)
+|   |-- setup_config.py             # ✨ My contribution: Interactive configuration setup
+|   |-- py.typed                    # ✨ My contribution: PEP 561 type marker (enables type checking support)
+|-- jarvis_experimental/            # 🧪 My contribution: Experimental features (local only)
+|-- quartz-preview/                 # 🔍 Local Quartz preview setup (not tracked in git)
+|-- src/                            # ↩️ Upstream: Forked StreamDeck library (python-elgato-streamdeck)
+|-- test/                           # ↩️ Upstream: Testing utilities
+|   |-- test.py                     # ↩️ Upstream: StreamDeck connection test
+|-- .git/hooks/                     # ✨ My contribution: Documentation automation hooks
 ```
+
+**Legend:**
+- ↩️ **Upstream Repository**: Files from the original python-elgato-streamdeck project
+- ✨ **My Contributions**: New files and functionality I have added
+- ⭐ **Documentation Automation**: Part of my contributions. Files that power the automated documentation system
+- 📖 **Documentation Content**: Part of my contributions. Workflow guides and setup instructions *(coming soon 🔜)*
+- 🧪 **Experimental**: Part of my contributions. Work-in-progress features (not committed to GitHub)
+- 🔍 **Local Preview**: Local-only setup for documentation preview (not tracked in git)
+
+**My Contributions vs. Upstream:**
+
+**What I kept from upstream:**
+- Core StreamDeck hardware communication library (`src/`)
+- Basic project structure and configuration files
+- Original licensing and documentation framework
+- Testing infrastructure foundation
+
+**What I added:**
+- Complete automation system (`jarvis/` package)
+- 50+ custom actions for Linux system integration
+- Multi-layout button configuration system
+- Systemd service integration
+- Interactive configuration setup
+- Comprehensive documentation system with automated generation
+- Git hooks for documentation workflow
+- GitHub Pages deployment with Quartz
+- Linux-specific integrations (ydotool, wmctrl, playerctl, etc.)
+
+Documentation on workflow guides and git hooks setup instructions is *coming soon 🔜*.
 
 ### Recent Structure Changes
 
@@ -252,7 +383,10 @@ I recently reorganized the project structure for better maintainability. Here's 
 
 ---
 
-## Detailed Installation
+## FULL SETUP
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 Let's do the full setup properly. It can take a bit of time, especially if you're new to Linux system configuration, but I'll guide you through every step. The amount of time you spend configuring your streamdeck for your productivity workflows depends on how complex you want it to be. At the moment I have only a few actions, representative of the kind of workflows you can automate. You can add your custom bash scripts, snippets, and actions as you see fit. You can add git workflows too. At the moment I provided an simple example with a commit action. The productivity gain (and cognitive load reduction) is worth the initial setup time investment.
 
@@ -594,6 +728,7 @@ alias jarvis-test='conda activate jarvis-busybee && cd ~/Zenith/jarvis-streamdec
 # Again, replace with your environment name and correct path. This is useful for testing changes to code without starting the service. Make sure the service has not been initialized, or stop it first, before testing your changes with this command, as the service will conflict with this command if it is already running and using the StreamDeck. It is very useful for debugging. Get out of the testing mode with Ctrl+C.
 ```
 
+```bash
 # Save (Ctrl+X, then Y, then Enter) and reload:
 source ~/.bashrc
 # or close the terminal and open a new one
@@ -718,7 +853,10 @@ I learned this after spending two hours debugging why nothing worked in VSCode b
 
 ---
 
-## Customization
+## CUSTOMIZATION
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 ### How to Modify Layouts
 
@@ -734,7 +872,7 @@ main_layout = {
 ```
 
 **Key components:**
-- `icon` - PNG filename from `assets/jarvisicons/`
+- `icon` - PNG filename from `assets/icons/`
 - `label` - Text to display on the button
 - `color` - Background color in hex format
 - `action` - Function to execute when button is pressed
@@ -766,7 +904,7 @@ or if you set up the alias:
 jarvis-restart
 ```
 
-You can also add your custom actions in `jarvis/actions/actions.py` and then use them in layouts.py (see [How to Add Custom Actions](#how-to-add-custom-actions) below). Also, you can modify the icons in `assets/jarvisicons/` to customize the look of your buttons (see [How to Modify Icons](#how-to-modify-icons) below).
+You can also add your custom actions in `jarvis/actions/actions.py` and then use them in layouts.py (see [How to Add Custom Actions](#how-to-add-custom-actions) below). Also, you can modify the icons in `assets/icons/` to customize the look of your buttons (see [How to Modify Icons](#how-to-modify-icons) below).
 
 ### How to Add Custom Actions
 
@@ -814,7 +952,7 @@ If your action needs parameters (like a file path), you need to wrap it in a fun
 
 ### How to Modify Icons
 
-You can also modify the icons in `assets/jarvisicons/` to customize the look of your buttons.
+You can also modify the icons in `assets/icons/` to customize the look of your buttons.
 I use mainly [Flatikon](https://www.flaticon.com/) for icons, as they have a huge selection of free icons.
 Other good sources are:
 - [WikimediaCommons](https://commons.wikimedia.org/wiki/Main_Page)
@@ -823,8 +961,283 @@ Other good sources are:
 
 ---
 
+## DOCUMENTATION SYSTEM
 
-## Troubleshooting
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+### Tagged Comment System
+
+I am still actively learning computer science concepts. Therefore, I needed to tailor documentation to my needs. This included being able to create clean and organized documentation from my learning notes, so that I can get back to those when needed. However, it was important to not clutter the codebase and make sure more experienced developers and other users in general can still easily read the code without being overwhelmed by too many comments.
+
+I created a tagged comment system that lets me organize documentation in the same codebase while keeping production code clean:
+
+```python
+# EDU: Educational content - design patterns, CS concepts
+# Explains the "why" and "how" for learners
+
+# NOTE: Implementation notes and important details
+# Critical information for developers
+
+# TODO: Future improvements
+# Planned enhancements
+
+# FIXME: Known issues that need fixing
+# Bugs to address
+
+# And more: TOCLEAN, HACK, DEBUG, IMPORTANT, REVIEW, OPTIMIZE...
+```
+
+**Why I built this:**
+I was frustrated with documentation always drifting out of sync with code. Separate documentation files get stale, but too many code comments make the code hard to read. I wanted a system where:
+1. Documentation lives with the code (never out of sync)
+2. I can be as detailed as I want without cluttering the code that gets pushed to GitHub
+3. Documentation automatically updates when code changes
+4. I can generate beautiful docs from these comments.
+5. Transparency about known issues, future plans and my learning journey
+
+**How it works:**
+The documentation pipeline has three main components:
+
+1. **`extract_comments.py`** - Parses Python files and extracts tagged comments into structured data
+2. **`generate_docs.py`** - Converts extracted comments into beautiful markdown documentation
+3. **Git hooks** - Automatically run extraction before every commit
+
+```bash
+# Pre-commit hook workflow:
+1. You commit code with tagged comments
+2. Hook detects changed Python files
+3. Extracts comments → generates markdown
+4. Stages markdown files
+5. Commit completes with docs included
+```
+
+Documentation is stored in `jarvis/docs/content/` and deployed to GitHub Pages via Quartz (a static site generator). The workflow is fully automated - I write code with comments, commit, and the docs update automatically.
+
+For complete details on the documentation workflow: *Documentation guides coming soon 🔜*.
+- Tag usage and best practices *(coming soon 🔜)*
+- Git hooks setup and automation *(coming soon 🔜)*
+- Quartz preview configuration *(coming soon 🔜)*
+- GitHub Pages deployment *(coming soon 🔜)*
+- Troubleshooting guides *(coming soon 🔜)*
+
+### Automated Documentation Generation
+
+My git hooks automatically generate documentation before every commit. This is a game-changer for keeping documentation in sync with code.
+
+**What this means:**
+- Documentation is always up-to-date with code
+- No manual documentation generation steps
+- Changes to code automatically update docs
+- No more "forgot to update the docs" commits
+- Deployed automatically to GitHub Pages via GitHub Actions
+
+### Git Hooks Setup
+
+The repository includes pre-commit and post-commit hooks that automate the entire documentation workflow:
+
+**Pre-Commit Hook** (`jarvis/utils/pre-commit-hook.sh`):
+- Runs on `dev` branch when you commit changes
+- Detects modified Python files in `jarvis/`
+- Automatically generates markdown documentation
+- Stages documentation files for inclusion in commit
+- On `main` branch: blocks commits with tagged comments (keeps production clean)
+
+**Post-Commit Hook** (`jarvis/utils/post-commit-hook.sh`):
+- Runs after successful commit on `dev` branch
+- Updates local Quartz preview automatically
+- Copies generated docs to `quartz-preview/content/`
+- Ready for local preview with `npx quartz build --serve`
+
+### Git Hooks Installation
+
+**Installation:**
+```bash
+# Quick install (from repository root)
+cp jarvis/utils/pre-commit-hook.sh .git/hooks/pre-commit
+cp jarvis/utils/post-commit-hook.sh .git/hooks/post-commit
+chmod +x .git/hooks/pre-commit .git/hooks/post-commit
+```
+
+### Quartz Documentation Preview
+
+The repository includes a local Quartz setup for previewing documentation before deployment:
+
+**Location**: `quartz-preview/` directory
+
+**Features**:
+- Dark mode only (no light theme toggle)
+- Custom color scheme:
+  - Bold text: Blue (`#6fa8dc`)
+  - Italic text: Green (`#93c47d`)
+  - Links: Pink (`#ff69b4`)
+  - Highlights: Pinkish (`#ff69b488`)
+- Automatically updated by post-commit hook
+
+**Usage**:
+```bash
+cd quartz-preview
+npx quartz build --serve
+# Opens preview at http://localhost:8080
+```
+
+For setup and configuration details: *Quartz preview documentation coming soon 🔜*.
+
+### GitHub Pages Deployment
+
+Documentation is automatically deployed to GitHub Pages when you push to `main`:
+
+**Workflow**: `.github/workflows/deploy-docs.yml`
+
+**What happens automatically**:
+1. GitHub Actions detects push to `main` with changes in `jarvis/docs/`
+2. Clones fresh Quartz installation
+3. Copies documentation from `jarvis/docs/content/`
+4. Copies custom theme and layout from `quartz-preview/`
+5. Builds static site
+6. Deploys to GitHub Pages
+
+**Deployment URL**: `https://<username>.github.io/jarvis-streamdeck/`
+
+**Configuration**:
+- Page title: "Jarvis StreamDeck Documentation"
+- Same custom theme as local preview
+- Fully automated - no manual deployment steps
+
+---
+
+## WORKFLOW SUMMARY
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+Here's the entire development and documentation workflow in action:
+
+### Daily Development Workflow
+
+```bash
+# 1. Work on dev branch (including tagged comments)
+git checkout dev
+
+# 2. Commit changes
+git add .
+git commit -m "Add new feature with documentation"
+
+# Pre-commit hook:
+#   - Extracts tagged comments for documentation, but keeps them in code on dev
+#   - Generates markdown files in jarvis/docs/content/
+#   - Stages documentation files
+
+# Post-commit hook:
+#   - Updates quartz-preview/content/
+#   - In this way I can visualize the changes in documentation instantly
+#   after every commit with the next step,
+#   without having to manually copy files around.
+
+# 3. Preview documentation locally. I navigate to quartz-preview/ and run: 
+cd quartz-preview && npx quartz build --serve
+# In this way I can preview style and formatting before squash merge to main,
+# and make the necessary changes to the comments in code if something is not right.
+# I do not track the quartz-preview/ directory in git, it is not necessary. The docs
+# in docs/content/ are the source of truth (this is tracked in git).
+# quartz-preview/ is just for local preview. This one is also a huge folder, 
+# so I do not want to track it in git, nor push it to GitHub, as it is 
+# completely unnecessary.
+
+# 4. When ready for push, merge to main
+git checkout main
+git merge --squash dev
+git commit -m "message"
+
+# Pre-commit hook in main:
+#   - Clean code: strips EDU/REVIEW tags from Python files to avoid clutter
+#   - Documentation already generated in dev is included as-is in main
+
+# 6. Push to GitHub
+git push origin main
+
+# GitHub Actions runs automatically (when jarvis/docs/ changes):
+#   - Takes pre-generated documentation from jarvis/docs/content/
+#   - Builds Quartz site with custom theme from quartz-preview/
+#   - Deploys to GitHub Pages
+
+# 7. Documentation is live!
+# Visit: https://<username>.github.io/jarvis-streamdeck/
+```
+
+### Branch Strategy
+
+- **`dev`** (commits on local only):
+  - Full code with ALL tagged comments (#EDU, #NOTE, etc.)
+  - Messy commit history - all your experiments
+  - Never pushed to GitHub
+- **`main`** (pushed to GitHub):
+  - Clean production code (tagged comments stripped)
+  - Generated documentation files included
+  - Clean commit history (squash merged from dev)
+  - Auto-deployed to GitHub Pages
+
+I also thought about having a branch for the documentation, but so far this seems to work well at this point. Maybe I need to revisit this later if the project grows, or if I find more intelligent and efficient ways to manage documentation.
+
+### Key Files and Locations
+
+```
+jarvis-streamdeck/
+|-- jarvis/
+|   |-- utils/
+|       |-- extract_comments.py      # Comment extraction
+|       |-- generate_docs.py         # Markdown generation
+|       |-- strip_comments.py        # Clean code generator
+|       |-- pre-commit-hook.sh       # Pre-commit hook installation file
+|       |-- post-commit-hook.sh      # Post-commit hook installation file
+|   |-- docs/
+|       |-- content/                 # Generated markdown docs
+├── quartz-preview/                  # Local Quartz installation
+|   |-- quartz.config.ts             # Quartz configuration
+|   |-- quartz.layout.ts             # Layout (no dark mode toggle)
+|   |-- quartz/styles/custom.scss    # Custom theme colors
+├── .git/hooks/
+│   ├── pre-commit                   # Installed hook
+|   |-- post-commit                  # Installed hook
+└── .github/workflows/
+|   |-- deploy-docs.yml              # GitHub Pages deployment
+```
+
+Documentation about the workflow guides is *coming soon 🔜*.
+
+---
+
+## DEPENDENCIES
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+### Python Packages
+
+| Package | Version | What I use it for |
+|---------|---------|-------------------|
+| streamdeck | 0.9.8 | StreamDeck hardware interface (from my fork) |
+| Pillow | ≥9.0.0 | Image processing for button rendering |
+| hidapi | latest | USB HID device communication |
+
+### System Tools
+
+| Tool | Package | What I use it for |
+|------|---------|-------------------|
+| ydotool | (build from source) | Keyboard/mouse input simulation |
+| wmctrl | wmctrl | Window management for smart window handling |
+| playerctl | playerctl | Spotify media controls |
+| alsa-utils | alsa-utils | Microphone toggle (via amixer) |
+| nautilus | nautilus | File manager integration |
+| gnome-terminal | gnome-terminal | Opening terminals with scripts |
+| xdg-utils | xdg-utils | Opening URLs and files (via xdg-open) |
+
+---
+
+## TROUBLESHOOTING
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 ### Permission Denied Errors
 
@@ -983,13 +1396,13 @@ systemctl --user restart jarvis.service
 
 ```bash
 # 1. Check if icon file exists
-ls jarvis/assets/jarvisicons/your_icon.png
+ls jarvis/assets/icons/your_icon.png
 
 # 2. Check icon path in layouts.py
 grep "your_icon.png" jarvis/ui/layouts.py
 
 # 3. Verify icon is PNG format
-file jarvis/assets/jarvisicons/your_icon.png
+file jarvis/assets/icons/your_icon.png
 # Should say "PNG image data"
 
 # 4. Check icon isn't too large
@@ -1019,295 +1432,61 @@ I built this utility because when you stop the jarvis service, the StreamDeck ha
 
 ---
 
-## Documentation Philosophy
+## CONTRIBUTING
 
-### Tagged Comment System
-
-One of the things I'm most proud of in this project is the documentation system. I created a tagged comment system that lets me organize documentation in the same codebase while keeping production code clean:
-
-```python
-# EDU: Educational content - design patterns, CS concepts
-# Explains the "why" and "how" for learners
-
-# NOTE: Implementation notes and important details
-# Critical information for developers
-
-# TODO: Future improvements
-# Planned enhancements
-
-# FIXME: Known issues that need fixing
-# Bugs to address
-
-# And more: TOCLEAN, HACK, DEBUG, IMPORTANT, REVIEW, OPTIMIZE
-```
-
-**Why I built this:**
-I was frustrated with documentation always drifting out of sync with code. Separate documentation files get stale, but too many code comments make the code hard to read. I wanted a system where:
-1. Documentation lives with the code (never out of sync)
-2. I can be as detailed as I want without cluttering production code
-3. Documentation automatically updates when code changes
-4. I can generate beautiful docs from these comments
-
-**How it works:**
-The documentation pipeline has three main components:
-
-1. **`extract_comments.py`** - Parses Python files and extracts tagged comments into structured data
-2. **`generate_docs.py`** - Converts extracted comments into beautiful markdown documentation
-3. **Git hooks** - Automatically run extraction before every commit
-
-```bash
-# Pre-commit hook workflow:
-1. You commit code with tagged comments
-2. Hook detects changed Python files
-3. Extracts comments → generates markdown
-4. Stages markdown files
-5. Commit completes with docs included
-```
-
-Documentation is stored in `jarvis/docs/content/` and deployed to GitHub Pages via Quartz (a static site generator). The workflow is fully automated - I write code with comments, commit, and the docs update automatically.
-
-For complete details on the documentation workflow, see **[jarvis/git_docs/](jarvis/git_docs/)** which contains comprehensive guides:
-- Tag usage and best practices
-- Git hooks setup and automation
-- Quartz preview configuration
-- GitHub Pages deployment
-- Troubleshooting guides
-
-### Automated Documentation Generation
-
-My git hooks automatically generate documentation before every commit. This is a game-changer for keeping documentation in sync with code.
-
-```bash
-# .git/hooks/pre-commit (simplified view)
-#!/usr/bin/env bash
-python jarvis/utils/generate_docs.py jarvis/ --output jarvis/docs/content/
-git add jarvis/docs/content/
-```
-
-**What this means:**
-- Documentation is always up-to-date with code
-- No manual documentation generation steps
-- Changes to code automatically update docs
-- No more "forgot to update the docs" commits
-- Deployed automatically to GitHub Pages via GitHub Actions
-
-### Git Hooks Setup
-
-The repository includes pre-commit and post-commit hooks that automate the entire documentation workflow:
-
-**Pre-Commit Hook** (`jarvis/utils/pre-commit-hook.sh`):
-- Runs on `dev` branch when you commit changes
-- Detects modified Python files in `jarvis/`
-- Automatically generates markdown documentation
-- Stages documentation files for inclusion in commit
-- On `main` branch: blocks commits with tagged comments (keeps production clean)
-
-**Post-Commit Hook** (`jarvis/utils/post-commit-hook.sh`):
-- Runs after successful commit on `dev` branch
-- Updates local Quartz preview automatically
-- Copies generated docs to `quartz-preview/content/`
-- Ready for local preview with `npx quartz build --serve`
-
-**Installation:**
-```bash
-# Quick install (from repository root)
-cp jarvis/utils/pre-commit-hook.sh .git/hooks/pre-commit
-cp jarvis/utils/post-commit-hook.sh .git/hooks/post-commit
-chmod +x .git/hooks/pre-commit .git/hooks/post-commit
-```
-
-For detailed setup instructions, see **[INSTALL_HOOKS.md](INSTALL_HOOKS.md)**.
-
-### Quartz Documentation Preview
-
-The repository includes a local Quartz setup for previewing documentation before deployment:
-
-**Location**: `quartz-preview/` directory
-
-**Features**:
-- Dark mode only (no light theme toggle)
-- Custom color scheme:
-  - Bold text: Blue (`#6fa8dc`)
-  - Italic text: Green (`#93c47d`)
-  - Links: Pink (`#ff69b4`)
-  - Highlights: Pinkish (`#ff69b488`)
-- Automatically updated by post-commit hook
-
-**Usage**:
-```bash
-cd quartz-preview
-npx quartz build --serve
-# Opens preview at http://localhost:8080
-```
-
-For setup and configuration details, see **[jarvis/git_docs/09_QUARTZ_PREVIEW.md](jarvis/git_docs/09_QUARTZ_PREVIEW.md)**.
-
-### GitHub Pages Deployment
-
-Documentation is automatically deployed to GitHub Pages when you push to `main`:
-
-**Workflow**: `.github/workflows/deploy-docs.yml`
-
-**What happens automatically**:
-1. GitHub Actions detects push to `main` with changes in `jarvis/docs/`
-2. Clones fresh Quartz installation
-3. Copies documentation from `jarvis/docs/content/`
-4. Copies custom theme and layout from `quartz-preview/`
-5. Builds static site
-6. Deploys to GitHub Pages
-
-**Deployment URL**: `https://<username>.github.io/jarvis-streamdeck/`
-
-**Configuration**:
-- Page title: "Jarvis StreamDeck Documentation"
-- Same custom theme as local preview
-- Fully automated - no manual deployment steps
-
----
-
-## Dependencies
-
-### Python Packages
-
-| Package | Version | What I use it for |
-|---------|---------|-------------------|
-| streamdeck | 0.9.8 | StreamDeck hardware interface (from my fork) |
-| Pillow | ≥9.0.0 | Image processing for button rendering |
-| hidapi | latest | USB HID device communication |
-
-### System Tools
-
-| Tool | Package | What I use it for |
-|------|---------|-------------------|
-| ydotool | (build from source) | Keyboard/mouse input simulation |
-| wmctrl | wmctrl | Window management for smart window handling |
-| playerctl | playerctl | Spotify media controls |
-| alsa-utils | alsa-utils | Microphone toggle (via amixer) |
-| nautilus | nautilus | File manager integration |
-| gnome-terminal | gnome-terminal | Opening terminals with scripts |
-| xdg-utils | xdg-utils | Opening URLs and files (via xdg-open) |
-
----
-
-## Complete Workflow Summary
-
-Here's the entire development and documentation workflow in action:
-
-### Daily Development Workflow
-
-```bash
-# 1. Work on dev branch (with all tagged comments)
-git checkout dev
-
-# 2. Make changes to code with tagged comments
-# Edit jarvis/actions/actions.py, add #EDU, #NOTE comments, etc.
-
-# 3. Commit changes
-git add .
-git commit -m "Add new feature with documentation"
-
-# ↓ Pre-commit hook runs automatically:
-#   - Extracts tagged comments
-#   - Generates markdown files in jarvis/docs/content/
-#   - Stages documentation files
-
-# ↓ Post-commit hook runs automatically:
-#   - Updates quartz-preview/content/
-#   - Ready for local preview
-
-# 4. Preview documentation locally (optional)
-cd quartz-preview && npx quartz build --serve
-
-# 5. When ready for production, merge to main
-git checkout main
-git merge --squash dev
-git commit -m "Release: Add new feature"
-
-# 6. Push to GitHub
-git push origin main
-
-# ↓ GitHub Actions runs automatically:
-#   - Builds Quartz site from jarvis/docs/content/
-#   - Applies custom theme from quartz-preview/
-#   - Deploys to GitHub Pages
-
-# 7. Documentation is live!
-# Visit: https://<username>.github.io/jarvis-streamdeck/
-```
-
-### Branch Strategy
-
-- **`dev`** (local only):
-  - Full code with ALL tagged comments (#EDU, #NOTE, etc.)
-  - Messy commit history - all your experiments
-  - Never pushed to GitHub
-
-- **`main`** (pushed to GitHub):
-  - Clean production code (tagged comments stripped)
-  - Generated documentation files included
-  - Clean commit history (squash merged from dev)
-  - Auto-deployed to GitHub Pages
-
-### Key Files and Locations
-
-```
-jarvis-streamdeck/
-├── jarvis/
-│   ├── utils/
-│   │   ├── extract_comments.py      # Comment extraction
-│   │   ├── generate_docs.py         # Markdown generation
-│   │   ├── strip_comments.py        # Clean code for production
-│   │   ├── pre-commit-hook.sh       # Pre-commit automation
-│   │   └── post-commit-hook.sh      # Post-commit automation
-│   ├── docs/
-│   │   └── content/                 # Generated markdown docs
-│   └── git_docs/                    # Workflow documentation
-├── quartz-preview/                  # Local Quartz installation
-│   ├── quartz.config.ts             # Quartz configuration
-│   ├── quartz.layout.ts             # Layout (no dark mode toggle)
-│   └── quartz/styles/custom.scss    # Custom theme colors
-├── .git/hooks/
-│   ├── pre-commit                   # Installed hook
-│   └── post-commit                  # Installed hook
-└── .github/workflows/
-    └── deploy-docs.yml              # GitHub Pages deployment
-```
-
----
-
-## Contributing
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 I'm open to contributions! If you want to add features, fix bugs, or improve documentation, stay tuned! I will set up a CONTRIBUTING.md file someday with guidelines.
 
 ---
 
-## License
+## LICENSE
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 Released under the [MIT license](LICENSE).
 
-Do whatever you want with this code! I'd love to hear if you build something cool with it, and make jarvis really a productive tool for a lot of people in the community!!
+Do whatever you want with this code! Let's keep expanding the tools and get Jarvis to be a great productivity tool for a lot of people in the community! ☺️
 
 ---
 
-## Credits
+## SOURCES
 
-### Jarvis Project
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
-Author: NhoaKing (2025)
+> Badges from [Shields.io](https://shields.io/). \
+> Emojis for markdown from [Emojipedia](https://emojipedia.org/).\
+> Quartz v4 repo: [Quartz 4](https://github.com/jackyzha0/quartz).\
+> Icon sources for keys: [Flaticon](https://www.flaticon.com/), [WikimediaCommons](https://commons.wikimedia.org/wiki/Main_Page), [RemixIcon](https://remixicon.com/), [Google Material Icons](https://fonts.google.com/icons). Attributions are in the `assets/icons/attributions.md` file.
 
-Special thanks to my instant coffee for keeping me awake during those late-night sessions, and of course to the **original repo by abcminiuser for the foundational work on the StreamDeck library**.
+---
+
+## CREDITS
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
+
+### Jarvis-StreamDeck Project
+
+Author: NhoaKing
+
+Special thanks to my instant coffee for keeping me awake, and of course to the **original repo by abcminiuser for the foundational work on the StreamDeck library**.
 
 ### Upstream Library
 
 Built on top of [python-elgato-streamdeck](https://github.com/abcminiuser/python-elgato-streamdeck) by Dean Camera.
 
-Thanks to Alex Van Camp for the reverse engineering notes that made the original library possible.
-
 Thanks to all the contributors to the upstream StreamDeck library (see the original repository for the full list).
 
 ---
 
-## Questions?
+## QUESTIONS?
+
+[⬆️ Quick Links](#quick-links)
+[⬆️ README Navigation](#readme-navigation)
 
 If you run into issues:
 1. Check the [Troubleshooting](#troubleshooting) section
@@ -1318,4 +1497,6 @@ nhoakingtech@gmail.com
 
 ---
 
-**Last updated:** 2025-09-30
+## LAST UPDATE
+
+2025-10-03

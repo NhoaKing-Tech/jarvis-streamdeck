@@ -1,13 +1,13 @@
 ---
-title: "Critical Information"
+title: "Important Information"
 tags: [important, index]
-description: "Critical information for understanding and using the system"
+description: "Important information for understanding and using the system"
 date: 2025-10-03
 ---
 
-# Critical Information
+# Important Information
 
-Critical information for understanding and using the system
+Important information for understanding and using the system
 
 ---
 

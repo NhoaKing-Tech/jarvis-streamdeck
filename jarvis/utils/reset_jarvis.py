@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: reset_jarvis.py
 -- DESCRIPTION --
 This script resets the deck to a clean state.

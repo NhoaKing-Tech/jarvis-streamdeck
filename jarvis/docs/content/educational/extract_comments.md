@@ -1,15 +1,15 @@
 ---
-title: "Educational Content: Extract Comments"
+title: "Learning notes: Extract Comments"
 tags: [edu, auto-generated]
-description: "Educational Content from extract_comments.py"
+description: "Learning notes from extract_comments.py"
 date: 2025-10-03
 ---
 
-# Educational Content: Extract Comments
+# Learning notes: Extract Comments
 
 **Source File**: `jarvis/utils/extract_comments.py`
 
-**Category**: Computer science concepts, design patterns, and learning material
+**Category**: Learning notes about computer science topics in general
 
 ---
 

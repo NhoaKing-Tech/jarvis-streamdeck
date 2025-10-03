@@ -1,15 +1,15 @@
 ---
-title: "Critical Information: Actions"
+title: "Important Information: Actions"
 tags: [important, auto-generated]
-description: "Critical Information from actions.py"
+description: "Important Information from actions.py"
 date: 2025-10-03
 ---
 
-# Critical Information: Actions
+# Important Information: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: Critical information for understanding and using the system
+**Category**: Important information for understanding and using the system
 
 ---
 

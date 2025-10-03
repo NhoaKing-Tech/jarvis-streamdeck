@@ -9,7 +9,7 @@ date: 2025-10-03
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: Important implementation details and gotchas
+**Category**: Important implementation details and considerations
 
 ---
 
@@ -93,7 +93,7 @@ VSCode needs time to initialize
 
 Auto-fix permissions if not executable
 
-*[Source: actions.py:900]*
+*[Source: actions.py:901]*
 
 ---
 
@@ -101,7 +101,7 @@ Auto-fix permissions if not executable
 
 Resolve to absolute path for consistent window title matching
 
-*[Source: actions.py:1010]*
+*[Source: actions.py:1011]*
 
 ---
 
@@ -109,6 +109,6 @@ Resolve to absolute path for consistent window title matching
 
 Check multiple title formats for matching
 
-*[Source: actions.py:1064]*
+*[Source: actions.py:1065]*
 
 ---

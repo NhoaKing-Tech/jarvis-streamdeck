@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: grid_test.py
 -- DESCRIPTION --
 Stream Deck Grid Test Script. This script tests all keys on a Stream Deck by lighting them up with different colors.

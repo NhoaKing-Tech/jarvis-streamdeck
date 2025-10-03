@@ -2,7 +2,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: setup_config.py
 -- DESCRIPTION --
 Setup script to create personalized configuration for Jarvis StreamDeck.
@@ -160,9 +160,9 @@ def create_config() -> None:
     print_information_type("title", "Next steps:", border_char="-", width=50)
     print_information_type("step", "Test the configuration: python3 -m jarvis", step_number=1)
     print_information_type("step", "Customize layouts in ui/render.py, actions in actions/actions.py", step_number=2)
-    print_information_type("step", "Add custom icons to assets/jarvisicons/", step_number=3)
+    print_information_type("step", "Add custom icons to assets/icons/", step_number=3)
     print_information_type("step", "Create code snippets in assets/snippets/", step_number=4)
-    print_information_type("detail", "Note: Jarvis already grants execution permissions for your user only")
+    print_information_type("detail", "Note: Jarvis already grants execution permissions on your bash scripts for your user only")
     print("")
 
 if __name__ == "__main__":

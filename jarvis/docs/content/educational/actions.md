@@ -1,15 +1,15 @@
 ---
-title: "Educational Content: Actions"
+title: "Learning notes: Actions"
 tags: [edu, auto-generated]
-description: "Educational Content from actions.py"
+description: "Learning notes from actions.py"
 date: 2025-10-03
 ---
 
-# Educational Content: Actions
+# Learning notes: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: Computer science concepts, design patterns, and learning material
+**Category**: Learning notes about computer science topics in general
 
 ---
 
@@ -593,7 +593,7 @@ commit message in vscode, as I prefer that over nano or vim. I have the lines sh
 
 commit title and description can extend to, so this is nice.
 
-*[Source: actions.py:966]*
+*[Source: actions.py:967]*
 
 ---
 
@@ -761,7 +761,7 @@ wmctrl Details:
 
 - "-i -a window_id" activates window by ID
 
-*[Source: actions.py:992]*
+*[Source: actions.py:993]*
 
 ---
 
@@ -779,7 +779,7 @@ Window Management Strategy:
 
 This prevents window clutter and improves UX
 
-*[Source: actions.py:812]*
+*[Source: actions.py:813]*
 
 ---
 
@@ -795,7 +795,7 @@ Alternative Launch Methods:
 
 URI scheme works regardless of installation method
 
-*[Source: actions.py:820]*
+*[Source: actions.py:821]*
 
 ---
 
@@ -815,7 +815,7 @@ OBSIDIAN INTEGRATION:
 
 - Works with both local and synced vaults
 
-*[Source: actions.py:826]*
+*[Source: actions.py:827]*
 
 ---
 
@@ -825,7 +825,7 @@ Extract vault name from the full path for window matching and URI construction
 
 Path.resolve() normalizes the path and .name gets the final component
 
-*[Source: actions.py:835]*
+*[Source: actions.py:836]*
 
 ---
 
@@ -987,7 +987,7 @@ Similar to terminal_env_jarvis() but specifically for the busybee project
 
 environment. See terminal_env_jarvis() for detailed workflow explanation.
 
-*[Source: actions.py:955]*
+*[Source: actions.py:956]*
 
 ---
 
@@ -1021,7 +1021,7 @@ Executes "open_jarvisbusybee_env_T.sh" which handles:
 
 - Loading any necessary environment variables
 
-*[Source: actions.py:932]*
+*[Source: actions.py:933]*
 
 ---
 
@@ -1095,7 +1095,7 @@ However, snippets are typically small and accessed infrequently,
 
 so the current simple approach is adequate.
 
-*[Source: actions.py:745]*
+*[Source: actions.py:746]*
 
 ---
 
@@ -1259,7 +1259,7 @@ Read snippet content from file
 
 Using context manager (with statement) ensures file is properly closed
 
-*[Source: actions.py:782]*
+*[Source: actions.py:783]*
 
 ---
 
@@ -1269,7 +1269,7 @@ Type the snippet content using ydotool
 
 Same approach as type_text() function
 
-*[Source: actions.py:791]*
+*[Source: actions.py:792]*
 
 ---
 
@@ -1277,7 +1277,7 @@ Same approach as type_text() function
 
 STEP 1: Check if Obsidian is already open with this vault
 
-*[Source: actions.py:840]*
+*[Source: actions.py:841]*
 
 ---
 
@@ -1287,7 +1287,7 @@ Use wmctrl to list all open windows with their titles
 
 wmctrl -l output format: window_id desktop_num client_machine window_title
 
-*[Source: actions.py:842]*
+*[Source: actions.py:843]*
 
 ---
 
@@ -1295,7 +1295,7 @@ wmctrl -l output format: window_id desktop_num client_machine window_title
 
 Search through each window to find Obsidian with our vault
 
-*[Source: actions.py:846]*
+*[Source: actions.py:847]*
 
 ---
 
@@ -1305,7 +1305,7 @@ Look for lines containing both "Obsidian" and our vault name
 
 This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidian"
 
-*[Source: actions.py:848]*
+*[Source: actions.py:849]*
 
 ---
 
@@ -1313,7 +1313,7 @@ This matches window titles like "Obsidian - vault_name" or "vault_name - Obsidia
 
 Extract window ID (first column in wmctrl output)
 
-*[Source: actions.py:851]*
+*[Source: actions.py:852]*
 
 ---
 
@@ -1323,7 +1323,7 @@ Activate the existing window (bring to front and focus)
 
 wmctrl flags: -i (use window ID), -a (activate window)
 
-*[Source: actions.py:854]*
+*[Source: actions.py:855]*
 
 ---
 
@@ -1333,7 +1333,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:860]*
+*[Source: actions.py:861]*
 
 ---
 
@@ -1345,7 +1345,7 @@ Use Obsidian's URI scheme for clean vault opening
 
 Format: obsidian://open?vault=vault_name
 
-*[Source: actions.py:864]*
+*[Source: actions.py:865]*
 
 ---
 
@@ -1355,7 +1355,7 @@ Use xdg-open to handle the URI scheme
 
 xdg-open is the standard Linux way to open files/URIs with default applications
 
-*[Source: actions.py:869]*
+*[Source: actions.py:870]*
 
 ---
 
@@ -1363,7 +1363,7 @@ xdg-open is the standard Linux way to open files/URIs with default applications
 
 pathlib.Path provides cross-platform path construction
 
-*[Source: actions.py:894]*
+*[Source: actions.py:895]*
 
 ---
 
@@ -1371,7 +1371,7 @@ pathlib.Path provides cross-platform path construction
 
 The bash script should be executable (chmod u+x)
 
-*[Source: actions.py:903]*
+*[Source: actions.py:904]*
 
 ---
 
@@ -1379,7 +1379,7 @@ The bash script should be executable (chmod u+x)
 
 Build command for terminal execution
 
-*[Source: actions.py:910]*
+*[Source: actions.py:911]*
 
 ---
 
@@ -1399,7 +1399,7 @@ I need to convert the target directory to an absolute path because:
 
     Path.resolve() follows the shortcut to get the real location)
 
-*[Source: actions.py:1011]*
+*[Source: actions.py:1012]*
 
 ---
 
@@ -1419,7 +1419,7 @@ subprocess.check_output() runs this command and captures its text output
 
 text=True ensures I get a string back instead of bytes
 
-*[Source: actions.py:1020]*
+*[Source: actions.py:1021]*
 
 ---
 
@@ -1435,7 +1435,7 @@ Each line contains: window_id, desktop_number, WM_CLASS, hostname, window_title
 
 I need to parse each line to extract the information I need
 
-*[Source: actions.py:1032]*
+*[Source: actions.py:1033]*
 
 ---
 
@@ -1445,7 +1445,7 @@ I only care about Nautilus windows, so I check if "org.gnome.Nautilus"
 
 is in the line. This is the WM_CLASS identifier for Nautilus windows.
 
-*[Source: actions.py:1039]*
+*[Source: actions.py:1040]*
 
 ---
 
@@ -1459,7 +1459,7 @@ The window ID is always the first part (index 0)
 
 Example: "0x02400003" from the line above
 
-*[Source: actions.py:1043]*
+*[Source: actions.py:1044]*
 
 ---
 
@@ -1475,7 +1475,7 @@ Example: from "desktop file-browser - /home/user/Documents"
 
 I want "file-browser - /home/user/Documents"
 
-*[Source: actions.py:1049]*
+*[Source: actions.py:1050]*
 
 ---
 
@@ -1491,7 +1491,7 @@ Path(path).name returns "Documents" from "/home/user/Documents"
 
 This helps me match windows that might not show the full path
 
-*[Source: actions.py:1056]*
+*[Source: actions.py:1057]*
 
 ---
 
@@ -1499,7 +1499,7 @@ This helps me match windows that might not show the full path
 
 I check three conditions to see if this window matches my target:
 
-*[Source: actions.py:1065]*
+*[Source: actions.py:1066]*
 
 ---
 
@@ -1521,7 +1521,7 @@ instead of a window title/name (more reliable than titles)
 
 window_id: the window ID I extracted earlier (like 0x02400003)
 
-*[Source: actions.py:1070]*
+*[Source: actions.py:1071]*
 
 ---
 
@@ -1531,7 +1531,7 @@ wmctrl command failed (maybe not installed, or no X11 session)
 
 Continue to launch new instance - this is not a critical error
 
-*[Source: actions.py:1083]*
+*[Source: actions.py:1084]*
 
 ---
 
@@ -1553,6 +1553,6 @@ This is perfect for GUI applications because:
 
 I pass the target directory as an argument to nautilus so it opens there
 
-*[Source: actions.py:1087]*
+*[Source: actions.py:1088]*
 
 ---

@@ -43,7 +43,7 @@ wmctrl window search typically <10ms
 
 Could cache window list to avoid repeated wmctrl calls
 
-*[Source: actions.py:818]*
+*[Source: actions.py:819]*
 
 ---
 
@@ -63,7 +63,7 @@ Make delay configurable based on system performance
 
 Could cache frequently used snippets in memory
 
-*[Source: actions.py:744]*
+*[Source: actions.py:745]*
 
 ---
 

@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: layouts.py
 -- DESCRIPTION --
 Layout definitions for StreamDeck keys.

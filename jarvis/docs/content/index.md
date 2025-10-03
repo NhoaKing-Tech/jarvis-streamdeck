@@ -9,7 +9,7 @@ date: 2025-10-03
 
 This documentation is automatically generated from code comments.
 
-**Last Updated**: 2025-10-03 02:19:26
+**Last Updated**: 2025-10-03 18:18:03
 
 ---
 
@@ -21,11 +21,17 @@ DEBUG comments
 
 **3 document(s)**
 
-### [Educational Content](./educational/)
+### [Learning notes](./educational/)
 
-Computer science concepts, design patterns, and learning material
+Learning notes about computer science topics in general
 
 **2 document(s)**
+
+### [FIXME](./fixme/)
+
+FIXME comments
+
+**1 document(s)**
 
 ### [HACK](./hack/)
 
@@ -33,15 +39,15 @@ HACK comments
 
 **1 document(s)**
 
-### [Critical Information](./important/)
+### [Important Information](./important/)
 
-Critical information for understanding and using the system
+Important information for understanding and using the system
 
 **1 document(s)**
 
 ### [Implementation Notes](./notes/)
 
-Important implementation details and gotchas
+Important implementation details and considerations
 
 **3 document(s)**
 

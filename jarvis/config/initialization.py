@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: initialization.py
 -- DESCRIPTION --
 Centralized initialization module for jarvis StreamDeck application.

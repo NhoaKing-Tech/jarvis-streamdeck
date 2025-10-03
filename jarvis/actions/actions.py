@@ -741,6 +741,7 @@ def type_snippet(snippet_name: str) -> Callable[[], None]:
         Snippets stored in SNIPPETS_DIR as .txt files.
         Missing snippets generate warning but don't crash.
     """
+    #FIXME: The indentation is not correctly captured when typing multi-line snippets.
     # OPTIMIZE: Could cache frequently used snippets in memory
     # EDU: Design Decision - File-based storage vs Database:
     # EDU: We use text files because:

@@ -1,7 +1,7 @@
 """
 -- GENERAL INFORMATION --
 AUTHOR: NhoaKing
-PROJECT: jarvis (personal assistant using ElGato StreamDeck XL)
+PROJECT: jarvis-streamdeck
 NAME: application.py
 -- DESCRIPTION --
 Core application logic for the jarvis StreamDeck system.
@@ -183,7 +183,7 @@ FONT_DIR: Path = Path(__file__).parent.parent / "assets" / "font" / "Roboto-Regu
 
 # Directory containing custom icons for StreamDeck keys
 # Icons should be PNG format, ideally 96x96 pixels for StreamDeck XL
-ICONS_DIR: Path = Path(__file__).parent.parent / "assets" / "jarvisicons"
+ICONS_DIR: Path = Path(__file__).parent.parent / "assets" / "icons"
 
 # Directory containing code snippets that can be inserted via StreamDeck
 # Snippets are stored as .txt files and can contain boilerplate code, templates, etc.

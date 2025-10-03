@@ -1,13 +1,13 @@
 ---
-title: "Educational Content"
+title: "Learning notes"
 tags: [edu, index]
-description: "Computer science concepts, design patterns, and learning material"
+description: "Learning notes about computer science topics in general"
 date: 2025-10-03
 ---
 
-# Educational Content
+# Learning notes
 
-Computer science concepts, design patterns, and learning material
+Learning notes about computer science topics in general
 
 ---
 

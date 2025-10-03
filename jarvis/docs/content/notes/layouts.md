@@ -9,7 +9,7 @@ date: 2025-10-03
 
 **Source File**: `jarvis/ui/layouts.py`
 
-**Category**: Important implementation details and gotchas
+**Category**: Important implementation details and considerations
 
 ---
 
