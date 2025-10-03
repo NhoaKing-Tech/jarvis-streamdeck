@@ -5,11 +5,11 @@ description: "Auto-generated documentation from code comments"
 date: 2025-10-03
 ---
 
-# Jarvis Documentation
+# Jarvis Documentation - Code Documentation
 
 This documentation is automatically generated from code comments.
 
-**Last Updated**: 2025-10-03 21:55:38
+**Last Updated**: 2025-10-03 21:59:08
 
 ---
 

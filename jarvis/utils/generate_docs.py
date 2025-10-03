@@ -366,8 +366,8 @@ class MarkdownGenerator:
             description="Auto-generated documentation from code comments"
         ))
 
-        # Add header
-        content.append(f"# {self.site_title}")
+        # Add header with more descriptive title
+        content.append(f"# {self.site_title} - Code Documentation")
         content.append("")
         content.append("This documentation is automatically generated from code comments.")
         content.append("")
