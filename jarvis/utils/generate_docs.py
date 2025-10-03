@@ -312,7 +312,7 @@ class MarkdownGenerator:
         ))
 
         # Add header with more descriptive title
-        content.append(f"# {category['title']} - Index")
+        content.append(f"# Index")
         content.append("")
         content.append(category['description'])
         content.append("")

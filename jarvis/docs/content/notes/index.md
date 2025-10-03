@@ -5,7 +5,7 @@ description: "Important implementation details and considerations"
 date: 2025-10-03
 ---
 
-# 04_Implementation Notes - Index
+# Index
 
 Important implementation details and considerations
 
