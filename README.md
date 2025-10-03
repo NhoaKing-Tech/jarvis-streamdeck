@@ -785,9 +785,9 @@ Then use it in layouts.py:
 5: {"icon": "firefox.png", "action": actions.open_firefox}
 ```
 
-**For actions that need parameters, use the factory pattern:**
+**For actions that need parameters, use the closure pattern:**
 
-The factory pattern is a programming design pattern where a function creates and returns another function, in my case what I called "wrapper". If you write functions with parameters, then when calling them in layouts.py, you need a way to pass those parameters without calling the function immediately. The factory pattern solves this by creating a function that returns another function with the parameters set. The other option is to use `functools.partial` or have lambdas everywhere needed, but I find the factory pattern more explicit and easier to understand for beginners, and easier to set up in the layouts.py file. Otherwise you would have to write lambdas in some places in layouts.py, depending on the specific action, and that would be inconsistent and confusing, and I usually do not remember which actions I wrote that need a lambda and which do not, so I would have to look it up every time. For functions that take parameters, I always use the factory pattern now.
+The closure pattern (also called a wrapper pattern or parameterized decorator) is where a function creates and returns another function, in my case what I called "wrapper". If you write functions with parameters, then when calling them in layouts.py, you need a way to pass those parameters without calling the function immediately. The closure pattern solves this by creating a function that returns another function with the parameters captured in the closure. The other option is to use `functools.partial` or have lambdas everywhere needed, but I find the closure pattern more explicit and easier to understand for beginners, and easier to set up in the layouts.py file. Otherwise you would have to write lambdas in some places in layouts.py, depending on the specific action, and that would be inconsistent and confusing, and I usually do not remember which actions I wrote that need a lambda and which do not, so I would have to look it up every time. For functions that take parameters, I always use the closure pattern now.
 
 ```python
 def open_custom_app(app_path: str) -> Callable[[], None]:

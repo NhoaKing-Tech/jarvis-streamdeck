@@ -90,7 +90,7 @@ deck: Optional[Any] = None  # Will hold the StreamDeck instance for key updates 
 def switch_layout(layout_name: str) -> Callable[[], None]:
     """Create a function that switches to the specified StreamDeck layout.
 
-    This function implements the Factory Pattern - it returns a callable that,
+    This function uses a Closure Pattern - it returns a callable that,
     when executed, will switch the StreamDeck to display the specified layout.
     This deferred execution approach is essential for layout definitions.
 
@@ -100,7 +100,7 @@ def switch_layout(layout_name: str) -> Callable[[], None]:
     Returns:
         callable: Function that executes the layout switch when called
 
-    DESIGN PATTERN: Factory Function with Closure
+    DESIGN PATTERN: Closure with Deferred Execution
     This pattern is used because:
     1. DEFERRED EXECUTION: Layout definitions need callable references, not immediate execution
     2. PARAMETER BINDING: Captures layout_name in closure for later use
@@ -159,7 +159,7 @@ def switch_layout(layout_name: str) -> Callable[[], None]:
     # 3. Class-based callbacks: LayoutSwitcher(layout_name)
     #    - More OOP but overkill for this simple use case
     #
-    # Factory function pattern chosen for balance of simplicity and functionality
+    # Closure pattern chosen for balance of simplicity and functionality
 
 def key_change(_deck_instance: Any, key: int, state: bool) -> None:
     """Event handler for StreamDeck key press and release events.

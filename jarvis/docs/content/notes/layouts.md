@@ -17,7 +17,7 @@ date: 2025-10-03
 
 <a id="function:-create_layouts-1"></a>
 
-The nautilus_path function now follows Pattern 1 (factory pattern) like other functions
+The nautilus_path function now follows Pattern 1 (closure/wrapper pattern) like other functions
 
  with arguments, so no lambda is needed anymore.
 

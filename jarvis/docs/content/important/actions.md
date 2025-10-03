@@ -19,6 +19,6 @@ date: 2025-10-03
 
 Release keys in reverse order (essential for proper modifier key handling)
 
-*[Source: actions.py:553]*
+*[Source: actions.py:537]*
 
 ---

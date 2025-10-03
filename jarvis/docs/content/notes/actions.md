@@ -23,7 +23,7 @@ Global Configuration with Dynamic Initialization chosen for:
 
  - Provides clear error handling and initialization validation
 
-*[Source: actions.py:195]*
+*[Source: actions.py:182]*
 
 ---
 
@@ -37,7 +37,7 @@ This is preferred over direct terminal commands because it uses the
 
  specific terminal emulator.
 
-*[Source: actions.py:593]*
+*[Source: actions.py:577]*
 
 ---
 
@@ -47,7 +47,7 @@ This is preferred over direct terminal commands because it uses the
 
 Press keys in forward order
 
-*[Source: actions.py:545]*
+*[Source: actions.py:529]*
 
 ---
 
@@ -57,9 +57,9 @@ Press keys in forward order
 
 No lambda wrapper needed - this function doesn't take parameters and executes immediately,
 
- so it doesn't need the factory pattern used by parameterized functions.
+ so it doesn't need the closure pattern used by parameterized functions.
 
-*[Source: actions.py:409]*
+*[Source: actions.py:393]*
 
 ---
 
@@ -69,7 +69,7 @@ No lambda wrapper needed - this function doesn't take parameters and executes im
 
 Import render_keys here to avoid circular import
 
-*[Source: actions.py:504]*
+*[Source: actions.py:488]*
 
 ---
 
@@ -77,7 +77,7 @@ Import render_keys here to avoid circular import
 
 VSCode needs time to initialize
 
-*[Source: actions.py:658]*
+*[Source: actions.py:642]*
 
 ---
 
@@ -85,7 +85,7 @@ VSCode needs time to initialize
 
 "--" prevents text starting with "-" being interpreted as flags
 
-*[Source: actions.py:708]*
+*[Source: actions.py:692]*
 
 ---
 
@@ -93,7 +93,7 @@ VSCode needs time to initialize
 
 Auto-fix permissions if not executable
 
-*[Source: actions.py:916]*
+*[Source: actions.py:900]*
 
 ---
 
@@ -101,7 +101,7 @@ Auto-fix permissions if not executable
 
 Resolve to absolute path for consistent window title matching
 
-*[Source: actions.py:1026]*
+*[Source: actions.py:1010]*
 
 ---
 
@@ -109,6 +109,6 @@ Resolve to absolute path for consistent window title matching
 
 Check multiple title formats for matching
 
-*[Source: actions.py:1080]*
+*[Source: actions.py:1064]*
 
 ---

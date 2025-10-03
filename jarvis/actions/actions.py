@@ -7,24 +7,24 @@ Configuration initialized via config.initialization.init_module().
 # EDU: ## Module Functionality Overview
 # EDU: 
 # EDU: 1. Opening of **URLs** in default browser. In my case, Google Chrome. Functions here are:
-# EDU: - url_freecodecamp
-# EDU: - url_youtube
-# EDU: - url_github
-# EDU: - url_gemini
-# EDU: - url_claude
-# EDU: - url_chatgpt
+# EDU:     - url_freecodecamp
+# EDU:     - url_youtube
+# EDU:     - url_github
+# EDU:     - url_gemini
+# EDU:     - url_claude
+# EDU:     - url_chatgpt
 # EDU: 2. Open **Spotify** or trigger play/pause in the app
 # EDU: 3. **Microphone ON/OFF toggle** with is_mic_muted, toggle_mic
 # EDU: 4. Trigger **hotkeys/shortcuts**: hot_keys (example usage in hk_terminal and copy)
-# EDU: 5. Open **VSCode** with a given project path: open_vscode
-# EDU: - I like to control the vscode appearance for each project. I assign different color settings for the title and status bars so that I have a visual cue of which project I am working on on which window, when I have multiple vscode windows open, and I use ALT + TAB to switch between applications.
+# EDU: 5. Open **VSCode** with a given project path: open_vscode:
+# EDU:      - I like to control the vscode appearance for each project. I assign different color settings for the title and status bars so that I have a visual cue of which project I am working on on which window, when I have multiple vscode windows open, and I use ALT + TAB to switch between applications.
 # EDU: 6. Type text and text blocks or snippets:
-# EDU:    - type_text, type_snippet
-# EDU:    - type_keyring: Type and enter passwords. However, it is recommended to leave this function unused. I need to find a way to encrypt passwords. I leave this here as a placeholder for a future implementation, as I do not know at the moment how to do it securely. Therefore, in the config.env file it is recommended to leave the KEYRING_PW variable empty.
+# EDU:     - type_text, type_snippet
+# EDU:     - type_keyring: Type and enter passwords. However, it is recommended to leave this function unused. I need to find a way to encrypt passwords. I leave this here as a placeholder for a future implementation, as I do not know at the moment how to do it securely. Therefore, in the config.env file it is recommended to leave the KEYRING_PW variable empty.
 # EDU: 7. Open **Obsidian** with a given vault path. It supports the possibility to open multiple vaults, so you can reuse the function in different keys for different vaults with open_obsidian. However, it is needed to specify the codename, and the path to the vault needs to be in the config.env file.
 # EDU: 8. **Execute bash** scripts: execute_bash
-# EDU: - Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
-# EDU: - Example of advanced usage with git_commit_workflow.sh
+# EDU:      - Example of usage in terminal_env_jarvis and terminal_env_busybee for basic scripts
+# EDU:      - Example of advanced usage with git_commit_workflow.sh
 # EDU: 9. Open nautilus windows with a target path. If that path is already open in another window, simply raise it, to avoid multiple nautilus windows with the same path (which happens often if this check is not in place before opening the window). This was the trigger to change to X11 from Wayland, as Wayland does not support window management in a straightforward way as X11 does, and it was giving me too many headaches. I do not discard in the future to ==TRY== to implement jarvis in wayland.
 
 # TODO: Generalize nautilus_path function to work with other applications too (for obsidian is already done)
@@ -145,24 +145,24 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU: 1. WHERE DEPENDENCIES COME FROM:
 # EDU:    - TRUE DI: Dependencies passed as function parameters
 # EDU:    - OUR APPROACH: Dependencies accessed from module-level globals
-#
+# EDU:
 # EDU: 2. FUNCTION SIGNATURES:
 # EDU:    - TRUE DI: Functions declare what they need as parameters
 # EDU:    - OUR APPROACH: Functions have simpler signatures, find dependencies internally
-#
+# EDU:
 # EDU: 3. CALLER RESPONSIBILITY:
 # EDU:    - TRUE DI: Caller must provide all dependencies when calling function
 # EDU:    - OUR APPROACH: Caller just calls function, dependencies already available globally
-#
+# EDU:
 # EDU: 4. COUPLING:
 # EDU:    - TRUE DI: Functions are decoupled from specific dependency sources
 # EDU:    - OUR APPROACH: Functions are coupled to specific global variable names
-#
+# EDU:
 # EDU: 5. TESTING:
 # EDU:    - TRUE DI: Pass mock objects as parameters: hot_keys(mock_path, mock_codes, "A")
 # EDU:    - OUR APPROACH: Set global variables before test: YDOTOOL_PATH = mock_path
-#
-# EDU: WHY WE CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION:
+# EDU:
+# EDU: ### WHY I CHOSE OUR APPROACH INSTEAD OF TRUE DEPENDENCY INJECTION
 # EDU: 
 # EDU: 1. STREAMDECK CONSTRAINT: StreamDeck library calls our functions with fixed signatures
 # EDU:    - StreamDeck expects: key_pressed(deck, key_number)
@@ -179,35 +179,19 @@ KEYRING_PW: Optional[str] = None       # Password for keyring/password manager a
 # EDU:    - Hardware events trigger callbacks with predetermined signatures
 # EDU:    - Global state allows callbacks to access needed configuration
 # EDU:
-# EDU: ALTERNATIVE PATTERNS WE COULD HAVE USED:
-# EDU: ========================================
-# EDU: 1. SERVICE LOCATOR: Functions call a service to get dependencies
-# EDU:    config = ConfigService.get_config(); config.ydotool_path
-# EDU:
-# EDU: 2. SINGLETON: Global configuration object
-# EDU:    Config.instance().ydotool_path
-# EDU:
-# EDU: 3. CLOSURE WITH DEPENDENCY INJECTION: Factory functions that capture dependencies
-# EDU:    def create_hotkey_function(ydotool_path, keycodes):
-# EDU:        def hot_keys(*keys): # Uses captured dependencies
-# EDU:        return hot_keys
-# EDU:
 # NOTE: Global Configuration with Dynamic Initialization chosen for:
 # - Simple and straightforward for this hardware integration use case
 # - Balances testability with StreamDeck API constraints
 # - Provides clear error handling and initialization validation
 
-# EDU: =====================================================================================
-# EDU: WRAPPER FUNCTION PATTERNS: return wrapper vs return wrapper()
-# EDU: =====================================================================================
+# EDU: ## Wrapper functions
+# EDU: We need to understand the difference between: `return wrapper` vs `return wrapper()`
+# EDU: 
+# EDU: This module uses two different wrapper patterns depending on how functions are called from the layouts.py file. Understanding this pattern is crucial for maintaining the StreamDeck key action system.
 # EDU:
-# EDU: This module uses two different wrapper patterns depending on how functions are called
-# EDU: from the layouts.py file. Understanding this pattern is crucial for maintaining the
-# EDU: StreamDeck key action system.
+# EDU: **PATTERN 1: Functions with Arguments -> return wrapper**
 # EDU:
-# EDU: PATTERN 1: Functions with Arguments → return wrapper
-# EDU: ====================================================
-# EDU: Functions that need arguments use the Factory Pattern:
+# EDU: Functions that need arguments use a Closure Pattern (wrapper that captures parameters):
 # EDU:
 # EDU: Definition in actions.py:
 # EDU:   def toggle_mic(deck, key):
@@ -407,7 +391,7 @@ def spotify() -> None:
     # EDU: - More reliable than application-specific APIs
     # EDU:
     # NOTE: No lambda wrapper needed - this function doesn't take parameters and executes immediately,
-    # so it doesn't need the factory pattern used by parameterized functions.
+    # so it doesn't need the closure pattern used by parameterized functions.
 
     # EDU: Check if Spotify process is currently running
     # EDU: pgrep flags: -x (exact match), searches for process name "spotify"
@@ -488,9 +472,9 @@ def toggle_mic(deck: Any, key: int):
         callable: Function that performs toggle when called
 
     Note:
-        Uses factory pattern (returns wrapper, not wrapper())
+        Uses closure pattern (returns wrapper, not wrapper())
     """
-    # EDU: This function implements a factory pattern that returns a callable which,
+    # EDU: This function implements a closure pattern that returns a callable which,
     # EDU: when executed, will toggle the microphone mute state and immediately update
     # EDU: the corresponding StreamDeck key with appropriate visual feedback.
     # EDU:
@@ -680,7 +664,7 @@ def type_text(text: str) -> Callable[[], None]:
         RuntimeError: If module not initialized
 
     Note:
-        Uses factory pattern (returns wrapper, not wrapper())
+        Uses closure pattern (returns wrapper, not wrapper())
     """
     # OPTIMIZE: For large text blocks, consider clipboard operations instead
     # EDU: This function returns a callable that simulates typing the given text into
@@ -697,7 +681,7 @@ def type_text(text: str) -> Callable[[], None]:
     # EDU: blocks, consider using clipboard operations instead.
     # EDU:
     # EDU: Design Pattern:
-    # EDU: Factory function pattern - returns a function rather than executing
+    # EDU: Closure pattern - returns a function rather than executing
     # EDU: immediately. This allows configuration during layout building and
     # EDU: execution when keys are pressed.
 

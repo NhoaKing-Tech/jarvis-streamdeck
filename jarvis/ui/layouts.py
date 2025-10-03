@@ -110,7 +110,7 @@ def create_layouts(
     # What happens: Function reference stored directly in layout
     # When key pressed: StreamDeck calls function → function executes immediately
     #
-    # Note: The nautilus_path function now follows Pattern 1 (factory pattern) like other functions
+    # Note: The nautilus_path function now follows Pattern 1 (closure/wrapper pattern) like other functions
     # with arguments, so no lambda is needed anymore.
     #
     # DEBUGGING TIPS:
@@ -124,30 +124,30 @@ def create_layouts(
 
     layouts["main"] = {
         # PATTERN 1 EXAMPLES: Functions WITH arguments → called with parentheses
-        0: {"icon": "project1.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},  # Factory pattern: needs path argument
-        1: {"icon": "project2.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},           # Factory pattern: needs path argument
-        2: {"icon": "project3.png", "action": actions.open_vscode(str(projects_path / 'pandora'))},           # Factory pattern: needs path argument
-        3: {"icon": "project4.png", "action": actions.open_vscode(str(projects_path / 'nhoaking_website'))},  # Factory pattern: needs path argument
+        0: {"icon": "project1.png", "action": actions.open_vscode(str(projects_path / 'jarvis-streamdeck'))},  # Closure pattern: needs path argument
+        1: {"icon": "project2.png", "action": actions.open_vscode(str(projects_path / 'busybee'))},           # Closure pattern: needs path argument
+        2: {"icon": "project3.png", "action": actions.open_vscode(str(projects_path / 'pandora'))},           # Closure pattern: needs path argument
+        3: {"icon": "project4.png", "action": actions.open_vscode(str(projects_path / 'nhoaking_website'))},  # Closure pattern: needs path argument
 
         # PATTERN 2 EXAMPLES: Functions WITHOUT arguments → referenced without parentheses
         4: {"icon": "commit.png", "action": actions.defaultbranch_commit},         # Direct reference: no arguments needed
 
         # PATTERN 1 EXAMPLES: Layout switching with arguments
-        5: {"icon": "git_layout.png", "action": switch_layout("git_layout")},     # Factory pattern: needs layout name argument
+        5: {"icon": "git_layout.png", "action": switch_layout("git_layout")},     # Closure pattern: needs layout name argument
 
         # PATTERN 2 EXAMPLES: URL functions without arguments
         6: {"icon": "github.png", "action": actions.url_github},                  # Direct reference: no arguments needed
 
         # PATTERN 1 EXAMPLES: More layout switching
-        7: {"icon": "busybee_layout.png", "color": "#fdff8a", "action": switch_layout("busybee_layout")},  # Factory pattern: needs layout name
+        7: {"icon": "busybee_layout.png", "color": "#fdff8a", "action": switch_layout("busybee_layout")},  # Closure pattern: needs layout name
 
         # PATTERN 1 EXAMPLES: Obsidian with vault paths
-        8: {"icon": "quartz.png", "action": actions.open_obsidian(obsidian_vaults.get('quartz', ''))},     # Factory pattern: needs vault path
-        12: {"icon": "journal.png", "action": actions.open_obsidian(obsidian_vaults.get('journal', ''))}, # Factory pattern: needs vault path
+        8: {"icon": "quartz.png", "action": actions.open_obsidian(obsidian_vaults.get('quartz', ''))},     # Closure pattern: needs vault path
+        12: {"icon": "journal.png", "action": actions.open_obsidian(obsidian_vaults.get('journal', ''))}, # Closure pattern: needs vault path
 
         # PATTERN 1 EXAMPLES: Nautilus file manager with paths
-        13: {"label": "Zenith", "labelcolor": "#000000", "icon": "nautilus.png", "color": "#bbbbbb", "action": actions.nautilus_path(str(projects_path))},           # Factory pattern: needs path argument
-        14: {"label": "Busybee", "labelcolor": "#0000FF", "icon": "nautilus.png", "color": "#fdff8a", "action": actions.nautilus_path(str(projects_path / 'busybee'))}, # Factory pattern: needs path argument
+        13: {"label": "Zenith", "labelcolor": "#000000", "icon": "nautilus.png", "color": "#bbbbbb", "action": actions.nautilus_path(str(projects_path))},           # Closure pattern: needs path argument
+        14: {"label": "Busybee", "labelcolor": "#0000FF", "icon": "nautilus.png", "color": "#fdff8a", "action": actions.nautilus_path(str(projects_path / 'busybee'))}, # Closure pattern: needs path argument
 
         # PATTERN 2 EXAMPLES: Terminal and application functions without arguments
         15: {"icon": "terminal_default.png", "action": actions.hk_terminal},      # Direct reference: no arguments needed
@@ -158,19 +158,19 @@ def create_layouts(
         22: {"icon": "chatgpt.png", "action": actions.url_chatgpt},               # Direct reference: no arguments needed
 
         # PATTERN 1 EXAMPLES: Functions that return values when called
-        23: {"icon": "key.png", "action": actions.type_keyring()},                # Factory pattern: needs to return configured function
+        23: {"icon": "key.png", "action": actions.type_keyring()},                # Closure pattern: needs to return configured function
 
         # PATTERN 1 EXAMPLES: More layout switching functions
-        24: {"icon": "python_layout.png", "action": switch_layout("python_layout")},       # Factory pattern: needs layout name
-        25: {"icon": "html_layout.png", "action": switch_layout("html_layout")},           # Factory pattern: needs layout name
-        26: {"icon": "css_layout.png", "action": switch_layout("css_layout")},             # Factory pattern: needs layout name
-        27: {"icon": "javascript_layout.png", "action": switch_layout("javascript_layout")}, # Factory pattern: needs layout name
-        28: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},         # Factory pattern: needs layout name
-        29: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},   # Factory pattern: needs layout name
-        30: {"icon": "apps_layout.png", "action": switch_layout("apps")},                  # Factory pattern: needs layout name
+        24: {"icon": "python_layout.png", "action": switch_layout("python_layout")},       # Closure pattern: needs layout name
+        25: {"icon": "html_layout.png", "action": switch_layout("html_layout")},           # Closure pattern: needs layout name
+        26: {"icon": "css_layout.png", "action": switch_layout("css_layout")},             # Closure pattern: needs layout name
+        27: {"icon": "javascript_layout.png", "action": switch_layout("javascript_layout")}, # Closure pattern: needs layout name
+        28: {"icon": "conda_layout.png", "action": switch_layout("conda_layout")},         # Closure pattern: needs layout name
+        29: {"icon": "terminal_layout.png", "action": switch_layout("terminal_layout")},   # Closure pattern: needs layout name
+        30: {"icon": "apps_layout.png", "action": switch_layout("apps")},                  # Closure pattern: needs layout name
 
         # PATTERN 1 EXAMPLE: The microphone toggle that was causing issues
-        31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},     # Factory pattern: needs deck and key arguments
+        31: {"icon": "mic-fill.png", "action": actions.toggle_mic(deck, 31)},     # Closure pattern: needs deck and key arguments
     }
 
     # Terminal layout
@@ -206,7 +206,7 @@ def create_layouts(
     }
 
     # =====================================================================================
-    # CONDA LAYOUT: Excellent examples of PATTERN 1 (Factory Pattern with Arguments)
+    # CONDA LAYOUT: Excellent examples of PATTERN 1 (Closure Pattern with Arguments)
     # =====================================================================================
     # This layout demonstrates the type_text() function pattern extensively.
     # Every type_text() call here uses PATTERN 1: function called with arguments.
@@ -219,19 +219,19 @@ def create_layouts(
 
         # PATTERN 1 EXAMPLES: type_text() with various command strings
         # All of these are called during layout creation to configure what text to type
-        1: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},                         # Factory: returns function that types "conda env list\n"
-        2: {"label": "Conda activate <env>", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},         # Factory: returns function that types "conda activate <env>"
-        3: {"label": "Conda deactivate <env>", "color": "#1c2e1c", "action": actions.type_text("conda deactivate\n")},        # Factory: returns function that types "conda deactivate\n"
-        4: {"label": "List installed ALL packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},         # Factory: returns function that types "conda list\n"
-        5: {"label": "List install package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},        # Factory: returns function that types "conda list <package>"
-        6: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},               # Factory: returns function that types "python --version\n"
-        7: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},                # Factory: returns function that types "conda activate <env>"
-        8: {"label": "Create new env", "color": "#1c2e1c", "action": actions.type_text("conda create -n <newenv> python=3.11.13")}, # Factory: returns function that types conda create command
-        9: {"label": "Conda install", "color": "#1c2e1c", "action": actions.type_text("conda install ")},                    # Factory: returns function that types "conda install " (note trailing space)
-        10: {"label": "Conda install conda-forge", "color": "#1c2e1c", "action": actions.type_text("conda install -c conda-forge ")}, # Factory: returns function that types conda-forge install command
-        11: {"label": "Pip install", "color": "#1c2e1c", "action": actions.type_text("pip install ")},                       # Factory: returns function that types "pip install " (note trailing space)
-        12: {"label": "Export env", "color": "#1c2e1c", "action": actions.type_text("conda env export > environment.yml\n")}, # Factory: returns function that types export command with newline
-        13: {"label": "Recreate env", "color": "#1c2e1c", "action": actions.type_text("conda env create -f environment.yml\n")}, # Factory: returns function that types recreate command with newline
+        1: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")},                         # Closure: returns function that types "conda env list\n"
+        2: {"label": "Conda activate <env>", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},         # Closure: returns function that types "conda activate <env>"
+        3: {"label": "Conda deactivate <env>", "color": "#1c2e1c", "action": actions.type_text("conda deactivate\n")},        # Closure: returns function that types "conda deactivate\n"
+        4: {"label": "List installed ALL packages", "color": "#1c2e1c", "action": actions.type_text("conda list\n")},         # Closure: returns function that types "conda list\n"
+        5: {"label": "List install package", "color": "#1c2e1c", "action": actions.type_text("conda list <package>")},        # Closure: returns function that types "conda list <package>"
+        6: {"label": "Python version", "color": "#1c2e1c", "action": actions.type_text("python --version\n")},               # Closure: returns function that types "python --version\n"
+        7: {"label": "Activate env", "color": "#1c2e1c", "action": actions.type_text("conda activate <env>")},                # Closure: returns function that types "conda activate <env>"
+        8: {"label": "Create new env", "color": "#1c2e1c", "action": actions.type_text("conda create -n <newenv> python=3.11.13")}, # Closure: returns function that types conda create command
+        9: {"label": "Conda install", "color": "#1c2e1c", "action": actions.type_text("conda install ")},                    # Closure: returns function that types "conda install " (note trailing space)
+        10: {"label": "Conda install conda-forge", "color": "#1c2e1c", "action": actions.type_text("conda install -c conda-forge ")}, # Closure: returns function that types conda-forge install command
+        11: {"label": "Pip install", "color": "#1c2e1c", "action": actions.type_text("pip install ")},                       # Closure: returns function that types "pip install " (note trailing space)
+        12: {"label": "Export env", "color": "#1c2e1c", "action": actions.type_text("conda env export > environment.yml\n")}, # Closure: returns function that types export command with newline
+        13: {"label": "Recreate env", "color": "#1c2e1c", "action": actions.type_text("conda env create -f environment.yml\n")}, # Closure: returns function that types recreate command with newline
     }
 
     # KEY INSIGHT: Notice how some commands end with \n (auto-execute) while others don't (allow user to add parameters)
