@@ -5,8 +5,6 @@ description: "09_Debug Information from actions.py"
 date: 2025-10-03
 ---
 
-# 09_Debug Information: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Debugging aids and diagnostic information

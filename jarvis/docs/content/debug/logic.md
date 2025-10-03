@@ -5,8 +5,6 @@ description: "09_Debug Information from logic.py"
 date: 2025-10-03
 ---
 
-# 09_Debug Information: Logic
-
 **Source File**: `jarvis/core/logic.py`
 
 **Category**: Debugging aids and diagnostic information

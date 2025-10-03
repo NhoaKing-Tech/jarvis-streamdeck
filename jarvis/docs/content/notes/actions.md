@@ -5,8 +5,6 @@ description: "04_Implementation Notes from actions.py"
 date: 2025-10-03
 ---
 
-# 04_Implementation Notes: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Important implementation details and considerations

@@ -5,8 +5,6 @@ description: "08_Workarounds from actions.py"
 date: 2025-10-03
 ---
 
-# 08_Workarounds: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Temporary solutions and workarounds that need proper implementation

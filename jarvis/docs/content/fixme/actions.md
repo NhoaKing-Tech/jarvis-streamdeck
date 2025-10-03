@@ -5,8 +5,6 @@ description: "06_Known Issues from actions.py"
 date: 2025-10-03
 ---
 
-# 06_Known Issues: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Known bugs and issues that need to be fixed

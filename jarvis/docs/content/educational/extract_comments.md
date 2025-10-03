@@ -5,8 +5,6 @@ description: "01_Learning notes from extract_comments.py"
 date: 2025-10-03
 ---
 
-# 01_Learning notes: Extract Comments
-
 **Source File**: `jarvis/utils/extract_comments.py`
 
 **Category**: Learning notes about computer science topics in general

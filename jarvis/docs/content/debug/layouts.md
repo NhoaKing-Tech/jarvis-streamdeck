@@ -5,8 +5,6 @@ description: "09_Debug Information from layouts.py"
 date: 2025-10-03
 ---
 
-# 09_Debug Information: Layouts
-
 **Source File**: `jarvis/ui/layouts.py`
 
 **Category**: Debugging aids and diagnostic information

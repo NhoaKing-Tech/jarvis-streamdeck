@@ -5,8 +5,6 @@ description: "04_Implementation Notes from layouts.py"
 date: 2025-10-03
 ---
 
-# 04_Implementation Notes: Layouts
-
 **Source File**: `jarvis/ui/layouts.py`
 
 **Category**: Important implementation details and considerations

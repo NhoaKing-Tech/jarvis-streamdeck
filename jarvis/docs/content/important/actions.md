@@ -5,8 +5,6 @@ description: "03_Important Information from actions.py"
 date: 2025-10-03
 ---
 
-# 03_Important Information: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Important information for understanding and using the system

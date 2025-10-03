@@ -5,8 +5,6 @@ description: "04_Implementation Notes from application.py"
 date: 2025-10-03
 ---
 
-# 04_Implementation Notes: Application
-
 **Source File**: `jarvis/core/application.py`
 
 **Category**: Important implementation details and considerations

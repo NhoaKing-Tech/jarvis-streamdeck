@@ -5,8 +5,6 @@ description: "07_Future Improvements from actions.py"
 date: 2025-10-03
 ---
 
-# 07_Future Improvements: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Planned features and improvements for future development

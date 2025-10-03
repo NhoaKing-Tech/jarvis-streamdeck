@@ -5,8 +5,6 @@ description: "01_Learning notes from actions.py"
 date: 2025-10-03
 ---
 
-# 01_Learning notes: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Learning notes about computer science topics in general

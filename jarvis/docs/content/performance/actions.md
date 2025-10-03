@@ -5,8 +5,6 @@ description: "10_Performance Notes from actions.py"
 date: 2025-10-03
 ---
 
-# 10_Performance Notes: Actions
-
 **Source File**: `jarvis/actions/actions.py`
 
 **Category**: Performance considerations and optimization opportunities

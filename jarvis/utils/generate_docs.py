@@ -184,9 +184,8 @@ class MarkdownGenerator:
             description=f"{category['title']} from {file_path.name}"
         ))
 
-        # Add header
-        content.append(f"# {category['title']}: {file_title}")
-        content.append("")
+        # Don't add H1 header - let Quartz use the frontmatter title
+        # This prevents duplicate title display in the UI
         content.append(f"**Source File**: `{source_file}`")
         content.append("")
         content.append(f"**Category**: {category['description']}")
