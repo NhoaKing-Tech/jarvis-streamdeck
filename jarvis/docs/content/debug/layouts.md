@@ -1,11 +1,11 @@
 ---
-title: "Debug Information: Layouts"
+title: "09_Debug Information: Layouts"
 tags: [debug, auto-generated]
-description: "Debug Information from layouts.py"
+description: "09_Debug Information from layouts.py"
 date: 2025-10-03
 ---
 
-# Debug Information: Layouts
+# 09_Debug Information: Layouts
 
 **Source File**: `jarvis/ui/layouts.py`
 

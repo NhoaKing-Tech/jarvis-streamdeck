@@ -61,52 +61,53 @@ class MarkdownGenerator:
         # Category mapping for different tag types
         self.tag_categories = {
             'EDU': {
-                'title': 'Learning notes',
+                'title': '01_Learning notes',
                 'description': 'Learning notes about computer science topics in general',
                 'dir': 'educational'
             },
+            'REVIEW': {
+                'title': '02_Code Review',
+                'description': 'Code sections that need review and validation',
+                'dir': 'review'
+            },
+            'IMPORTANT': {
+                'title': '03_Important Information',
+                'description': 'Important information for understanding and using the system',
+                'dir': 'important'
+            },
             'NOTE': {
-                'title': 'Implementation Notes',
+                'title': '04_Implementation Notes',
                 'description': 'Important implementation details and considerations',
                 'dir': 'notes'
             },
             'TOCLEAN': {
-                'title': 'Cleanup Tasks',
+                'title': '05_Cleanup Tasks',
                 'description': 'Code sections that need cleanup and refactoring',
                 'dir': 'cleanup'
             },
             'FIXME': {
-                'title': 'Known Issues',
+                'title': '06_Known Issues',
                 'description': 'Known bugs and issues that need to be fixed',
                 'dir': 'fixme'
             },
             'TODO': {
-                'title': 'Future Improvements',
+                'title': '07_Future Improvements',
                 'description': 'Planned features and improvements for future development',
                 'dir': 'todo'
             },
             'HACK': {
-                'title': 'Workarounds',
+                'title': '08_Workarounds',
                 'description': 'Temporary solutions and workarounds that need proper implementation',
                 'dir': 'hack'
             },
             'DEBUG': {
-                'title': 'Debug Information',
+                'title': '09_Debug Information',
                 'description': 'Debugging aids and diagnostic information',
                 'dir': 'debug'
             },
-            'IMPORTANT': {
-                'title': 'Important Information',
-                'description': 'Important information for understanding and using the system',
-                'dir': 'important'
-            },
-            'REVIEW': {
-                'title': 'Code Review',
-                'description': 'Code sections that need review and validation',
-                'dir': 'review'
-            },
+            
             'OPTIMIZE': {
-                'title': 'Performance Notes',
+                'title': '10_Performance Notes',
                 'description': 'Performance considerations and optimization opportunities',
                 'dir': 'performance'
             },

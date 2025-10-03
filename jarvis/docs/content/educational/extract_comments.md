@@ -1,11 +1,11 @@
 ---
-title: "Learning notes: Extract Comments"
+title: "01_Learning notes: Extract Comments"
 tags: [edu, auto-generated]
-description: "Learning notes from extract_comments.py"
+description: "01_Learning notes from extract_comments.py"
 date: 2025-10-03
 ---
 
-# Learning notes: Extract Comments
+# 01_Learning notes: Extract Comments
 
 **Source File**: `jarvis/utils/extract_comments.py`
 

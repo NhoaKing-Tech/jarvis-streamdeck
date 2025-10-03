@@ -1,11 +1,11 @@
 ---
-title: "Performance Notes"
+title: "10_Performance Notes"
 tags: [optimize, index]
 description: "Performance considerations and optimization opportunities"
 date: 2025-10-03
 ---
 
-# Performance Notes
+# 10_Performance Notes
 
 Performance considerations and optimization opportunities
 

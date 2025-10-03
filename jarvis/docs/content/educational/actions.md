@@ -1,11 +1,11 @@
 ---
-title: "Learning notes: Actions"
+title: "01_Learning notes: Actions"
 tags: [edu, auto-generated]
-description: "Learning notes from actions.py"
+description: "01_Learning notes from actions.py"
 date: 2025-10-03
 ---
 
-# Learning notes: Actions
+# 01_Learning notes: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

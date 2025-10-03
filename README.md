@@ -44,14 +44,14 @@ Forked from [python-elgato-streamdeck](https://github.com/abcminiuser/python-elg
 - [PROJECT STATUS](#project-status): Current state and next steps (Finished)
 - [SYSTEM REQUIREMENTS](#system-requirements): OS, hardware, and software dependencies (Finished)
 - [QUICK LINKS](#quick-links): Navigation table by user type (Finished)
-- [QUICK START](#quick-start): 15-30 minute basic setup (Finished)
-- [PROJECT STRUCTURE](#project-structure): File organization and recent changes
-- [FULL SETUP](#full-set-up): Complete step-by-step setup
-- [CUSTOMIZATION](#customization): How to modify layouts, actions, and icons
+- [QUICK START](#quick-start): 15-30 minute basic test of streamdeck connection (Finished)
+- [PROJECT STRUCTURE](#project-structure): File organization and recent changes (Finished)
+- [FULL SETUP](#full-setup): Complete step-by-step setup (Finished)
+- [CUSTOMIZATION](#customization): How to modify layouts, actions, and icons (Finished)
 - [DOCUMENTATION SYSTEM](#documentation-system): Tagged comments and automated docs
 - [WORKFLOW SUMMARY](#workflow-summary): Development and documentation workflow
-- [DEPENDENCIES](#dependencies): Python packages and system tools
-- [TROUBLESHOOTING](#troubleshooting): Common issues and solutions
+- [DEPENDENCIES](#dependencies): Python packages and system tools (Finished)
+- [TROUBLESHOOTING](#troubleshooting): Common issues and solutions (Finished)
 - [CONTRIBUTING](#contributing): How to contribute to the project (Finished)
 - [LICENSE](#license): MIT license information (Finished)
 - [SOURCES](#sources): Credits for external resources (Finished)
@@ -305,7 +305,7 @@ jarvis-streamdeck/
 |   |-- ui/                         # ✨ My contribution: User interface layer
 |   |   |-- __init__.py
 |   |   |-- layouts.py              # ✨ My contribution: StreamDeck layout definitions
-|   |   |-- render.py               # ✨ My contribution: Visual rendering engine
+|   |   |-- render.py               # ✨ My contribution: Visual rendering of keys
 |   |-- utils/                      # ✨ My contribution: Utility modules
 |   |   |-- __init__.py
 |   |   |-- reset_jarvis.py         # ✨ My contribution: Deck reset utility (use if layout gets stuck)
@@ -315,9 +315,13 @@ jarvis-streamdeck/
 |   |   |-- strip_comments.py       # ⭐ My contribution: Strip tagged comments for production
 |   |   |-- pre-commit-hook.sh      # ⭐ My contribution: Pre-commit git hook script
 |   |   |-- post-commit-hook.sh     # ⭐ My contribution: Post-commit git hook script
+|   |   |-- install-hooks.sh        # ⭐ My contribution: Git hooks installation script
 |   |-- docs/                       # ✨ My contribution: Auto-generated documentation
 |   |   |-- content/                # ✨ My contribution: Markdown documentation files
 |   |   |-- README.md               # ✨ My contribution: Documentation system overview
+|   |-- tests/                      # ✨ My contribution: Testing scripts. More will follow (coming soon 🔜)
+|   |   |-- content/                # ✨ My contribution: Markdown documentation files
+|   |   |-- grid_test.py            # ✨ My contribution: StreamDeck grid layout test
 |   |-- __init__.py                 # ✨ My contribution: Package initialization
 |   |-- __main__.py                 # ✨ My contribution: Module entry point (enables python -m jarvis)
 |   |-- main.sh                     # ✨ My contribution: Shell entry point (for systemd service)
@@ -328,7 +332,7 @@ jarvis-streamdeck/
 |-- src/                            # ↩️ Upstream: Forked StreamDeck library (python-elgato-streamdeck)
 |-- test/                           # ↩️ Upstream: Testing utilities
 |   |-- test.py                     # ↩️ Upstream: StreamDeck connection test
-|-- .git/hooks/                     # ✨ My contribution: Documentation automation hooks
+|-- .git/hooks/                     # ✨ My contribution: Documentation automation hooks for two branch strategy
 ```
 
 **Legend:**
@@ -337,7 +341,7 @@ jarvis-streamdeck/
 - ⭐ **Documentation Automation**: Part of my contributions. Files that power the automated documentation system
 - 📖 **Documentation Content**: Part of my contributions. Workflow guides and setup instructions *(coming soon 🔜)*
 - 🧪 **Experimental**: Part of my contributions. Work-in-progress features (not committed to GitHub)
-- 🔍 **Local Preview**: Local-only setup for documentation preview (not tracked in git)
+- 🔍 **Local Quartz Preview**: Local-only setup for documentation preview (not tracked in git)
 
 **My Contributions vs. Upstream:**
 
@@ -357,20 +361,22 @@ jarvis-streamdeck/
 - Git hooks for documentation workflow
 - GitHub Pages deployment with Quartz
 - Linux-specific integrations (ydotool, wmctrl, playerctl, etc.)
+- Script to test the StreamDeck connection (`tests/grid_test.py`)
+- Script to reset the StreamDeck if layout gets stuck (`utils/reset_jarvis.py`)
 
 Documentation on workflow guides and git hooks setup instructions is *coming soon 🔜*.
 
 ### Recent Structure Changes
 
-I recently reorganized the project structure for better maintainability. Here's what changed and why:
+I recently reorganized the project structure for better maintainability. Here is what I changed:
 
 **What Changed:**
 - Added `config/` directory for centralized configuration.
-- Moved `lifecycle.py` and `logic.py` from `ui/` to new `core/` directory.
-- Renamed `run_jarvis.py` → `application.py` (clearer naming).
-- Renamed `run_jarvis.sh` → `main.sh` for consistency.
+- Moved `lifecycle.py` and `logic.py` to new `core/` directory.
+- Renamed `run_jarvis.py` renamed to `application.py` (clearer naming).
+- Renamed `run_jarvis.sh` renamed to `main.sh` for consistency.
 - Created `__main__.py` to enable module execution (`python -m jarvis`).
-- Moved `reset_jarvis.py` to `utils/` (it's a utility, not core code).
+- Moved `reset_jarvis.py` to `utils/`.
 
 **Why These Changes:**
 - **Better Separation of Concerns**: Core logic in `core/`, UI code in `ui/`, config in `config/`, utilities in `utils/`.
@@ -388,7 +394,9 @@ I recently reorganized the project structure for better maintainability. Here's 
 [⬆️ Quick Links](#quick-links)
 [⬆️ README Navigation](#readme-navigation)
 
-Let's do the full setup properly. It can take a bit of time, especially if you're new to Linux system configuration, but I'll guide you through every step. The amount of time you spend configuring your streamdeck for your productivity workflows depends on how complex you want it to be. At the moment I have only a few actions, representative of the kind of workflows you can automate. You can add your custom bash scripts, snippets, and actions as you see fit. You can add git workflows too. At the moment I provided an simple example with a commit action. The productivity gain (and cognitive load reduction) is worth the initial setup time investment.
+Let's do the full setup properly. It can take a bit of time, especially if you're new to Linux system configuration, but I'll guide you through every step. The amount of time you spend configuring your streamdeck for your productivity workflows depends on how complex you want it to be. 
+
+At the moment I have only a few actions, representative of the kind of workflows you can automate. You can add your custom bash scripts, snippets, and actions as you see fit. You can add git workflows too. At the moment I provided an simple example with a commit action. The productivity gain (and cognitive load reduction) is worth the initial setup time investment.
 
 ### Step 1: Environment Setup
 
@@ -396,7 +404,7 @@ Let's do the full setup properly. It can take a bit of time, especially if you'r
 
 ```bash
 sudo apt update && sudo apt upgrade
-# Make sure to install HID device access libraries (required for StreamDeck communication) if you did not do it with the Quick Start Guide.
+# Make sure to install HID device access libraries (required for StreamDeck communication) if you did not do it with the Quick Start Guide and you came directly to this guide.
 sudo apt install libhidapi-libusb0 libhidapi-hidraw0
 
 # Install tools that jarvis uses for system integration
@@ -414,27 +422,29 @@ sudo apt install git cmake build-essential libevdev-dev scdoc
 - `gnome-terminal` - Terminal emulator (for bash script execution)
 - `xdg-utils` - Desktop integration (provides `xdg-open` for opening URLs)
 
-#### 1.3 Build ydotool
+#### 1.2 Build ydotool
 
 ydotool to automate key presses (or mouse movements) in Linux. I used ydotool in this project to let jarvis simulate hotkeys. I have an example in actions.py, the super simple copy action... but it is just so that you can customize it with more complex hotkeys. You need to build it from source. You can follow the documentation for that [here](https://gabrielstaples.com/ydotool-tutorial/#gsc.tab=0).
 
 ```bash
-# In the same terminal where you build ydotool from source (cloning the repo), note the full path - you'll need this later for configuration
-# Should be something like: /home/user/ydotool/build/ydotool
+# In the same terminal where you build ydotool from source (cloning the repo), note the full path, as you will need this later for configuration
 pwd  # Print your current path
+# Should be something like: /home/user/ydotool/build/ydotool
 ```
 
 **Why build from source instead of using a package?**
-Normal installation does not work with Jarvis because it needs to run as a background daemon (`ydotoold`). A daemon is a program with a unique purpose. They are utility programs that run silently in the background to monitor and take care of certain subsystems to ensure that the operating system runs properly.
+Normal installation does not work with Jarvis because it needs to run as a background daemon (`ydotoold`). 
+
+A daemon is a program with a unique purpose. They are utility programs that run silently in the background to monitor and take care of certain subsystems to ensure that the operating system runs properly.
 
 **Why ydotool instead of xdotool?**
-I originally started this project on Wayland, where xdotool doesn't work. After changing to X11 due to the headaches I was getting with Wayland, I tried it out, and ydotool works on both Wayland and X11. Therefore, I kept it even after switching to X11. This way, I keep my options open for future Wayland support without having to rewrite everything.
+I originally started this project on Wayland, where xdotool does not work. After changing to X11 due to the headaches I was getting with Wayland, I tried it out, and ydotool works on both Wayland and X11. Therefore, I kept it even after switching to X11. This way, I keep my options open for future Wayland support without having to rewrite everything.
 
-#### 1.2 Python Environment
+#### 1.3 Python Environment
 
 ```bash
 # I use conda, but you can use venv or whatever you prefer. 
-# You need of course to have miniconda installed first.
+# You need of course to have miniconda installed first if you want to use the same.
 conda create -n jarvis-busybee python=3.11.4
 conda activate jarvis-busybee
 
@@ -443,7 +453,7 @@ conda activate jarvis-busybee
 # source jarvis-busybee/bin/activate
 ```
 
-**Why conda?** I use conda because I might want this environment to support data science workflows later. Plus, it handles package dependencies really well. venv should work fine too if that's what you're comfortable with and if you do not need complex dependencies. You might not even need a virtual environment if you want to install everything globally, but I recommend using one to avoid dependency conflicts.
+**Why conda?** I use conda because I want this environment to support data science workflows later. Plus, it handles package dependencies really well. venv should work fine too if that's what you're comfortable with and if you do not need complex dependencies. You might not even need a virtual environment if you want to install everything globally, but I recommend using one to avoid dependency conflicts.
 
 #### 1.4 Python Dependencies
 
@@ -459,16 +469,15 @@ pip install "pillow>=9.0.0" hidapi
 ```
 
 **Why editable install (`-e`)?**
-The `-e` flag installs the StreamDeck library in "development mode", which means any changes I make to the library code are immediately available without reinstalling. This is essential since I forked the repository and might need to modify it.
+
+The `-e` flag installs the StreamDeck library in "development mode", which means any changes I make to the library code are immediately available without reinstalling. This is essential since I forked the repository and might need to modify it once.
 
 **Why not `python setup.py install`?**
+
 That's deprecated! Modern Python development uses `pip install -e .` instead because:
 - It handles dependencies properly
 - It's easy to uninstall (`pip uninstall streamdeck`)
 - It's virtual environment aware
-- It's what professional Python developers use
-
----
 
 ### Step 2: Hardware Setup
 
@@ -489,11 +498,13 @@ sudo usermod -a -G uinput $USER
 groups $USER | grep uinput  # Should show "uinput" in the output
 ```
 
-#### 2.2 udev Rules (Making Device Access Work)
+#### 2.2 'udev' rules (Making Device Access Work)
 
 udev rules tell Linux to give your user permission to access devices without `sudo`. We need three rules:
 
 ##### Rule 1: StreamDeck Permission Rule
+
+If you followed the Quick Start Guide, you might have already done this step. If not, do it now.
 
 ```bash
 sudo nano /etc/udev/rules.d/60-jarvis.rules
@@ -542,7 +553,7 @@ ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0fd9", ATTR{idProduct}=="008f"
 ACTION=="remove", SUBSYSTEM=="usb", ATTR{idVendor}=="0fd9", ATTR{idProduct}=="008f", TAG+="systemd", ENV{SYSTEMD_USER_STOP}+="jarvis.service"
 ```
 
-**What this does:** When you plug in the StreamDeck, jarvis starts automatically. When you unplug it, jarvis stops.
+**What this does:** When you plug in the StreamDeck, jarvis service starts automatically. When you unplug it, jarvis service stops.
 
 #### 2.3 Reload udev Rules
 
@@ -555,8 +566,6 @@ sudo udevadm trigger
 
 **Why the weird numbering (60-, 99-)?**
 udev processes rules in numerical order. Lower numbers run first, higher numbers run later. I use 60 for the StreamDeck permission rule (needs to run early) and 99 for the auto-start rule (needs to run after permissions are set). This ensures everything happens in the right order.
-
----
 
 ### Step 3: Service Configuration
 
@@ -593,6 +602,7 @@ You can find your path by:
 ```bash
 cd ~/ydotool/build && pwd  # Shows full path
 ```
+Otherwise use the path you noted earlier when building ydotool from source.
 
 #### 3.2 Jarvis Service
 
@@ -624,7 +634,7 @@ WantedBy=default.target
 - `ExecStart` - Path to `main.sh`
 
 **Note about config.env loading:**
-The `EnvironmentFile` directive makes environment variables available to the systemd service. Additionally, `main.sh` sources the config file, and the Python application also loads it automatically at startup. This redundancy ensures configuration is available regardless of how jarvis is run (systemd service, manual execution, etc.).
+The `EnvironmentFile` field makes environment variables available to the systemd service. Additionally, `main.sh` sources the config file, and the Python application also loads it automatically at startup. This redundancy ensures configuration is available regardless of how jarvis is run (systemd service, manual execution, etc.).
 
 **Why the 10-second sleep?**
 The `ExecStartPre=/bin/sleep 10` gives the system time to fully boot before jarvis starts. Otherwise, sometimes the StreamDeck isn't ready yet and jarvis fails to start. I learned this the hard way after jarvis kept failing on boot, and I tried various things before realizing a simple delay fixed it.
@@ -638,6 +648,7 @@ nano /path/to/jarvis-streamdeck/jarvis/main.sh
 ```
 
 Update the conda environment name to match yours:
+
 ```bash
 # Change this line:
 conda activate jarvis-busybee
@@ -652,6 +663,7 @@ chmod u+x /path/to/jarvis-streamdeck/jarvis/main.sh
 ```
 
 **Why use a shell script instead of running Python directly?**
+
 Because systemd services run in a clean environment without your shell configuration. The shell script loads conda properly and activates the environment before running Python. Without this, the service would fail because it wouldn't find the conda environment.
 
 #### 3.4 Enable and Start Services
@@ -697,10 +709,18 @@ Here are the commands I use all the time while I develop and customize jarvis:
 # Restart jarvis after making changes to code or layouts
 systemctl --user restart jarvis.service
 
-# Stop jarvis temporarily (useful for debugging, in which case I need to then run jarvis/utils/reset_jarvis.py to reset the deck. Then I run python -m jarvis manually to see any errors)
+# Stop jarvis temporarily (useful for debugging, in which case I need to then 
+# run jarvis/utils/reset_jarvis.py to reset the deck. 
+# Then I run python -m jarvis manually to see any errors)
 systemctl --user stop jarvis.service
 
-# If the script works as expected, start the service again. Do not run python -m jarvis while the service is running, as it will conflict because the service is already using the StreamDeck. Also, DO NOT RUN FROM INTEGRATED TERMINAL IN VSCODE, as it messes up the environment. Always use a native terminal, as the script will not run the same as it does in a native terminal, and you will waste hours debugging like I did, when actually there is no problem with the code... when running from native terminal, it works fine.
+# If the script works as expected, start the service again. 
+# Do not run python -m jarvis while the service is running, as it will conflict 
+# because the service is already using the StreamDeck. 
+# 📢 DO NOT RUN FROM INTEGRATED TERMINAL IN VSCODE, as it messes up the environment. 
+# Always use a native terminal, as the script will not run the same as it 
+# does in a native terminal, and you will waste hours debugging like I did, 
+# when actually there is no problem with the code... when running from native terminal, it works fine.
 systemctl --user start jarvis.service
 
 # View live logs (Ctrl+C to exit, useful for debugging)
@@ -710,7 +730,9 @@ journalctl --user -u jarvis.service -f
 journalctl --user -u jarvis.service -n 50
 ```
 
-**Protip (optional but recommended):** If you'll be modifying jarvis frequently, add these aliases to save typing. You'll use `jarvis-restart` constantly when changing layouts or actions, `jarvis-logs` for debugging when things break, and `jarvis-status` for quick health checks:
+**Protip (optional but recommended)** 
+
+If you'll be modifying jarvis frequently, add these aliases to save typing. You'll use `jarvis-restart` constantly when changing layouts or actions, `jarvis-journal` for debugging when things break, and `jarvis-status` for quick health checks:
 
 ```bash
 # Open your .bashrc file
@@ -722,9 +744,9 @@ alias jarvis-stop='systemctl --user stop jarvis.service'
 alias jarvis-start='systemctl --user start jarvis.service'
 alias jarvis-journal='journalctl --user -u jarvis.service -f'
 alias jarvis-status='systemctl --user status jarvis.service'
-alias jarvis-reset='conda activate jarvis-busybee && python ~/Zenith/jarvis-streamdeck/jarvis/utils/reset_jarvis.py'
+alias jarvis-reset='conda activate jarvis-busybee && python ~/projects/jarvis-streamdeck/jarvis/utils/reset_jarvis.py'
 # Replace the last alias with the name of your environment and the correct path to reset_jarvis.py. If you do not use conda, just remove the conda activate <env> command, and make sure python points to the correct Python interpreter. In Linux the you may need to use python3 instead of python.
-alias jarvis-test='conda activate jarvis-busybee && cd ~/Zenith/jarvis-streamdeck && python -m jarvis'
+alias jarvis-test='conda activate jarvis-busybee && cd ~/projects/jarvis-streamdeck && python -m jarvis'
 # Again, replace with your environment name and correct path. This is useful for testing changes to code without starting the service. Make sure the service has not been initialized, or stop it first, before testing your changes with this command, as the service will conflict with this command if it is already running and using the StreamDeck. It is very useful for debugging. Get out of the testing mode with Ctrl+C.
 ```
 
@@ -804,19 +826,14 @@ See [`config/config_example.env`](jarvis/config/config_example.env) for a comple
 
 #### Security Note About Passwords
 
-⚠️ **Important:** The `KEYRING_PW` setting stores your password in plain text, which creates security risks:
+⚠️ **Important:** The `KEYRING_PW` setting would store your password in plain text, which creates security risks:
 - Visible to any process running as your user
 - Included in system backups
 - Could be accidentally committed to git (though config.env is gitignored)
 
-**Better alternatives I should implement:**
-- Password managers
+**Therefore, leave the KEYRING_PW empty. I have it as a placeholder only for when I can implement a password manager.**
 
-I know storing passwords in plain text is a dummy move. I built the keyring password feature when I was first learning, and I plan to refactor it. For now, treat this file with the same care as you would any sensitive credential. Don't use important passwords here, or better yet, leave it empty for now. I just set this up to demonstrate what a button can do, and I certainly need to revisit a correct implementation later.
-
-I think I can implement a solution for introducing passwords that is secure, there are passwords that are honestly very inconvenient to type, and I want to have a button for that. I will revisit this later when I learn how to do it properly.
-
----
+There are passwords that are honestly very inconvenient to type, and I want to have a button for that. I will revisit this later when I learn how to do it properly.
 
 ### Step 5: Verify Everything Works
 
@@ -831,14 +848,17 @@ Let's test each component to make sure everything is set up correctly:
 lsusb | grep -i elgato
 # Should show your StreamDeck device
 
-# 3. Test Python environment
-python -c "import hidapi; print('HID access OK')" # or python3 if running from system python
+# 3. Test Python environment (verify hidapi is accessible)
+python -c "import hid; print('HID access OK')" # Note: import 'hid', not 'hidapi'
 # Should print "HID access OK" without errors
+# Alternative test: python -c "import hidapi; print('HID access OK')" (some installations use this)
 
 # 4. Test jarvis manually (use native terminal, not VSCode!)
-cd ~/Zenith/jarvis-streamdeck  # or wherever you cloned the repo
+cd ~/projects/jarvis-streamdeck  # or wherever you cloned the repo
 python -m jarvis
 # Your StreamDeck should light up with the main layout
+# You will see the icons, but the buttons won't do anything yet until you customize layouts.py,
+# the shell scripts, the actions, etc.
 # Press Ctrl+C to stop
 
 # 5. Test jarvis service
@@ -847,9 +867,9 @@ systemctl --user status jarvis.service
 ```
 
 **⚠️ Important about VSCode terminal:**
-If you run `python -m jarvis` from VSCode's integrated terminal, it might not work properly. This is because VSCode's terminal has a different environment than your native terminal. System tools like ydotool and wmctrl sometimes don't work correctly in VSCode's terminal. Always test from a native terminal (gnome-terminal, konsole, xterm, etc.).
+If you run `python -m jarvis` from VSCode's integrated terminal, it might not work properly. This is because VSCode's terminal has a different environment than your native terminal. System tools like ydotool and wmctrl sometimes don't work correctly in VSCode's terminal. Always test from a native terminal.
 
-I learned this after spending two hours debugging why nothing worked in VSCode but worked fine everywhere else. Don't make the same mistake I did!
+I learned this after spending two hours debugging. Don't make the same mistake I did!
 
 ---
 
@@ -874,24 +894,23 @@ main_layout = {
 **Key components:**
 - `icon` - PNG filename from `assets/icons/`
 - `label` - Text to display on the button
-- `color` - Background color in hex format
+- `color` - Background color in hex format (optional, defaults to black)
 - `action` - Function to execute when button is pressed
+- `labelcolor` - Color of the label text (optional, defaults to white)
 
 **Example customizations:**
 
 ```python
 # Add a button with an icon.
-# Default background color is black if not specified.
 <key_index>: {"icon": "project1.png", "action": actions.open_vscode(str(projects_path / 'project_name'))}
 
 # Add a button with a label (text).
-# The default for the label color is white if not specified.
 # We can specify a background color. 
 <key_index>: {"label": "List envs", "color": "#1c2e1c", "action": actions.type_text("conda env list\n")}
 
 # Mix and match: Add a button with label and icon.
 # Customize label color and background color (defaults are white and black, respectively).
-<key_index>: {"label": "Zenith", "labelcolor": "#000000", "icon": "nautilus.png", "color": "#bbbbbb", "action": lambda: actions.nautilus_path(str(projects_path))}
+<key_index>: {"label": "Zenith", "labelcolor": "#2600ffff", "icon": "nautilus.png", "color": "#aaa3a3ff", "action": lambda: actions.nautilus_path(str(projects_path))}
 ```
 
 **After making changes:**
@@ -925,7 +944,7 @@ Then use it in layouts.py:
 
 **For actions that need parameters, use the closure pattern:**
 
-The closure pattern (also called a wrapper pattern or parameterized decorator) is where a function creates and returns another function, in my case what I called "wrapper". If you write functions with parameters, then when calling them in layouts.py, you need a way to pass those parameters without calling the function immediately. The closure pattern solves this by creating a function that returns another function with the parameters captured in the closure. The other option is to use `functools.partial` or have lambdas everywhere needed, but I find the closure pattern more explicit and easier to understand for beginners, and easier to set up in the layouts.py file. Otherwise you would have to write lambdas in some places in layouts.py, depending on the specific action, and that would be inconsistent and confusing, and I usually do not remember which actions I wrote that need a lambda and which do not, so I would have to look it up every time. For functions that take parameters, I always use the closure pattern now.
+The closure pattern (also called a wrapper pattern or parameterized decorator) is where a function creates and returns another function, in my case what I called "wrapper". If you write functions with parameters, then when calling them in layouts.py, you need a way to pass those parameters without calling the function immediately. The closure pattern solves this by creating a function that returns another function with the parameters captured in the closure. The other option is to use `functools.partial` or have lambdas everywhere needed, but I find the closure pattern more explicit and easier to understand for beginners, and easier to set up in the layouts.py file. Otherwise you would have to write lambdas in some places in layouts.py, depending on the specific action, and that would be inconsistent and confusing, and I usually do not remember which actions I wrote that need a lambda and which do not, so I would have to look it up every time. For functions that take parameters, I always use the closure pattern.
 
 ```python
 def open_custom_app(app_path: str) -> Callable[[], None]:
@@ -944,7 +963,7 @@ def open_custom_app(app_path: str) -> Callable[[], None]:
 
 Then use it in layouts.py:
 ```python
-5: {"icon": "myapp.png", "action": actions.open_custom_app("/usr/bin/myapp")} #no need for lambda here
+5: {"icon": "icon.png", "action": actions.open_custom_app("path_to_your_app")} #no need for lambda here
 ```
 
 **Why this pattern?**
@@ -954,6 +973,7 @@ If your action needs parameters (like a file path), you need to wrap it in a fun
 
 You can also modify the icons in `assets/icons/` to customize the look of your buttons.
 I use mainly [Flatikon](https://www.flaticon.com/) for icons, as they have a huge selection of free icons.
+
 Other good sources are:
 - [WikimediaCommons](https://commons.wikimedia.org/wiki/Main_Page)
 - [RemixIcon](https://remixicon.com/).
@@ -968,7 +988,13 @@ Other good sources are:
 
 ### Tagged Comment System
 
-I am still actively learning computer science concepts. Therefore, I needed to tailor documentation to my needs. This included being able to create clean and organized documentation from my learning notes, so that I can get back to those when needed. However, it was important to not clutter the codebase and make sure more experienced developers and other users in general can still easily read the code without being overwhelmed by too many comments.
+I am still actively learning computer science concepts. Therefore, I needed to tailor documentation to my needs. This included being able to create clean and organized documentation from my learning notes, so that I can get back to those when needed. 
+
+I used Obsidian for many months to create learning notes for projects, but it was a nightmare to switch between code and documentation. I wanted documentation to live with the code, and pull out my learning notes vault from there. Therefore I come up with the solution that I used in this project. I can change code and documentation at the same time, in the same place, as my documentation for the codebase consists of comments in the code itself. I might need to add further functionality later (like accepting markdown files inside the codebase), but this is a good start.
+
+Since I create learning notes and very extensive comments in the scripts, they get very cluttered, very quickly. It was important to have a clean codebase and make sure more experienced developers and other users in general can still easily read the code without being overwhelmed by too many comments. This would also be useful for me when I do not need want to have this extensive documentation in the codebase.
+
+Therefore, for this purpose I work on the "dev" branch, where I can have all the comments I want, and then when I commit to "main", all comments that are not tagged with a specific tag get stripped out. This way, the code in "main" is clean and easy to read, while the code in "dev" has all the documentation I need for my learning journey. I could have named the branches "main" and "docs", but since I am working simultaneously on code and documentation, I find "dev" and "main" more appropriate.
 
 I created a tagged comment system that lets me organize documentation in the same codebase while keeping production code clean:
 
@@ -989,30 +1015,36 @@ I created a tagged comment system that lets me organize documentation in the sam
 ```
 
 **Why I built this:**
-I was frustrated with documentation always drifting out of sync with code. Separate documentation files get stale, but too many code comments make the code hard to read. I wanted a system where:
+I was frustrated with having to update documentation out of sync with code, in different apps. Separate documentation files are easy to abandon, but too many code comments make the code hard to read. So then, I wanted a system where:
+
 1. Documentation lives with the code (never out of sync)
 2. I can be as detailed as I want without cluttering the code that gets pushed to GitHub
 3. Documentation automatically updates when code changes
 4. I can generate beautiful docs from these comments.
-5. Transparency about known issues, future plans and my learning journey
+5. Transparency about known issues, future plans and my learning journey.
 
 **How it works:**
 The documentation pipeline has three main components:
 
-1. **`extract_comments.py`** - Parses Python files and extracts tagged comments into structured data
-2. **`generate_docs.py`** - Converts extracted comments into beautiful markdown documentation
-3. **Git hooks** - Automatically run extraction before every commit
+1. **`extract_comments.py`**: Parses Python files and extracts tagged comments into structured data
+2. **`generate_docs.py`**: Converts extracted comments into markdown documentation
+3. **`strip_comments.py`**: Cleans code by removing untagged comments for GitHub
+4. **Git hooks**: Runs different actions on `dev` and `main` branches to automate the workflow
 
 ```bash
 # Pre-commit hook workflow:
-1. You commit code with tagged comments
-2. Hook detects changed Python files
-3. Extracts comments → generates markdown
-4. Stages markdown files
-5. Commit completes with docs included
+1. Commit code with tagged comments
+2. The pre-commit hook  runs:
+   - On `dev` branch: extracts comments, generates docs, stages docs for commit
+   - On `main` branch: strips untagged comments to keep code clean
+3. Commit completes:
+ - On `dev`: code with comments + docs committed
+ - On `main`: clean code + docs from dev committed. I usually squash merge dev into main to keep history clean.
+4. The post-commit hook runs:
+   - On `dev` branch: updates local Quartz preview automatically (copies generated docs in jarvis/docs/content/ to quartz-preview/content/)
 ```
 
-Documentation is stored in `jarvis/docs/content/` and deployed to GitHub Pages via Quartz (a static site generator). The workflow is fully automated - I write code with comments, commit, and the docs update automatically.
+Then I can push main branch to GitHub, where documentation is stored in `jarvis/docs/content/`. The documentation is deployed to GitHub Pages via Quartz (a static site generator). The workflow is fully automated: I write code with comments, commit, and the docs update automatically.
 
 For complete details on the documentation workflow: *Documentation guides coming soon 🔜*.
 - Tag usage and best practices *(coming soon 🔜)*
@@ -1020,59 +1052,74 @@ For complete details on the documentation workflow: *Documentation guides coming
 - Quartz preview configuration *(coming soon 🔜)*
 - GitHub Pages deployment *(coming soon 🔜)*
 - Troubleshooting guides *(coming soon 🔜)*
+- Next steps and future plans *(coming soon 🔜)*
 
 ### Automated Documentation Generation
 
-My git hooks automatically generate documentation before every commit. This is a game-changer for keeping documentation in sync with code.
+My git hooks automatically generate documentation before every commit. This is a game-changer, there are so many workflows you can automate with git hooks, not only documentation generation. I will write more about this in future guides.
 
 **What this means:**
-- Documentation is always up-to-date with code
-- No manual documentation generation steps
-- Changes to code automatically update docs
-- No more "forgot to update the docs" commits
-- Deployed automatically to GitHub Pages via GitHub Actions
+- Documentation is always up-to-date with code.
+- No manual documentation generation steps.
+- Changes to code automatically update docs.
+- No more "forgot to update the docs" commits.
+- Deployed automatically to GitHub Pages via GitHub actions.
 
 ### Git Hooks Setup
 
 The repository includes pre-commit and post-commit hooks that automate the entire documentation workflow:
 
-**Pre-Commit Hook** (`jarvis/utils/pre-commit-hook.sh`):
-- Runs on `dev` branch when you commit changes
-- Detects modified Python files in `jarvis/`
-- Automatically generates markdown documentation
-- Stages documentation files for inclusion in commit
-- On `main` branch: blocks commits with tagged comments (keeps production clean)
+#### Pre-Commit Hook (`jarvis/utils/pre-commit-hook.sh`):
 
-**Post-Commit Hook** (`jarvis/utils/post-commit-hook.sh`):
-- Runs after successful commit on `dev` branch
+**On `dev` branch:**
+- Detects modified Python files in `jarvis/` directory
+- Extracts tagged comments (EDU, NOTE, TODO, etc.) from modified files
+- Generates markdown documentation from extracted comments
+- Saves documentation to `jarvis/docs/content/`
+- Stages documentation files for inclusion in the commit
+- **Keeps all comments in the code** (dev branch has full documentation)
+
+**On `main` branch:**
+- Detects Python files being committed to `jarvis/` directory
+- **Automatically strips EDU and REVIEW tags** from Python files (keeps code clean)
+- Only removes learning-focused comments, preserves essential ones (NOTE, TODO, etc.)
+- Re-stages the cleaned files
+- Documentation files from dev are included as-is (no generation needed)
+
+#### Post-Commit Hook (`jarvis/utils/post-commit-hook.sh`):
+
+**On `dev` branch:**
+- Runs after successful commit
+- Copies generated docs from `jarvis/docs/content/` to `quartz-preview/content/`
 - Updates local Quartz preview automatically
-- Copies generated docs to `quartz-preview/content/`
 - Ready for local preview with `npx quartz build --serve`
+
+**On `main` branch (or any other branch):**
+- **Does nothing** - exits immediately
+- No local preview updates needed since docs were already generated on dev
 
 ### Git Hooks Installation
 
 **Installation:**
+
+Simply run the install script:
 ```bash
-# Quick install (from repository root)
-cp jarvis/utils/pre-commit-hook.sh .git/hooks/pre-commit
-cp jarvis/utils/post-commit-hook.sh .git/hooks/post-commit
-chmod +x .git/hooks/pre-commit .git/hooks/post-commit
+./jarvis/utils/install-hooks.sh
 ```
 
 ### Quartz Documentation Preview
 
-The repository includes a local Quartz setup for previewing documentation before deployment:
+The repository includes a local Quartz setup for previewing documentation before deployment. However, this is not tracked, nor committed to git, as it is not necessary. The documentation in `jarvis/docs/content/` is the source of truth (this is tracked in git). The `quartz-preview/` directory is just for local preview. This one is also a huge folder, so I do not want to track it in git, nor push it to GitHub, as it is completely unnecessary.
 
 **Location**: `quartz-preview/` directory
 
 **Features**:
 - Dark mode only (no light theme toggle)
-- Custom color scheme:
-  - Bold text: Blue (`#6fa8dc`)
-  - Italic text: Green (`#93c47d`)
-  - Links: Pink (`#ff69b4`)
-  - Highlights: Pinkish (`#ff69b488`)
-- Automatically updated by post-commit hook
+- Custom color scheme and settings. This files are later copied to GitHub Pages deployment as well, so that the documentation looks the same locally and on GitHub Pages. The files that are customized are:
+  - `quartz.config.ts`
+  - `quartz.layout.ts`
+  - `quartz/styles/custom.scss`
+- Automatically updated by post-commit hook on `dev` branch.
 
 **Usage**:
 ```bash
@@ -1085,7 +1132,7 @@ For setup and configuration details: *Quartz preview documentation coming soon �
 
 ### GitHub Pages Deployment
 
-Documentation is automatically deployed to GitHub Pages when you push to `main`:
+Documentation is automatically deployed to GitHub Pages when pushed to GitHub `main`:
 
 **Workflow**: `.github/workflows/deploy-docs.yml`
 
@@ -1093,11 +1140,11 @@ Documentation is automatically deployed to GitHub Pages when you push to `main`:
 1. GitHub Actions detects push to `main` with changes in `jarvis/docs/`
 2. Clones fresh Quartz installation
 3. Copies documentation from `jarvis/docs/content/`
-4. Copies custom theme and layout from `quartz-preview/`
+4. Copies custom theme, layout and config from `quartz-preview/`
 5. Builds static site
 6. Deploys to GitHub Pages
 
-**Deployment URL**: `https://<username>.github.io/jarvis-streamdeck/`
+**Deployment URL**: `https://nhoaking-tech.github.io/jarvis-streamdeck/`
 
 **Configuration**:
 - Page title: "Jarvis StreamDeck Documentation"
@@ -1123,16 +1170,17 @@ git checkout dev
 git add .
 git commit -m "Add new feature with documentation"
 
-# Pre-commit hook:
-#   - Extracts tagged comments for documentation, but keeps them in code on dev
+# Pre-commit hook on dev:
+#   - Detects modified Python files in jarvis/
+#   - Extracts tagged comments (EDU, NOTE, TODO, etc.) for documentation
 #   - Generates markdown files in jarvis/docs/content/
-#   - Stages documentation files
+#   - Stages documentation files for inclusion in commit
+#   - KEEPS all comments in the code (dev has full documentation)
 
-# Post-commit hook:
-#   - Updates quartz-preview/content/
-#   - In this way I can visualize the changes in documentation instantly
-#   after every commit with the next step,
-#   without having to manually copy files around.
+# Post-commit hook on dev:
+#   - Copies generated docs from jarvis/docs/content/ to quartz-preview/content/
+#   - Updates local Quartz preview automatically
+#   - Ready for immediate local preview
 
 # 3. Preview documentation locally. I navigate to quartz-preview/ and run: 
 cd quartz-preview && npx quartz build --serve
@@ -1140,8 +1188,7 @@ cd quartz-preview && npx quartz build --serve
 # and make the necessary changes to the comments in code if something is not right.
 # I do not track the quartz-preview/ directory in git, it is not necessary. The docs
 # in docs/content/ are the source of truth (this is tracked in git).
-# quartz-preview/ is just for local preview. This one is also a huge folder, 
-# so I do not want to track it in git, nor push it to GitHub, as it is 
+# quartz-preview/ is just for local preview.
 # completely unnecessary.
 
 # 4. When ready for push, merge to main
@@ -1149,20 +1196,24 @@ git checkout main
 git merge --squash dev
 git commit -m "message"
 
-# Pre-commit hook in main:
-#   - Clean code: strips EDU/REVIEW tags from Python files to avoid clutter
-#   - Documentation already generated in dev is included as-is in main
+# Pre-commit hook on main:
+#   - Automatically strips EDU/REVIEW tags from Python files (keeps production clean)
+#   - Preserves essential comments (NOTE, TODO, FIXME, etc.)
+#   - Documentation already generated in dev is included as-is
+#   - No documentation generation happens here
+
+# Post-commit hook on main:
+#   - Does nothing (exits immediately)
 
 # 6. Push to GitHub
 git push origin main
 
 # GitHub Actions runs automatically (when jarvis/docs/ changes):
 #   - Takes pre-generated documentation from jarvis/docs/content/
-#   - Builds Quartz site with custom theme from quartz-preview/
+#   - Builds Quartz site with custom theme and style from quartz-preview/
 #   - Deploys to GitHub Pages
 
 # 7. Documentation is live!
-# Visit: https://<username>.github.io/jarvis-streamdeck/
 ```
 
 ### Branch Strategy
@@ -1175,33 +1226,9 @@ git push origin main
   - Clean production code (tagged comments stripped)
   - Generated documentation files included
   - Clean commit history (squash merged from dev)
-  - Auto-deployed to GitHub Pages
+  - Docs automatically deployed to GitHub Pages
 
 I also thought about having a branch for the documentation, but so far this seems to work well at this point. Maybe I need to revisit this later if the project grows, or if I find more intelligent and efficient ways to manage documentation.
-
-### Key Files and Locations
-
-```
-jarvis-streamdeck/
-|-- jarvis/
-|   |-- utils/
-|       |-- extract_comments.py      # Comment extraction
-|       |-- generate_docs.py         # Markdown generation
-|       |-- strip_comments.py        # Clean code generator
-|       |-- pre-commit-hook.sh       # Pre-commit hook installation file
-|       |-- post-commit-hook.sh      # Post-commit hook installation file
-|   |-- docs/
-|       |-- content/                 # Generated markdown docs
-├── quartz-preview/                  # Local Quartz installation
-|   |-- quartz.config.ts             # Quartz configuration
-|   |-- quartz.layout.ts             # Layout (no dark mode toggle)
-|   |-- quartz/styles/custom.scss    # Custom theme colors
-├── .git/hooks/
-│   ├── pre-commit                   # Installed hook
-|   |-- post-commit                  # Installed hook
-└── .github/workflows/
-|   |-- deploy-docs.yml              # GitHub Pages deployment
-```
 
 Documentation about the workflow guides is *coming soon 🔜*.
 
@@ -1214,11 +1241,17 @@ Documentation about the workflow guides is *coming soon 🔜*.
 
 ### Python Packages
 
-| Package | Version | What I use it for |
+| Package | Version | Import Name | What I use it for |
+|---------|---------|-------------|-------------------|
+| streamdeck | 0.9.8 | streamdeck | StreamDeck hardware interface (from my fork) |
+| Pillow | ≥9.0.0 | PIL | Image processing for button rendering |
+| hidapi | latest | hid | Python bindings for HID device communication |
+
+### System Libraries
+
+| Library | Package | What I use it for |
 |---------|---------|-------------------|
-| streamdeck | 0.9.8 | StreamDeck hardware interface (from my fork) |
-| Pillow | ≥9.0.0 | Image processing for button rendering |
-| hidapi | latest | USB HID device communication |
+| libhidapi | libhidapi-libusb0, libhidapi-hidraw0 | USB HID device access (required by Python hidapi) |
 
 ### System Tools
 
@@ -1331,10 +1364,12 @@ ls -l /dev/hidraw* /dev/usb/hiddev*
 # Some USB hubs can cause issues. Try connecting directly to your computer.
 
 # 4. Check if another process is using the StreamDeck
-# If you have the official Elgato software or another StreamDeck program running, stop it
+# Check that no other application (like a script) is already using the StreamDeck
 
 # 5. Unplug, wait 5 seconds, plug back in
 # Sometimes the device just needs a reset
+
+# 6. Reboot
 ```
 
 ---
@@ -1378,12 +1413,20 @@ systemctl --user restart ydotoold.service
 systemctl --user restart jarvis.service
 
 # If that doesn't work, check for Python syntax errors
-cd jarvis && python -m py_compile ui/layouts.py
 
 # Watch logs while restarting to see any errors
+# Press buttons to see if actions work
 journalctl --user -u jarvis.service -f
 # In another terminal:
 systemctl --user restart jarvis.service
+
+# Instead of executing from the service, you can also test manually with python -m jarvis
+# Make sure the service is stopped first to avoid conflicts
+systemctl --user stop jarvis.service
+cd /path/to/jarvis-streamdeck
+python -m jarvis
+# Observe the output for any errors, when you press buttons
+# Press Ctrl+C to stop
 ```
 
 ---
@@ -1398,19 +1441,22 @@ systemctl --user restart jarvis.service
 # 1. Check if icon file exists
 ls jarvis/assets/icons/your_icon.png
 
-# 2. Check icon path in layouts.py
+# 2. Check icon in layouts.py
 grep "your_icon.png" jarvis/ui/layouts.py
 
 # 3. Verify icon is PNG format
 file jarvis/assets/icons/your_icon.png
 # Should say "PNG image data"
 
-# 4. Check icon isn't too large
-# StreamDeck XL buttons are 96x96 pixels
-# Icons should be 96x96 or smaller
-
-# 5. Restart jarvis after adding new icons
+# 4. Restart jarvis after adding new icons
 systemctl --user restart jarvis.service
+
+# 5. Or stop the service and try running manually to see errors
+systemctl --user stop jarvis.service
+cd /path/to/jarvis-streamdeck
+python -m jarvis
+# Look for errors about loading images
+# Press Ctrl+C to stop
 ```
 
 ---
@@ -1424,6 +1470,10 @@ systemctl --user restart jarvis.service
 # Use the reset utility
 cd /path/to/jarvis-streamdeck/jarvis
 python utils/reset_jarvis.py
+
+# or if you set up the alias in your .bashrc:
+jarvis-reset
+# alias jarvis-reset='conda activate jarvis-busybee && python ~/projects/jarvis-streamdeck/jarvis/utils/reset_jarvis.py'
 
 # This clears the StreamDeck and resets it to blank state
 ```

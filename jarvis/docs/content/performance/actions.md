@@ -1,11 +1,11 @@
 ---
-title: "Performance Notes: Actions"
+title: "10_Performance Notes: Actions"
 tags: [optimize, auto-generated]
-description: "Performance Notes from actions.py"
+description: "10_Performance Notes from actions.py"
 date: 2025-10-03
 ---
 
-# Performance Notes: Actions
+# 10_Performance Notes: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

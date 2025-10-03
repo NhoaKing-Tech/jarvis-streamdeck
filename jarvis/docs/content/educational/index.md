@@ -1,11 +1,11 @@
 ---
-title: "Learning notes"
+title: "01_Learning notes"
 tags: [edu, index]
 description: "Learning notes about computer science topics in general"
 date: 2025-10-03
 ---
 
-# Learning notes
+# 01_Learning notes
 
 Learning notes about computer science topics in general
 

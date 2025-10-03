@@ -1,11 +1,11 @@
 ---
-title: "Important Information: Actions"
+title: "03_Important Information: Actions"
 tags: [important, auto-generated]
-description: "Important Information from actions.py"
+description: "03_Important Information from actions.py"
 date: 2025-10-03
 ---
 
-# Important Information: Actions
+# 03_Important Information: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

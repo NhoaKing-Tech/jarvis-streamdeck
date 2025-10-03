@@ -1,11 +1,11 @@
 ---
-title: "Implementation Notes: Application"
+title: "04_Implementation Notes: Application"
 tags: [note, auto-generated]
-description: "Implementation Notes from application.py"
+description: "04_Implementation Notes from application.py"
 date: 2025-10-03
 ---
 
-# Implementation Notes: Application
+# 04_Implementation Notes: Application
 
 **Source File**: `jarvis/core/application.py`
 

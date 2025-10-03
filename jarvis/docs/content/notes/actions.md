@@ -1,11 +1,11 @@
 ---
-title: "Implementation Notes: Actions"
+title: "04_Implementation Notes: Actions"
 tags: [note, auto-generated]
-description: "Implementation Notes from actions.py"
+description: "04_Implementation Notes from actions.py"
 date: 2025-10-03
 ---
 
-# Implementation Notes: Actions
+# 04_Implementation Notes: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

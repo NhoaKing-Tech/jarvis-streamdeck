@@ -1,11 +1,11 @@
 ---
-title: "Future Improvements: Actions"
+title: "07_Future Improvements: Actions"
 tags: [todo, auto-generated]
-description: "Future Improvements from actions.py"
+description: "07_Future Improvements from actions.py"
 date: 2025-10-03
 ---
 
-# Future Improvements: Actions
+# 07_Future Improvements: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

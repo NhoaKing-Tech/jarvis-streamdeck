@@ -1,11 +1,11 @@
 ---
-title: "Debug Information: Logic"
+title: "09_Debug Information: Logic"
 tags: [debug, auto-generated]
-description: "Debug Information from logic.py"
+description: "09_Debug Information from logic.py"
 date: 2025-10-03
 ---
 
-# Debug Information: Logic
+# 09_Debug Information: Logic
 
 **Source File**: `jarvis/core/logic.py`
 

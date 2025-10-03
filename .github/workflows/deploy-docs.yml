@@ -66,11 +66,18 @@ jobs:
             cp quartz-preview/quartz.layout.ts quartz/quartz.layout.ts
           fi
 
+          # Copy config from local preview
+          if [ -f "quartz-preview/quartz.config.ts" ]; then
+            cp quartz-preview/quartz.config.ts quartz/quartz.config.ts
+          fi
+
       - name: Configure Quartz
         run: |
           cd quartz
 
-          # Create quartz.config.ts if it doesn't exist
+          # Create quartz.config.ts only if it wasn't copied from local preview
+          if [ ! -f "quartz.config.ts" ]; then
+            echo "Creating fallback quartz.config.ts..."
           if [ ! -f "quartz.config.ts" ]; then
             cat > quartz.config.ts << 'EOF'
           import { QuartzConfig } from "./quartz/cfg"
@@ -151,6 +158,8 @@ jobs:
 
           export default config
           EOF
+          else
+            echo "Using quartz.config.ts from local preview"
           fi
 
       - name: Build Quartz site

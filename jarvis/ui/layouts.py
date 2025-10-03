@@ -190,7 +190,7 @@ def create_layouts(
 
     layouts["python_layout"] = {
         0: {"icon": "back.png", "color": "white", "action": switch_layout("main")}, #<div> Icons made by <a href="https://www.flaticon.com/authors/radhe-icon" title="Radhe Icon"> Radhe Icon </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'</a></div>
-        1: {"label": "Simple Snippet", "color": "#31377e", "action": actions.type_snippet("function_class")},
+        1: {"label": "Simple Snippet", "color": "#31377e", "action": actions.type_snippet("function")},
     }
 
     layouts["html_layout"] = {

@@ -1,11 +1,11 @@
 ---
-title: "Known Issues: Actions"
+title: "06_Known Issues: Actions"
 tags: [fixme, auto-generated]
-description: "Known Issues from actions.py"
+description: "06_Known Issues from actions.py"
 date: 2025-10-03
 ---
 
-# Known Issues: Actions
+# 06_Known Issues: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

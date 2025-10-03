@@ -1,11 +1,11 @@
 ---
-title: "Debug Information: Actions"
+title: "09_Debug Information: Actions"
 tags: [debug, auto-generated]
-description: "Debug Information from actions.py"
+description: "09_Debug Information from actions.py"
 date: 2025-10-03
 ---
 
-# Debug Information: Actions
+# 09_Debug Information: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 

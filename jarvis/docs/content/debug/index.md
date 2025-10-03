@@ -1,11 +1,11 @@
 ---
-title: "Debug Information"
+title: "09_Debug Information"
 tags: [debug, index]
 description: "Debugging aids and diagnostic information"
 date: 2025-10-03
 ---
 
-# Debug Information
+# 09_Debug Information
 
 Debugging aids and diagnostic information
 

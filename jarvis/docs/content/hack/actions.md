@@ -1,11 +1,11 @@
 ---
-title: "Workarounds: Actions"
+title: "08_Workarounds: Actions"
 tags: [hack, auto-generated]
-description: "Workarounds from actions.py"
+description: "08_Workarounds from actions.py"
 date: 2025-10-03
 ---
 
-# Workarounds: Actions
+# 08_Workarounds: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
