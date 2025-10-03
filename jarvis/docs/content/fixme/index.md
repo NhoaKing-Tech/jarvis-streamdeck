@@ -1,13 +1,13 @@
 ---
-title: "FIXME"
+title: "Known Issues"
 tags: [fixme, index]
-description: "FIXME comments"
+description: "Known bugs and issues that need to be fixed"
 date: 2025-10-03
 ---
 
-# FIXME
+# Known Issues
 
-FIXME comments
+Known bugs and issues that need to be fixed
 
 ---
 

@@ -9,15 +9,15 @@ date: 2025-10-03
 
 This documentation is automatically generated from code comments.
 
-**Last Updated**: 2025-10-03 18:18:03
+**Last Updated**: 2025-10-03 18:19:59
 
 ---
 
 ## Documentation Categories
 
-### [DEBUG](./debug/)
+### [Debug Information](./debug/)
 
-DEBUG comments
+Debugging aids and diagnostic information
 
 **3 document(s)**
 
@@ -27,15 +27,15 @@ Learning notes about computer science topics in general
 
 **2 document(s)**
 
-### [FIXME](./fixme/)
+### [Known Issues](./fixme/)
 
-FIXME comments
+Known bugs and issues that need to be fixed
 
 **1 document(s)**
 
-### [HACK](./hack/)
+### [Workarounds](./hack/)
 
-HACK comments
+Temporary solutions and workarounds that need proper implementation
 
 **1 document(s)**
 
@@ -57,8 +57,8 @@ Performance considerations and optimization opportunities
 
 **1 document(s)**
 
-### [TODO](./todo/)
+### [Future Improvements](./todo/)
 
-TODO comments
+Planned features and improvements for future development
 
 **1 document(s)**

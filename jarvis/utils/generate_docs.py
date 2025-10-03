@@ -70,10 +70,40 @@ class MarkdownGenerator:
                 'description': 'Important implementation details and considerations',
                 'dir': 'notes'
             },
+            'TOCLEAN': {
+                'title': 'Cleanup Tasks',
+                'description': 'Code sections that need cleanup and refactoring',
+                'dir': 'cleanup'
+            },
+            'FIXME': {
+                'title': 'Known Issues',
+                'description': 'Known bugs and issues that need to be fixed',
+                'dir': 'fixme'
+            },
+            'TODO': {
+                'title': 'Future Improvements',
+                'description': 'Planned features and improvements for future development',
+                'dir': 'todo'
+            },
+            'HACK': {
+                'title': 'Workarounds',
+                'description': 'Temporary solutions and workarounds that need proper implementation',
+                'dir': 'hack'
+            },
+            'DEBUG': {
+                'title': 'Debug Information',
+                'description': 'Debugging aids and diagnostic information',
+                'dir': 'debug'
+            },
             'IMPORTANT': {
                 'title': 'Important Information',
                 'description': 'Important information for understanding and using the system',
                 'dir': 'important'
+            },
+            'REVIEW': {
+                'title': 'Code Review',
+                'description': 'Code sections that need review and validation',
+                'dir': 'review'
             },
             'OPTIMIZE': {
                 'title': 'Performance Notes',

@@ -1,15 +1,15 @@
 ---
-title: "DEBUG: Actions"
+title: "Debug Information: Actions"
 tags: [debug, auto-generated]
-description: "DEBUG from actions.py"
+description: "Debug Information from actions.py"
 date: 2025-10-03
 ---
 
-# DEBUG: Actions
+# Debug Information: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: DEBUG comments
+**Category**: Debugging aids and diagnostic information
 
 ---
 

@@ -1,13 +1,13 @@
 ---
-title: "HACK"
+title: "Workarounds"
 tags: [hack, index]
-description: "HACK comments"
+description: "Temporary solutions and workarounds that need proper implementation"
 date: 2025-10-03
 ---
 
-# HACK
+# Workarounds
 
-HACK comments
+Temporary solutions and workarounds that need proper implementation
 
 ---
 

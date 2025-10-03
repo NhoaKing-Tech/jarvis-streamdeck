@@ -1,15 +1,15 @@
 ---
-title: "HACK: Actions"
+title: "Workarounds: Actions"
 tags: [hack, auto-generated]
-description: "HACK from actions.py"
+description: "Workarounds from actions.py"
 date: 2025-10-03
 ---
 
-# HACK: Actions
+# Workarounds: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: HACK comments
+**Category**: Temporary solutions and workarounds that need proper implementation
 
 ---
 

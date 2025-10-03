@@ -1,13 +1,13 @@
 ---
-title: "DEBUG"
+title: "Debug Information"
 tags: [debug, index]
-description: "DEBUG comments"
+description: "Debugging aids and diagnostic information"
 date: 2025-10-03
 ---
 
-# DEBUG
+# Debug Information
 
-DEBUG comments
+Debugging aids and diagnostic information
 
 ---
 

@@ -1,15 +1,15 @@
 ---
-title: "FIXME: Actions"
+title: "Known Issues: Actions"
 tags: [fixme, auto-generated]
-description: "FIXME from actions.py"
+description: "Known Issues from actions.py"
 date: 2025-10-03
 ---
 
-# FIXME: Actions
+# Known Issues: Actions
 
 **Source File**: `jarvis/actions/actions.py`
 
-**Category**: FIXME comments
+**Category**: Known bugs and issues that need to be fixed
 
 ---
 

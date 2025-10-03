@@ -1,15 +1,15 @@
 ---
-title: "DEBUG: Layouts"
+title: "Debug Information: Layouts"
 tags: [debug, auto-generated]
-description: "DEBUG from layouts.py"
+description: "Debug Information from layouts.py"
 date: 2025-10-03
 ---
 
-# DEBUG: Layouts
+# Debug Information: Layouts
 
 **Source File**: `jarvis/ui/layouts.py`
 
-**Category**: DEBUG comments
+**Category**: Debugging aids and diagnostic information
 
 ---
 
