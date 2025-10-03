@@ -5,7 +5,7 @@ description: "Debugging aids and diagnostic information"
 date: 2025-10-03
 ---
 
-# 09_Debug Information
+# 09_Debug Information - Index
 
 Debugging aids and diagnostic information
 

@@ -5,7 +5,7 @@ description: "Important information for understanding and using the system"
 date: 2025-10-03
 ---
 
-# 03_Important Information
+# 03_Important Information - Index
 
 Important information for understanding and using the system
 

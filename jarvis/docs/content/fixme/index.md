@@ -5,7 +5,7 @@ description: "Known bugs and issues that need to be fixed"
 date: 2025-10-03
 ---
 
-# 06_Known Issues
+# 06_Known Issues - Index
 
 Known bugs and issues that need to be fixed
 

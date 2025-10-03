@@ -5,7 +5,7 @@ description: "Performance considerations and optimization opportunities"
 date: 2025-10-03
 ---
 
-# 10_Performance Notes
+# 10_Performance Notes - Index
 
 Performance considerations and optimization opportunities
 

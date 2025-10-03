@@ -5,7 +5,7 @@ description: "Learning notes about computer science topics in general"
 date: 2025-10-03
 ---
 
-# 01_Learning notes
+# 01_Learning notes - Index
 
 Learning notes about computer science topics in general
 

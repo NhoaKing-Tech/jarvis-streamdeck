@@ -5,7 +5,7 @@ description: "Planned features and improvements for future development"
 date: 2025-10-03
 ---
 
-# 07_Future Improvements
+# 07_Future Improvements - Index
 
 Planned features and improvements for future development
 

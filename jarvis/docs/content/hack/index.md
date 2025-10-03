@@ -5,7 +5,7 @@ description: "Temporary solutions and workarounds that need proper implementatio
 date: 2025-10-03
 ---
 
-# 08_Workarounds
+# 08_Workarounds - Index
 
 Temporary solutions and workarounds that need proper implementation
 
